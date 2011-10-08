@@ -2,6 +2,7 @@ package Utilities;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,15 +37,8 @@ public class CommandArguments
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Object.class, new NaturalDeserializer());
 		Gson gson = gsonBuilder.create();
-		try
-		{
-			Object natural = gson.fromJson(jsonAsString, Object.class);
-			objectMap = (HashMap<String, Object>) natural;
-		}
-		catch (Exception ex)
-		{
-			System.out.println("Could not deserialize json object in command arguments : " + jsonAsString);
-		}
+		Object natural = gson.fromJson(jsonAsString, Object.class);
+		objectMap = (HashMap<String, Object>) natural;
 	}
 
 	/**
@@ -72,7 +66,7 @@ public class CommandArguments
 		}
 		catch (Exception ex)
 		{
-			System.out.println("Could not convert 'Command' to a string");
+			System.err.println("Could not convert 'Command' to a string");
 		}
 
 		return commandName;
@@ -156,7 +150,6 @@ public class CommandArguments
 			}
 
 			// Call a recursive call on the sub key and using the map that we got from the index array from before.
-			key = subKey;
 			result = this.getArgument(subKey, subMap);
 		}
 
@@ -215,7 +208,7 @@ public class CommandArguments
 				// Find out if it is an int type
 				try
 				{
-					bigDec.toBigIntegerExact();
+					BigInteger dec = bigDec.toBigIntegerExact();
 					try
 					{
 						return bigDec.intValueExact();
