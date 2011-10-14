@@ -17,7 +17,6 @@ public class EndpointAPI
 
 	public void createUser(CommandArguments arguments)
 	{
-		logger.debug(arguments.getArgument("Username"));
-		logger.info("User Created");
+		logger.info("User Created: " + arguments.getArgument("Username"));
 	}
 }

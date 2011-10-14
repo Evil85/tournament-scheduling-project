@@ -36,16 +36,6 @@ public class Endpoint
 			public void onRequest(HttpExchange clientExchange)
 			{
 				processJson(clientExchange.getRequest());
-
-				try
-				{
-					Thread.sleep(10000);
-				}
-				catch (InterruptedException e)
-				{
-					logger.error(e);
-				}
-
 				String timeStamp = new Date().toString();
 				String returnMessage = "Server responded at " + timeStamp + (char) 13;
 				clientExchange.sendResponse(returnMessage);

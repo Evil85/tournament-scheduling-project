@@ -73,9 +73,14 @@ public class HttpServer
 						requestHandler.onConnect(exchange);
 
 						// TODO: Make exchange handle multipule requests.
-						logger.info("Request Received - ID : " + exchange.getExchangeId());
-						logger.debug("Request Message - ID : " + exchange.getExchangeId() + "\n" + exchange.getRequest());
-						requestHandler.onRequest(exchange);
+						// TODO: Call get message here
+						while (exchange.getMessageFromClient())
+						{
+							//exchange.getMessageFromClient();
+							logger.info("Request Received - ID : " + exchange.getExchangeId());
+							logger.debug("Request Message - ID : " + exchange.getExchangeId() + "\n" + exchange.getRequest());
+							requestHandler.onRequest(exchange);
+						}
 
 						// Close the connectionSocket once we are done with it
 						try
@@ -100,5 +105,10 @@ public class HttpServer
 		{
 			logger.error(e);
 		}
+	}
+
+	public void stop()
+	{
+	// TODO: Fill this in
 	}
 }
