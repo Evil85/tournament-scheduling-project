@@ -1,10 +1,12 @@
-package Utilities;
+package com.Utilities;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -25,7 +27,11 @@ import com.google.gson.JsonPrimitive;
 @SuppressWarnings("unchecked")
 public class CommandArguments
 {
+	private static final Logger logger = Logger.getLogger(CommandArguments.class);
+
 	private Map<String, Object> objectMap = new HashMap<String, Object>();
+
+	private String originalJsonString;
 
 	/**
 	 * Will create a map of key value pairs from the specified json object.
@@ -34,6 +40,7 @@ public class CommandArguments
 	 */
 	public CommandArguments(String jsonAsString)
 	{
+		this.originalJsonString = jsonAsString;
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Object.class, new NaturalDeserializer());
 		Gson gson = gsonBuilder.create();
@@ -66,10 +73,15 @@ public class CommandArguments
 		}
 		catch (Exception ex)
 		{
-			System.err.println("Could not convert 'Command' to a string");
+			logger.error("Could not convert 'Command' to a string");
 		}
 
 		return commandName;
+	}
+
+	@Override public String toString()
+	{
+		return this.originalJsonString;
 	}
 
 	private Object getArgument(String key, Map<String, Object> subMap)
@@ -102,14 +114,14 @@ public class CommandArguments
 		}
 		catch (Exception ex)
 		{
-			System.out.println("Could not find key from get property. Key : " + key + "\n" + ex);
+			logger.error("Could not find key from get property. Key : " + key + "\n" + ex);
 			return null;
 		}
 
 		// If it is still null then we couldn't find the value associated with the key.
 		if (result == null)
 		{
-			System.out.println("Could not find key from get property. Key : " + key);
+			logger.error("Could not find key from get property. Key : " + key);
 		}
 
 		return result;

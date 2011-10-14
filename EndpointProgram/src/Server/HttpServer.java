@@ -1,10 +1,12 @@
-package Server;
+package com.Server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import org.apache.log4j.Logger;
 
 /**
  * User: Chris
@@ -15,6 +17,8 @@ import java.util.concurrent.Executors;
  */
 public class HttpServer
 {
+	private static final Logger logger = Logger.getLogger(HttpServer.class);
+
 	// Used for managing multiple threads that the connections will be processed on.
 	private Executor threadExecutor;
 
@@ -45,13 +49,15 @@ public class HttpServer
 		try
 		{
 			ServerSocket socket = new ServerSocket(port);
-			System.out.println("Server Initialized on port: " + port);
+			logger.info("Server Initialized on port: " + port);
 
 			// TODO: Make a way to end this while loop to shut down the server safely.
 			while (true)
 			{
-				System.out.println("Waiting for connection...");
+				//logger.info("Waiting for connection...");
 
+				// TODO: If it is a localhost connection the we can just close the connection after we have recieved the message
+				// otherwise keep the socket open untill the user says to close it.
 				final Socket newConnection = socket.accept();
 
 				// Spawn a new thread for the new connectionSocket to run on.
@@ -62,8 +68,13 @@ public class HttpServer
 					{
 						numberOfConnections++;
 						HttpExchange exchange = new HttpExchange(newConnection);
-						System.out.println("Connection Established: \n" + exchange.toString() + "\n");
+						logger.info("Connection Established - ID : " + exchange.getExchangeId());
+						logger.debug("Connection Info:\n" + exchange.toString());
 						requestHandler.onConnect(exchange);
+
+						// TODO: Make exchange handle multipule requests.
+						logger.info("Request Received - ID : " + exchange.getExchangeId());
+						logger.debug("Request Message - ID : " + exchange.getExchangeId() + "\n" + exchange.getRequest());
 						requestHandler.onRequest(exchange);
 
 						// Close the connectionSocket once we are done with it
@@ -73,10 +84,11 @@ public class HttpServer
 						}
 						catch (IOException e)
 						{
-							System.out.println(e);
+							logger.error(e);
 						}
 
-						System.out.println("Connection Closed: \n" + exchange.toString() + "\n");
+						logger.info("Connection Closed - ID : " + exchange.getExchangeId());
+						logger.debug("Connection Info:\n" + exchange.toString());
 						requestHandler.onDisconnect(exchange);
 						numberOfConnections--;
 					}
@@ -86,7 +98,7 @@ public class HttpServer
 		}
 		catch (IOException e)
 		{
-			System.out.println(e);
+			logger.error(e);
 		}
 	}
 }

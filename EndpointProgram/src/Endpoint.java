@@ -1,10 +1,14 @@
+package com;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 
-import Server.HttpExchange;
-import Server.HttpServer;
-import Server.IHttpHandler;
-import Utilities.CommandArguments;
+import org.apache.log4j.Logger;
+
+import com.Server.HttpExchange;
+import com.Server.HttpServer;
+import com.Server.IHttpHandler;
+import com.Utilities.CommandArguments;
 
 /**
  * User: Chris
@@ -15,6 +19,8 @@ import Utilities.CommandArguments;
  */
 public class Endpoint
 {
+	private static final Logger logger = Logger.getLogger(Endpoint.class);
+
 	/**
 	 * This is the main entry point of the program.
 	 * @param args args[0] will always be a json string that will be passed in by the client from the website.
@@ -37,7 +43,7 @@ public class Endpoint
 				}
 				catch (InterruptedException e)
 				{
-					System.out.println(e);
+					logger.error(e);
 				}
 
 				String timeStamp = new Date().toString();
@@ -64,7 +70,7 @@ public class Endpoint
 		if (jsonString == null ||
 		    jsonString.isEmpty())
 		{
-			System.err.println("There is nothing in the json string.");
+			logger.error("There is nothing in the json string.");
 			return;
 		}
 
@@ -86,15 +92,17 @@ public class Endpoint
 		// Use reflection to call the correct command.
 		try
 		{
-			Class.forName("EndpointAPI").getMethod(commandArguments.getCommandName(), CommandArguments.class).invoke(endpointAPI, commandArguments);
+			logger.info("Calling command: " + commandArguments.getCommandName());
+			logger.debug("Command Parameters: " + commandArguments.toString());
+			Class.forName("com.EndpointAPI").getMethod(commandArguments.getCommandName(), CommandArguments.class).invoke(endpointAPI, commandArguments);
 		}
 		catch (IllegalAccessException e)
 		{
-			System.err.println(e);
+			logger.error(e);
 		}
 		catch (InvocationTargetException e)
 		{
-			System.err.println(e);
+			logger.error(e);
 		}
 		catch (NoSuchMethodException e)
 		{
@@ -102,7 +110,7 @@ public class Endpoint
 		}
 		catch (ClassNotFoundException e)
 		{
-			System.err.println(e);
+			logger.error(e);
 		}
 	}
 }
