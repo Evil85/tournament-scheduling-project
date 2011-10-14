@@ -1,4 +1,6 @@
-package Managers;
+package com.Managers;
+
+import org.apache.log4j.Logger;
 
 /**
  * User: Chris
@@ -9,4 +11,5 @@ package Managers;
  */
 public class DatabaseManager
 {
+	private static final Logger logger = Logger.getLogger(DatabaseManager.class);
 }

@@ -1,4 +1,8 @@
-import Utilities.CommandArguments;
+package com;
+
+import org.apache.log4j.Logger;
+
+import com.Utilities.CommandArguments;
 
 /**
  * User: Chris
@@ -9,9 +13,11 @@ import Utilities.CommandArguments;
  */
 public class EndpointAPI
 {
+	private static final Logger logger = Logger.getLogger(EndpointAPI.class);
+
 	public void createUser(CommandArguments arguments)
 	{
-		System.out.println(arguments.getArgument("Username"));
-		System.out.println("User Created");
+		logger.debug(arguments.getArgument("Username"));
+		logger.info("User Created");
 	}
 }
