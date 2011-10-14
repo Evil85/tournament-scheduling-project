@@ -1,7 +1,7 @@
 package com.Server;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -43,7 +43,6 @@ public class HttpExchange extends EventObject
 		this.exchangeTime = new Date();
 		totalExchangeCount++;
 		this.exchangeId = RandomIdGenerator.nextInt(1000);
-		this.clientRequest = this.getMessageFromClient();
 	}
 
 	public String getExchangeTime()
@@ -82,29 +81,41 @@ public class HttpExchange extends EventObject
 		}
 	}
 
-	private String getMessageFromClient()
+	boolean getMessageFromClient()
 	{
+		// If the client has closed the connection then stop listening.
+		if (!this.connectionSocket.isConnected())
+		{
+			logger.trace("Checking if connection is connected : isConnected = false");
+			return false;
+		}
+
 		StringBuilder stringFromClient = new StringBuilder();
 		try
 		{
-			BufferedInputStream inputStreamFromClient = new BufferedInputStream(connectionSocket.getInputStream());
-			InputStreamReader streamReaderFromClient = new InputStreamReader(inputStreamFromClient);
+			BufferedReader inputStreamFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
 
 			int character;
 
+			logger.trace("About to read from input stream");
+
 			// 13 is the ASCII character for carriage return or /r
 			// Read one character at a time from the socket and append it to the string buffer.
-			while ((character = streamReaderFromClient.read()) != 13)
+			while ((character = inputStreamFromClient.read()) != 13)
 			{
 				stringFromClient.append((char) character);
 			}
+
+			logger.trace("Finished reading from input stream.");
 		}
 		catch (IOException ex)
 		{
-			logger.error(ex);
+			logger.trace("Ignoring: " + ex);
+			return false;
 		}
 
-		return stringFromClient.toString();
+		this.clientRequest = stringFromClient.toString();
+		return true;
 	}
 
 	@Override public String toString()
