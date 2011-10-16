@@ -72,13 +72,8 @@ public class HttpServer
 						logger.debug("Connection Info:\n" + exchange.toString());
 						requestHandler.onConnect(exchange);
 
-						// TODO: Make exchange handle multipule requests.
-						// TODO: Call get message here
 						while (exchange.getMessageFromClient())
 						{
-							//exchange.getMessageFromClient();
-							logger.info("Request Received - ID : " + exchange.getExchangeId());
-							logger.debug("Request Message - ID : " + exchange.getExchangeId() + "\n" + exchange.getRequest());
 							requestHandler.onRequest(exchange);
 						}
 
