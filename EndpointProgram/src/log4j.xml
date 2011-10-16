@@ -8,7 +8,7 @@
 		</layout>
 	</appender>
 	<appender name="DebugFileAppender" class="org.apache.log4j.RollingFileAppender">
-		<param name="file" value="debug.log" />
+		<param name="file" value="./Logs/Server/debug.log" />
 		<param name="append" value="false" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%-5p %d [%t] (%F:%L) - %m%n"/>
