@@ -13,6 +13,8 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
+import sun.rmi.runtime.Log;
+
 /**
  * User: Chris
  * <p/>
@@ -67,6 +69,14 @@ public class HttpExchange extends EventObject
 
 	public void sendResponse(String message)
 	{
+		// If the client has closed the connection then stop listening.
+		if (!this.connectionSocket.isConnected() ||
+			this.connectionSocket.isOutputShutdown())
+		{
+			logger.debug("Trying to send response but connection is closed.");
+			return;
+		}
+
 		try
 		{
 			// TODO: Persist this write, ex if the client disconnects then we need to keep the message to send around until it reconnects.
@@ -75,7 +85,7 @@ public class HttpExchange extends EventObject
 			outputStreamWriter.write(message);
 			outputStreamWriter.flush();
 			logger.info("Response Sent - ID : " + this.getExchangeId());
-			logger.debug("Request Message - ID : " + this.getExchangeId() + "\n" + this.getRequest());
+			logger.debug("Response Message - ID : " + this.getExchangeId() + " -\n" + message);
 		}
 		catch (IOException ex)
 		{
@@ -86,9 +96,10 @@ public class HttpExchange extends EventObject
 	boolean getMessageFromClient()
 	{
 		// If the client has closed the connection then stop listening.
-		if (!this.connectionSocket.isConnected())
+		if (!this.connectionSocket.isConnected() ||
+		    connectionSocket.isInputShutdown())
 		{
-			logger.trace("Checking if connection is connected : isConnected = false");
+			logger.debug("Trying to receive a response but connection is closed.");
 			return false;
 		}
 
@@ -106,7 +117,19 @@ public class HttpExchange extends EventObject
 			// TODO: Change to constant delimiter
 			while ((character = inputStreamFromClient.read()) != 13)
 			{
+				if (connectionSocket.isInputShutdown())
+				{
+					Log
+				}
 				stringFromClient.append((char) character);
+				logger.trace("Read char: " + (char)character + " (" + character + ")");
+
+				// This means we have reached the end of the stream but the user has not specified the correct delimiter.
+				if (character == -1)
+				{
+					logger.debug("User did not specific the correct delimiter and we have reached the end of the stream.");
+					return false;
+				}
 			}
 
 			logger.trace("Finished reading from input stream.");
@@ -116,11 +139,16 @@ public class HttpExchange extends EventObject
 			logger.trace("Ignoring: " + ex);
 			return false;
 		}
-
-		logger.info("Request Received - ID : " + this.getExchangeId());
-		logger.debug("Request Message - ID : " + this.getExchangeId() + "\n" + this.getRequest());
+		catch (Exception ex)
+		{
+			logger.error(ex);
+			return false;
+		}
 
 		this.clientRequest = stringFromClient.toString();
+		logger.info("Request Received - ID : " + this.getExchangeId());
+		logger.debug("Request Message - ID : " + this.getExchangeId() + " -\n" + this.getRequest());
+
 		return true;
 	}
 

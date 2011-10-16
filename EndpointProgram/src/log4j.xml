@@ -15,7 +15,7 @@
 		</layout>
 	</appender>
 	<logger name="com.Server">
-		<level value="info" />
+		<level value="all" />
 		<appender-ref ref="DebugFileAppender" />
 	</logger>
 	<root>
