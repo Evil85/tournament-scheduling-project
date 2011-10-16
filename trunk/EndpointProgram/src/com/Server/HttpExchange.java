@@ -101,6 +101,7 @@ public class HttpExchange extends EventObject
 
 			// 13 is the ASCII character for carriage return or /r
 			// Read one character at a time from the socket and append it to the string buffer.
+			// TODO: Change to constant delimiter
 			while ((character = inputStreamFromClient.read()) != 13)
 			{
 				stringFromClient.append((char) character);
