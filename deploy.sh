@@ -37,7 +37,7 @@ ssh ${projectserver} -C "(cd /ProjectSites/2011/Fall/Tournament\\ Scheduling/; m
 # Make a temp dir for the client website on the local machine so that we can remove all the .svn folders and then scp that folder to the project server.
 
 mkdir ./tempWebsite
-cp -r ./ClientWebsite/ ./tempWebsite/
+cp -r ./ClientWebsite/ ./tempWebsite
 find ./tempWebsite/ -name '.svn' -exec rm -rf {} \+
 scp -r ./tempWebsite/* ${projectserver}:"/ProjectSites/2011/Fall/Tournament\\ Scheduling/ClientWebsite"
 
@@ -46,6 +46,7 @@ echo -===Cleaning up temp files===-
 rm ./Endpoint.jar
 rm ./javasrc.txt
 rm -rf ./javaclasses
+rm -rf ./tempWebsite
 
 # Call the start server script
 sh ./startserver.sh
