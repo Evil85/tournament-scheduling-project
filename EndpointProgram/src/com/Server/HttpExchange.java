@@ -13,8 +13,6 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import sun.rmi.runtime.Log;
-
 /**
  * User: Chris
  * <p/>
@@ -117,10 +115,10 @@ public class HttpExchange extends EventObject
 			// TODO: Change to constant delimiter
 			while ((character = inputStreamFromClient.read()) != 13)
 			{
-				if (connectionSocket.isInputShutdown())
-				{
-					Log
-				}
+			//	if (connectionSocket.isInputShutdown())
+			//	{
+					//Log
+			//	}
 				stringFromClient.append((char) character);
 				logger.trace("Read char: " + (char)character + " (" + character + ")");
 
