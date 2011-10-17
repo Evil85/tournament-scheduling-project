@@ -1,6 +1,0 @@
-C:\Users\Pleatherwill\AppData\Local\Temporary Projects\SchedulingPrototype\obj\x86\Release\ResolveAssemblyReference.cache
-C:\Users\Pleatherwill\Desktop\Scheduling\tournament-scheduling-project\SchedulingPrototype\SchedulingPrototype\bin\Release\SchedulingPrototype.exe
-C:\Users\Pleatherwill\Desktop\Scheduling\tournament-scheduling-project\SchedulingPrototype\SchedulingPrototype\bin\Release\SchedulingPrototype.pdb
-C:\Users\Pleatherwill\Desktop\Scheduling\tournament-scheduling-project\SchedulingPrototype\SchedulingPrototype\obj\x86\Release\ResolveAssemblyReference.cache
-C:\Users\Pleatherwill\Desktop\Scheduling\tournament-scheduling-project\SchedulingPrototype\SchedulingPrototype\obj\x86\Release\SchedulingPrototype.exe
-C:\Users\Pleatherwill\Desktop\Scheduling\tournament-scheduling-project\SchedulingPrototype\SchedulingPrototype\obj\x86\Release\SchedulingPrototype.pdb
