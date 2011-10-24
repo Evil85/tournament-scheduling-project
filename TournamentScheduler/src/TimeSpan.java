@@ -68,11 +68,12 @@ public class TimeSpan implements Comparable<TimeSpan> {
 	 */
 	private void Validate()
 	{
-		assert m_start.before(m_end);
-		assert m_start.getTime() % c_nMsPerMinute == 0;
-		assert m_start.getNanos() == 0;
-		assert m_end.getTime() % c_nMsPerMinute == 0;
-		assert m_end.getNanos() == 0;
+		if (!(m_start.before(m_end) &&
+		m_start.getTime() % c_nMsPerMinute == 0 &&
+		m_start.getNanos() == 0 &&
+		m_end.getTime() % c_nMsPerMinute == 0 &&
+		m_end.getNanos() == 0))
+			throw new IllegalArgumentException();
 	}
 	
 	/**
