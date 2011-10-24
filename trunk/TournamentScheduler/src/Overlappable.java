@@ -1,5 +1,4 @@
 import java.lang.Comparable;
-import java.text.DateFormat;
 import java.util.SortedSet;
 
 public class Overlappable implements Comparable<Overlappable> {
