@@ -22,7 +22,7 @@
         </layout>
 	</appender>
 	<logger name="com.Server">
-		<level value="info" />
+		<level value="debug" />
 		<appender-ref ref="DebugFileAppender" />
 	</logger>
 	<logger name="com.EndpointAPI">

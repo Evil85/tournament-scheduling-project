@@ -16,7 +16,7 @@ echo -===Copying Endpoint Server to Project Server===-
 scp ../out/Endpoint.jar ../out/gson-1.7.1.jar ../out/log4j-1.2.16.jar ${projectserver}:"/ProjectSites/2011/Fall/Tournament\\ Scheduling"
 
 echo -===Setting permisions===-
-ssh ${projectserver} -C "(cd /ProjectSites/2011/Fall/Tournament\\ Scheduling/; chmod 775 ./ClientWebsite/* Endpoint.jar ./gson-1.7.1.jar ./log4j-1.2.16.jar ./Logs/*)"
+ssh ${projectserver} -C "(cd /ProjectSites/2011/Fall/Tournament\\ Scheduling/; chmod -R 775 ./ClientWebsite/* Endpoint.jar ./gson-1.7.1.jar ./log4j-1.2.16.jar ./Logs/*)"
 
 #echo -===Cleaing up deploy temp files===-
 sh cleanEndpoint.sh
