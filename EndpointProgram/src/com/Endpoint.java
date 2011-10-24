@@ -72,7 +72,7 @@ public class Endpoint
 		}
 		catch (Exception ex)
 		{
-			System.err.println("Could not deserialize json object : " + jsonString);
+			logger.error("Could not deserialize json object : " + jsonString);
 			return;
 		}
 
