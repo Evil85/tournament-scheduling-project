@@ -14,9 +14,20 @@
 			<param name="ConversionPattern" value="%-5p %d [%t] (%F:%L) - %m%n"/>
 		</layout>
 	</appender>
+	<appender name="EndpointAPIAppender" class="org.apache.log4j.RollingFileAppender">
+        <param name="file" value="./Logs/Server/endpointDebug.log" />
+        <param name="append" value="false" />
+        <layout class="org.apache.log4j.PatternLayout">
+	        <param name="ConversionPattern" value="%-5p %d [%t] (%F:%L) - %m%n"/>
+        </layout>
+	</appender>
 	<logger name="com.Server">
 		<level value="info" />
 		<appender-ref ref="DebugFileAppender" />
+	</logger>
+	<logger name="com.EndpointAPI">
+	    <level value="trace"/>
+	    <appender-ref ref="EndpointAPIAppender"/>
 	</logger>
 	<root>
 		<priority value="info"/>
