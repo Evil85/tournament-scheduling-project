@@ -36,6 +36,9 @@ public class HttpExchange extends EventObject
 
 	private String clientRequest;
 
+	// 13 is the ASCII character for carriage return or /r
+	private final int requestDelimiter = 13;
+
 	public HttpExchange(Socket connectionSocket)
 	{
 		super(connectionSocket);
@@ -67,16 +70,9 @@ public class HttpExchange extends EventObject
 
 	public void sendResponse(String message)
 	{
-		// If the client has closed the connection then stop listening.
-		if (!this.connectionSocket.isConnected() ||
-			this.connectionSocket.isOutputShutdown())
-		{
-			logger.debug("Trying to send response but connection is closed.");
-			return;
-		}
-
 		try
 		{
+			logger.trace("About to respond to the client");
 			// TODO: Persist this write, ex if the client disconnects then we need to keep the message to send around until it reconnects.
 			BufferedOutputStream outputStream = new BufferedOutputStream(connectionSocket.getOutputStream());
 			OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, "US-ASCII");
@@ -89,18 +85,14 @@ public class HttpExchange extends EventObject
 		{
 			logger.error(ex);
 		}
+		catch (Exception ex)
+		{
+			logger.error(ex);
+		}
 	}
 
 	boolean getMessageFromClient()
 	{
-		// If the client has closed the connection then stop listening.
-		if (!this.connectionSocket.isConnected() ||
-		    connectionSocket.isInputShutdown())
-		{
-			logger.debug("Trying to receive a response but connection is closed.");
-			return false;
-		}
-
 		StringBuilder stringFromClient = new StringBuilder();
 		try
 		{
@@ -108,29 +100,24 @@ public class HttpExchange extends EventObject
 
 			int character;
 
-			logger.trace("About to read from input stream");
+			logger.trace("About to read request from client");
 
 			// 13 is the ASCII character for carriage return or /r
 			// Read one character at a time from the socket and append it to the string buffer.
 			// TODO: Change to constant delimiter
-			while ((character = inputStreamFromClient.read()) != 13)
+			while ((character = inputStreamFromClient.read()) != requestDelimiter &&
+			         character != -1)
 			{
-			//	if (connectionSocket.isInputShutdown())
-			//	{
-					//Log
-			//	}
 				stringFromClient.append((char) character);
-				logger.trace("Read char: " + (char)character + " (" + character + ")");
-
-				// This means we have reached the end of the stream but the user has not specified the correct delimiter.
-				if (character == -1)
-				{
-					logger.debug("User did not specific the correct delimiter and we have reached the end of the stream.");
-					return false;
-				}
 			}
 
-			logger.trace("Finished reading from input stream.");
+			if (stringFromClient.length() == 0)
+			{
+				logger.trace("The request was empty");
+				return false;
+			}
+
+			logger.trace("Finished reading request from client");
 		}
 		catch (IOException ex)
 		{
