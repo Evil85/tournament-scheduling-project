@@ -12,9 +12,9 @@ public class TimeSpanTest {
 		Timestamp tenAM = Timestamp.valueOf("2011-10-21 10:00:00.000000000");
 		Timestamp threeOhOne = Timestamp.valueOf("2011-10-21 15:01:00.000000000");
 		TimeSpan span = new TimeSpan(tenAM, threeOhOne);
-		assertEquals(span.m_start, tenAM);
-		assertEquals(span.m_end, threeOhOne);
-		assertEquals(span.m_nMinutes, 301);
+		assertEquals(span.getStart(), tenAM);
+		assertEquals(span.getEnd(), threeOhOne);
+		assertEquals(span.getMinutes(), 301);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
@@ -99,6 +99,25 @@ public class TimeSpanTest {
 		TimeSpan tenToNoon = new TimeSpan(tenAM, noon);
 		assertTrue(oneToNoonToThree.Overlaps(tenToNoon));
 		assertTrue(tenToNoon.Overlaps(oneToNoonToThree));
+	}
+	
+	@Test
+	public void testWithin() {
+		Timestamp tenAM = Timestamp.valueOf("2011-10-21 10:00:00.000000000");
+		Timestamp oneToNoon = Timestamp.valueOf("2011-10-21 11:59:00.000000000");
+		Timestamp noon = Timestamp.valueOf("2011-10-21 12:00:00.000000000");
+		Timestamp threePM = Timestamp.valueOf("2011-10-21 15:00:00.000000000");
+		TimeSpan oneToNoonToThree = new TimeSpan(oneToNoon, threePM);
+		TimeSpan oneToNoonToNoon = new TimeSpan(oneToNoon, noon);
+		TimeSpan tenToNoon = new TimeSpan(tenAM, noon);
+		TimeSpan noonToThree = new TimeSpan(noon, threePM);
+		assertTrue(oneToNoonToNoon.Within(tenToNoon));
+		assertTrue(oneToNoonToNoon.Within(oneToNoonToThree));
+		assertTrue(!oneToNoonToNoon.Within(noonToThree));
+		assertTrue(oneToNoonToNoon.Within(oneToNoonToThree, noonToThree));
+		assertTrue(oneToNoonToNoon.Within(noonToThree, oneToNoonToThree));
+		assertTrue(noonToThree.Within(oneToNoonToThree));
+		assertTrue(!oneToNoonToThree.Within(noonToThree));
 	}
 
 }
