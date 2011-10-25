@@ -10,8 +10,8 @@ public class TimeSpan implements Comparable<TimeSpan> {
      * @param end
      */
 	public TimeSpan(Timestamp start, Timestamp end) {
-		m_start = start;
-		m_end = end;
+		setStart(start);
+		setEnd(end);
 		Validate();
 		CalculateMinutes();
 	}
@@ -24,13 +24,13 @@ public class TimeSpan implements Comparable<TimeSpan> {
 		{
 			return 0;
 		}
-		else if (m_end.compareTo(o.m_start) <= 0)
+		else if (getEnd().compareTo(o.getStart()) <= 0)
 		{
 			return -1;
 		}
 		else
 		{
-			assert m_start.compareTo(o.m_end) >= 0;
+			assert getStart().compareTo(o.getEnd()) >= 0;
 			return 1;
 		}
 	}
@@ -40,10 +40,10 @@ public class TimeSpan implements Comparable<TimeSpan> {
 		DateFormat shortDate = DateFormat.getDateInstance(DateFormat.SHORT);
 		DateFormat shortTime = DateFormat.getTimeInstance(DateFormat.SHORT);
 		
-		String strStartDate = shortDate.format(m_start);
-		String strEndDate = shortDate.format(m_end);
-		String strStartTime = shortTime.format(m_start);
-		String strEndTime = shortTime.format(m_end);
+		String strStartDate = shortDate.format(getStart());
+		String strEndDate = shortDate.format(getEnd());
+		String strStartTime = shortTime.format(getStart());
+		String strEndTime = shortTime.format(getEnd());
 		
 		if (strEndDate.equals(strStartDate))
 			return String.format("%s %s - %s", strStartDate, strStartTime, strEndTime);
@@ -58,21 +58,59 @@ public class TimeSpan implements Comparable<TimeSpan> {
 	 */
 	public boolean Overlaps(TimeSpan other)
     {
-        return (other.m_start.compareTo(m_start) <= 0 && other.m_end.compareTo(m_end) >= 0) ||
-            (other.m_start.after(m_start) && other.m_start.before(m_end)) ||
-            (other.m_end.before(m_end) && other.m_end.after(m_start));
+        return (!other.getStart().after(getStart()) && !other.getEnd().before(getEnd())) ||
+            (other.getStart().after(getStart()) && other.getStart().before(getEnd())) ||
+            (other.getEnd().before(getEnd()) && other.getEnd().after(getStart()));
     }
 	
+	/**
+	 * Determines whether this TimeSpan is contained within at least one of the specified TimeSpans.
+	 * @param others
+	 * @return
+	 */
+	public boolean Within(TimeSpan... others)
+	{
+		for (TimeSpan o : others)
+			if (!(o.getStart().after(getStart()) || o.getEnd().before(getEnd())))
+				return true;
+				
+		return false;
+	}
+	
+	public Timestamp getStart() {
+		return m_start;
+	}
+
+	private void setStart(Timestamp m_start) {
+		this.m_start = m_start;
+	}
+
+	public Timestamp getEnd() {
+		return m_end;
+	}
+
+	private void setEnd(Timestamp m_end) {
+		this.m_end = m_end;
+	}
+
+	public int getMinutes() {
+		return m_nMinutes;
+	}
+
+	private void setMinutes(int m_nMinutes) {
+		this.m_nMinutes = m_nMinutes;
+	}
+
 	/**
 	 * A fairly harsh validation of the start and end times.
 	 */
 	private void Validate()
 	{
-		if (!(m_start.before(m_end) &&
-		m_start.getTime() % c_nMsPerMinute == 0 &&
-		m_start.getNanos() == 0 &&
-		m_end.getTime() % c_nMsPerMinute == 0 &&
-		m_end.getNanos() == 0))
+		if (!(getStart().before(getEnd()) &&
+		getStart().getTime() % c_nMsPerMinute == 0 &&
+		getStart().getNanos() == 0 &&
+		getEnd().getTime() % c_nMsPerMinute == 0 &&
+		getEnd().getNanos() == 0))
 			throw new IllegalArgumentException();
 	}
 	
@@ -81,12 +119,12 @@ public class TimeSpan implements Comparable<TimeSpan> {
 	 */
 	private void CalculateMinutes()
 	{
-		m_nMinutes = ((int)m_end.getTime() - (int)m_start.getTime()) / c_nMsPerMinute;
+		setMinutes(((int)getEnd().getTime() - (int)getStart().getTime()) / c_nMsPerMinute);
 	}
 	
-	public Timestamp m_start;
-	public Timestamp m_end;
-	public int m_nMinutes;
+	private Timestamp m_start;
+	private Timestamp m_end;
+	private int m_nMinutes;
 	
 	private static final int c_nMsPerMinute = 60000;
 }
