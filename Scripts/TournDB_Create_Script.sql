@@ -191,7 +191,7 @@ DROP TABLE IF EXISTS `tourn_201140`.`game` ;
 
 CREATE  TABLE IF NOT EXISTS `tourn_201140`.`game` (
   `gid` INT NOT NULL AUTO_INCREMENT ,
-  `gameNo` SMALLINT NOT NULL ,
+  `gameNumber` SMALLINT NOT NULL ,
   `phase` SMALLINT NOT NULL DEFAULT 0 ,
   `team1Score` INT NOT NULL ,
   `team2Score` INT NOT NULL ,
@@ -216,8 +216,6 @@ CREATE  TABLE IF NOT EXISTS `tourn_201140`.`foul` (
 ENGINE = InnoDB;
 
 
-
-
 INSERT INTO `location` (`name`, `address`, `city`, `state`, `zip`, `phone`, 
 	`weekdayOpenTime`, `weekdayCloseTime`, `weekendOpenTime`, `weekendCloseTime`)
 VALUES
@@ -234,7 +232,8 @@ VALUES
 
 INSERT INTO `person` (`name`, `email`, `address`, `phone`, `gender`, `birthdate`, `unavailTimeStart1`, `unavailTimeEnd1`, `unavailTimeStart2`, `unavailTimeEnd2`, `lid_homeClub`)
 VALUES 
-('Luke Skywalker', 'luke@jedi.com', null, '3601112222', 'm', CAST('1980-03-20' AS DATE), CAST('2011-12-03 12:00:00' AS DATETIME), 
+('Guest', 'guest@guest.com', null, '1111111111', 'g', CAST('1900-1-1' AS DATE), null, null, null, null, null),
+)'Luke Skywalker', 'luke@jedi.com', null, '3601112222', 'm', CAST('1980-03-20' AS DATE), CAST('2011-12-03 12:00:00' AS DATETIME), 
 	CAST('2011-12-03 13:00:00' AS DATETIME), null, null, @bac),
 ('Han Solo', 'hansolo@smuggler.com', null, '3601234567', 'm', CAST('1980-03-20' AS DATE), CAST('2011-12-03 14:00:00' AS DATETIME),
 	CAST('2011-12-03 17:00:00' AS DATETIME), null, null, @bac),
@@ -249,44 +248,48 @@ VALUES
 ('Mon Mothma', 'monmothma@rebelalliance.org', null, '3601020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, @bac)
 ('Padme Amidala', 'padme@galacticsenate.org', null, '3572991212', 'f', CAST('1985-9-12' AS DATE), null, null, null, null, null),
 ('Obi Wan Kenobe', 'oldben@tatooine.org', null, '3657020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, @wrc),
-('C3-PO', 'threePO@rebelalliance.org', null, '3601012256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Jabba the Hutt', 'jabba@tatooine.org', null, '3602120256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Yoda', 'yoda@jedi.org', null, '3601020126', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Mace Windu', 'windu@jedi.org', null, '360560256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Count Dooku', 'tyrannus@cis.org', null, '3631070256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Darth Maul', 'maul@sith.com', null, '3601020254', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Qui-Gon Jinn', 'quigon@jedi.org', null, '3611020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, @wrc),
-('Ki Adi Mundi', 'mundi@jedi.org', null, '3601020288', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Uncle Owen', 'owenlars@tatooine.org', null, '3602020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Ant Beru', 'beru@tatooine.org', null, '3601070256', 'f', CAST('1975-9-12' AS DATE), null, null, null, @wrc),
-('Grand Moff Tarkin', 'tarkin@deathstar.com', null, '3601030256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Admiral Ackbar', 'itsatrap@rebelalliance.org', null, '3621020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Boba Fett', 'fettsvette@tatooine.org', null, '3604020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Jango Fett', 'bountyhunter@kamino.org', null, '6601020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Dengar', 'dengar@freelancer.com', null, '3601026256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('IG-88', 'ig88@freelancer.com', null, '3601020257', 'd', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Aayla Secura', 'aayla@jedi.org', null, '3601020756', 'f', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Luminara Unduli', 'unduli@jedi.org', null, '3607020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Shaak Ti', 'shaakti@jedi.org', null, '3601020856', 'f', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Ahsoka Tano', 'snips@jedi.org', null, '3601050256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Asajj Ventress', 'ventress@cis.org', null, '3401020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, @wrc),
-('Revan', 'revan@jedi.org', null, '3601020258', 'm', CAST('1975-9-12' AS DATE), null, null, null, @bac),
-('Bastila Shan', 'bastila@jedi.org', null, '3601020156', 'f', CAST('1975-9-12' AS DATE), null, null, null, @bac),
-('HK-47', 'killallmeatbags@assassindroids.com', null, '3201020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Carth Onasi', 'carthage@endarspire.rep', null, '3601320256', 'm', CAST('1975-9-12' AS DATE), null, null, null, @bac),
-('Darth Malak', 'malak@sith.org', null, '3601020286', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Canderous Ordo', 'mandalore@dxun.org', null, '3601620256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Mission Vao', 'mission@taris.org', null, '3601120256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Kreia', 'lordofbetrayal@sith.org', null, '3603020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Shae Vizla', 'shae@freelancer.org', null, '3651020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Jolee Bindo', 'jolee@jedi.org', null, '3603020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Visas Marr', 'visas@miraluka.org', null, '4601020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Bao-Dur', 'baodur@iridonia.org', null, '321020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null),
-('Atris', 'atris@jedi.org', null, '3601020216', 'f', CAST('1975-9-12' AS DATE), null, null, null, @bac);
+('C3-PO', 'threePO@rebelalliance.org', null, '3601012256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Jabba the Hutt', 'jabba@tatooine.org', null, '3602120256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Yoda', 'yoda@jedi.org', null, '3601020126', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Mace Windu', 'windu@jedi.org', null, '360560256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Count Dooku', 'tyrannus@cis.org', null, '3631070256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Darth Maul', 'maul@sith.com', null, '3601020254', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Qui-Gon Jinn', 'quigon@jedi.org', null, '3611020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, @wrc),
+('Ki Adi Mundi', 'mundi@jedi.org', null, '3601020288', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Uncle Owen', 'owenlars@tatooine.org', null, '3602020256', 'm', CAST('1975-9-12' AS DATE), null, null, null,, null null),
+('Ant Beru', 'beru@tatooine.org', null, '3601070256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, @wrc),
+('Grand Moff Tarkin', 'tarkin@deathstar.com', null, '3601030256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Admiral Ackbar', 'itsatrap@rebelalliance.org', null, '3621020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Boba Fett', 'fettsvette@tatooine.org', null, '3604020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null,null),
+('Jango Fett', 'bountyhunter@kamino.org', null, '6601020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Dengar', 'dengar@freelancer.com', null, '3601026256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('IG-88', 'ig88@freelancer.com', null, '3601020257', 'd', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Aayla Secura', 'aayla@jedi.org', null, '3601020756', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Luminara Unduli', 'unduli@jedi.org', null, '3607020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Shaak Ti', 'shaakti@jedi.org', null, '3601020856', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Ahsoka Tano', 'snips@jedi.org', null, '3601050256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Asajj Ventress', 'ventress@cis.org', null, '3401020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, @wrc),
+('Revan', 'revan@jedi.org', null, '3601020258', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, @bac),
+('Bastila Shan', 'bastila@jedi.org', null, '3601020156', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, @bac),
+('HK-47', 'killallmeatbags@assassindroids.com', null, '3201020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Carth Onasi', 'carthage@endarspire.rep', null, '3601320256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, @bac),
+('Darth Malak', 'malak@sith.org', null, '3601020286', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Canderous Ordo', 'mandalore@dxun.org', null, '3601620256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Mission Vao', 'mission@taris.org', null, '3601120256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Kreia', 'lordofbetrayal@sith.org', null, '3603020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Shae Vizla', 'shae@freelancer.org', null, '3651020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Jolee Bindo', 'jolee@jedi.org', null, '3603020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Visas Marr', 'visas@miraluka.org', null, '4601020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Bao-Dur', 'baodur@iridonia.org', null, '321020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Atris', 'atris@jedi.org', null, '3601020216', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, @bac);
 	
 INSERT INTO `user` (`username`, `password`, `date_joined`, `permissions`, `pid_person`)
 VALUES
-('Chewy', 'AGHDDAHHHHDGHHAGH', CAST(CURRENT_TIMESTAMP AS DATE), null, 
+('Guest', 'k6?0dQ!SqU&RlD(8k', CAST(CURRENT_TIMESTAMP AS DATE), null,
+    (SELECT `pid`
+	FROM `person`
+	WHERE `name`='Guest')),
+('Chewy', 'AGHDDAHHHHDGHHAGH', CAST(CURRENT_TIMESTAMP AS DATE), null,
 	(SELECT `pid`
 	FROM `person`
 	WHERE `name`='Chewbacca')),
