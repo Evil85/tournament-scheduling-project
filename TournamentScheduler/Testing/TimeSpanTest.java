@@ -1,6 +1,7 @@
 import static org.junit.Assert.*;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -111,13 +112,13 @@ public class TimeSpanTest {
 		TimeSpan oneToNoonToNoon = new TimeSpan(oneToNoon, noon);
 		TimeSpan tenToNoon = new TimeSpan(tenAM, noon);
 		TimeSpan noonToThree = new TimeSpan(noon, threePM);
-		assertTrue(oneToNoonToNoon.Within(tenToNoon));
-		assertTrue(oneToNoonToNoon.Within(oneToNoonToThree));
-		assertTrue(!oneToNoonToNoon.Within(noonToThree));
-		assertTrue(oneToNoonToNoon.Within(oneToNoonToThree, noonToThree));
-		assertTrue(oneToNoonToNoon.Within(noonToThree, oneToNoonToThree));
-		assertTrue(noonToThree.Within(oneToNoonToThree));
-		assertTrue(!oneToNoonToThree.Within(noonToThree));
+		assertTrue(oneToNoonToNoon.Within(Arrays.asList(tenToNoon)));
+		assertTrue(oneToNoonToNoon.Within(Arrays.asList(oneToNoonToThree)));
+		assertTrue(!oneToNoonToNoon.Within(Arrays.asList(noonToThree)));
+		assertTrue(oneToNoonToNoon.Within(Arrays.asList(oneToNoonToThree, noonToThree)));
+		assertTrue(oneToNoonToNoon.Within(Arrays.asList(noonToThree, oneToNoonToThree)));
+		assertTrue(noonToThree.Within(Arrays.asList(oneToNoonToThree)));
+		assertTrue(!oneToNoonToThree.Within(Arrays.asList(noonToThree)));
 	}
 
 }
