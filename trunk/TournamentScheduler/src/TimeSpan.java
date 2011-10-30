@@ -1,4 +1,5 @@
 import java.text.DateFormat;
+import java.util.Collection;
 import java.sql.Timestamp;
 
 public class TimeSpan implements Comparable<TimeSpan> {
@@ -9,11 +10,20 @@ public class TimeSpan implements Comparable<TimeSpan> {
      * @param start
      * @param end
      */
-	public TimeSpan(Timestamp start, Timestamp end) {
+	public TimeSpan(Timestamp start, Timestamp end)
+	{
 		setStart(start);
 		setEnd(end);
 		Validate();
 		CalculateMinutes();
+	}
+	
+	public TimeSpan(int minutes, Timestamp end)
+	{
+		setStart(new Timestamp(end.getTime() - minutes * c_nMsPerMinute));
+		setEnd(end);
+		Validate();
+		setMinutes(minutes);
 	}
 	
 	/**
@@ -68,6 +78,11 @@ public class TimeSpan implements Comparable<TimeSpan> {
 	 * @param others
 	 * @return
 	 */
+	public boolean Within(Collection<TimeSpan> others)
+	{
+		return Within(others.toArray(new TimeSpan[0]));
+	}
+	
 	public boolean Within(TimeSpan... others)
 	{
 		for (TimeSpan o : others)
