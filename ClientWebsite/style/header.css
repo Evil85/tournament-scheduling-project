@@ -1,0 +1,11 @@
+.main_header {
+	height:50px;
+	background-color:#666;
+	background-image:url('images/backgrounds/title_bar_50px.png');
+}
+.main_header .title {
+	line-height:50px;
+	color:#fff;
+	padding-left:10px;
+	font-size:25px;
+}

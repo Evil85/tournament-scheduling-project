@@ -1,0 +1,54 @@
+.home_icon, .menu_icon, .profile_icon,
+.users_icon, .login_icon, .logout_icon,
+.settings_icon, .switch_off, .switch_on{
+	display:block;
+	width:50px;
+	height:50px;
+	float:left;
+	background-image:url('images/ui_elements.png');
+}
+.switch_off, .switch_on{
+	display:inline-block;
+	width:82px;
+	height:32px;
+	float:right;
+}
+.home_icon{
+	background-position:-100px -32px;
+}
+.menu_icon{
+	background-position:0px -32px;
+}
+.settings_icon{
+	background-position:-50px -32px;
+}
+.profile_icon{
+	background-position:-150px -32px;
+}
+.users_icon{
+	background-position:0px -82px;
+}
+.logout_icon{
+	background-position:-50px -82px;
+}
+.login_icon{
+	background-position:-100px -82px;
+}
+.switch_off {
+	background-position:0px 0px;
+}
+.switch_on{
+	background-position:-82px 0px;
+}
+.male_icon, .female_icon{
+	display:block;
+	width:60px;
+	height:102px;
+	background-image:url('images/ui_elements.png');
+}
+.male_icon{
+	background-position:-60px -132px;
+}
+.female_icon{
+	background-position:0px -132px;
+}

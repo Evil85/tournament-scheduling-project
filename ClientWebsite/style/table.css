@@ -1,0 +1,15 @@
+.display_table{
+	background-color:#ddd;
+}
+.display_table .even{
+	background-color:#eee;
+}
+.display_table .odd{
+	background-color:#fff;
+}
+.display_table td{
+	padding:5px;
+}
+.display_table .title{
+	background-color:#ccc;
+}
