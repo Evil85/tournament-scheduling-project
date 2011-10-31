@@ -16,9 +16,10 @@ mkdir -p ../out
 cp ../EndpointProgram/src/log4j.xml ./javaclasses/
 cp ../EndpointProgram/libraries/gson-1.7.1.jar ../out
 cp ../EndpointProgram/libraries/log4j-1.2.16.jar ../out
+cp ../EndpointProgram/libraries/mysql-connector-java-5.0.8-bin.jar ../out
 
 # Compile the java files into the javaclasses folder
-javac -d ./javaclasses/ -cp ../out/gson-1.7.1.jar:../out/log4j-1.2.16.jar @javasrc.txt
+javac -d ./javaclasses/ -cp ../out/gson-1.7.1.jar:../out/log4j-1.2.16.jar:../out/mysql-connector-java-5.0.8-bin.jar @javasrc.txt
 
 # Create the Jar
 jar -cmf ../EndpointProgram/src/META-INF/MANIFEST.MF ../out/Endpoint.jar -C ./javaclasses/ .
