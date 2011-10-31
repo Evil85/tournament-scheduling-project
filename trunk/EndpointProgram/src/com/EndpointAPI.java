@@ -39,6 +39,7 @@ public class EndpointAPI
 	public JsonObject createUser(CommandArguments arguments)
 	{
         try {
+            Class.forName("mysql.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, user, pass);
 	
 	        st = conn.prepareStatement("SELECT `pid` FROM `person` WHERE `name` = ?;");
@@ -220,7 +221,8 @@ public class EndpointAPI
 	public JsonObject createTournament(CommandArguments arguments)
 	{
 	    try {
-    	    Connection conn = DriverManager.getConnection(URL, user, pass);
+    	    Class.forName("mysql.jdbc.Driver");
+            Connection conn = DriverManager.getConnection(URL, user, pass);
 
             st = conn.prepareStatement("SELECT `uid` FROM `user` WHERE `username` = ?;");
             st.setString(1, (String)arguments.getArgument("UserName"));
