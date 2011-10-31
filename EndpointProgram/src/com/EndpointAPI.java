@@ -1,8 +1,22 @@
 package com;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 import org.apache.log4j.Logger;
 import com.Utilities.CommandArguments;
 import java.sql.*;
+import com.Server.HttpExchange;
+import com.Server.HttpServer;
+import com.Server.IHttpHandler;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 /**
  * User: Chris
@@ -14,14 +28,15 @@ import java.sql.*;
 public class EndpointAPI
 {
 	private static final Logger logger = Logger.getLogger(EndpointAPI.class);
+    private static final String URL = "jdbc:mysql://srproj.cs.wwu.edu:3306/tourn_201140";
+    private static final String user = "admtourn201140";
+    private static final String pass = "yinvamOph";
 
-	public void createUser(CommandArguments arguments)
+
+	public JsonObject createUser(CommandArguments arguments)
 	{
         try {
-            String URL = "jdbc:mysql://srproj.cs.wwu.edu:3306/tourn_201140";
-            String user = "admtourn201140";
-            String pass = "yinvamOph";
-	        Connection conn = DriverManager.getConnection(URL, user, pass);
+            Connection conn = DriverManager.getConnection(URL, user, pass);
 	        Statement st = conn.createStatement();
 	
 	        ResultSet rs = st.executeQuery("SELECT `pid` FROM `person` WHERE `name` = '" + arguments.getArgument("PersonName") + "'");
@@ -36,29 +51,33 @@ public class EndpointAPI
 	        + pid +");");
 
 	        st.close();
+	
+    		logger.info("User Created: " + arguments.getArgument("Username"));
+	        
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "true");
+            return e;
         }
         catch (SQLException ex)
         {
-	        System.out.println("SQL exception");
-	        ex.printStackTrace();
-	        return;
-        }
+	        logger.error("SQL Exception while creating user: " + arguments.getArgument("Username"));
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e;
+	    }
         catch (Exception ex)
         {
-	        System.out.println("Other exception");
-	        ex.printStackTrace();
-	        return;
+	        logger.error("Java Exception while creating user: " + arguments.getArgument("Username"));
+	        
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e;
         }
-	
-		logger.info("User Created: " + arguments.getArgument("Username"));
 	}
 	
-	public void createPerson(CommandArguments arguments)
+	public JsonObject createPerson(CommandArguments arguments)
 	{
 	    try {
-		    String URL = "jdbc:mysql://srproj.cs.wwu.edu:3306/tourn_201140";
-	        String user = "admtourn201140";
-	        String pass = "yinvamOph";
 			Connection conn = DriverManager.getConnection(URL, user, pass);
 			Statement st = conn.createStatement();
 			
@@ -71,30 +90,34 @@ public class EndpointAPI
 			+ arguments.getArgument("Birthdate") + "' AS DATE), " 
 			+ "null, null, null, null, null);");
 
-			st.close();
+			st.close();	
+    		logger.info("Person Created: " + arguments.getArgument("Name"));
+            
+            JsonObject e = new JsonObject();
+            e.addProperty("result", "true");
+            return e;
 		}
 		catch (SQLException ex)
 		{
-			System.out.println("SQL exception");
-			ex.printStackTrace();
-			return;
+	        logger.error("SQL Exception while creating person: " + arguments.getArgument("PersonName"));
+
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e;
 		}
 		catch (Exception ex)
 		{
-			System.out.println("Other exception");
-			ex.printStackTrace();
-			return;
+			logger.error("Java Exception while creating person: " + arguments.getArgument("PersonName"));
+			
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e;
 		}
-	
-		logger.info("Person Created: " + arguments.getArgument("Name"));
 	}
 	
-	public void createLocation(CommandArguments arguments)
+	public JsonObject createLocation(CommandArguments arguments)
 	{
 	    try {
-            String URL = "jdbc:mysql://srproj.cs.wwu.edu:3306/tourn_201140";
-            String user = "admtourn201140";
-            String pass = "yinvamOph";
 	        Connection conn = DriverManager.getConnection(URL, user, pass);
 	        Statement st = conn.createStatement();
 	
@@ -111,29 +134,33 @@ public class EndpointAPI
 	        + "CAST('" + arguments.getArgument("weekendCloseTime") +"' AS TIME));");
 
 	        st.close();
+    		logger.info("Location Created: " + arguments.getArgument("Name"));
+    		
+            JsonObject e = new JsonObject();
+            e.addProperty("result", "true");
+            return e;
         }
         catch (SQLException ex)
         {
-	        System.out.println("SQL exception");
-	        ex.printStackTrace();
-	        return;
+	        logger.error("SQL Exception while creating location: " + arguments.getArgument("LocName"));
+
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e;
         }
         catch (Exception ex)
         {
-	        System.out.println("Other exception");
-	        ex.printStackTrace();
-	        return;
+	        logger.error("Java Exception while creating location: " + arguments.getArgument("LocName"));
+
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e;
         }
-	
-		logger.info("Location Created: " + arguments.getArgument("Name"));
 	}
 	
-	public void createCourt(CommandArguments arguments)
+	public JsonObject createCourt(CommandArguments arguments)
 	{
 	    try {
-            String URL = "jdbc:mysql://srproj.cs.wwu.edu:3306/tourn_201140";
-            String user = "admtourn201140";
-            String pass = "yinvamOph";
 	        Connection conn = DriverManager.getConnection(URL, user, pass);
 	        Statement st = conn.createStatement();
 	
@@ -146,52 +173,77 @@ public class EndpointAPI
 	        + lid +");");
 
 	        st.close();
+    		logger.info("Court Created: " + arguments.getArgument("Name"));
+
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "true");
+            return e;
         }
         catch (SQLException ex)
         {
-	        System.out.println("SQL exception");
-	        ex.printStackTrace();
-	        return;
+	        logger.error("SQL Exception while creating court: " + arguments.getArgument("CourtName"));
+
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e;
         }
         catch (Exception ex)
         {
-	        System.out.println("Other exception");
-	        ex.printStackTrace();
-	        return;
+	        logger.error("Java Exception while creating court: " + arguments.getArgument("CourtName"));
+
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e;
         }
         
-		logger.info("Court Created: " + arguments.getArgument("Name"));
 	}
 	
-	public void createTournament(CommandArguments arguments)
+	public JsonObject createTournament(CommandArguments arguments)
 	{
-	        String URL = "jdbc:mysql://srproj.cs.wwu.edu:3306/tourn_201140";
-            String user = "admtourn201140";
-            String pass = "yinvamOph";
-	        Connection conn = DriverManager.getConnection(URL, user, pass);
-	        Statement st = conn.createStatement();
-	
-	        ResultSet rs = st.executeQuery("SELECT `pid` FROM `person` WHERE `name` = '" + arguments.getArgument("OwnerName") + "'");
-	        rs.next();
-	        int pid = Integer.parseInt(rs.getString(1));
+	    try {
+            Connection conn = DriverManager.getConnection(URL, user, pass);
+            Statement st = conn.createStatement();
 
-	        st.executeUpdate ("INSERT INTO `tournament` (`name`, `start_date`, `end_date`, `isGuestViewable`, `travelTime`, `start_time_weekdays`, `end_time_weekdays`, `start_time_weekends`, `end_time_weekends`, `maxDivPerPlayer`, `uid_owner`)
-VALUES (`"
-	        + arguments.getArgument("TournamentName") + "', " 
-	        + "CAST('" + arguments.getArgument("StartDate") + "' AS DATE), " 
-   	        + "CAST('" + arguments.getArgument("EndDate") + "' AS DATE), "
-	        + arguments.getArgument("GuestViewable") + ", "
-   	        + arguments.getArgument("TravelTime") + ", "
-	        + "CAST('" + arguments.getArgument("StartTimeWeekdays") + "' AS TIME), "
-	        + "CAST('" + arguments.getArgument("EndTimeWeekdays") + "' AS TIME), "
-	        + "CAST('" + arguments.getArgument("StartTimeWeekends") + "' AS TIME), "
-	        + "CAST('" + arguments.getArgument("EndTimeWeekends") + "' AS TIME), "
-	        + arguments.getArgument("MaxDivisions") + ", "
-	        + pid +");");
+            ResultSet rs = st.executeQuery("SELECT `pid` FROM `person` WHERE `name` = '" + arguments.getArgument("OwnerName") + "'");
+            rs.next();
+            int pid = Integer.parseInt(rs.getString(1));
 
-	        st.close();
-	
-		logger.info("Tournament Created: " + arguments.getArgument("Name"));
+            st.executeUpdate ("INSERT INTO `tournament` (`name`, `start_date`, `end_date`, `isGuestViewable`, `travelTime`, `start_time_weekdays`, `end_time_weekdays`, `start_time_weekends`, `end_time_weekends`, `maxDivPerPlayer`, `uid_owner`) VALUES (`"  
+            + arguments.getArgument("TournamentName") + "', " 
+            + "CAST('" + arguments.getArgument("StartDate") + "' AS DATE), " 
+            + "CAST('" + arguments.getArgument("EndDate") + "' AS DATE), "
+            + arguments.getArgument("GuestViewable") + ", "
+            + arguments.getArgument("TravelTime") + ", "
+            + "CAST('" + arguments.getArgument("StartTimeWeekdays") + "' AS TIME), "
+            + "CAST('" + arguments.getArgument("EndTimeWeekdays") + "' AS TIME), "
+            + "CAST('" + arguments.getArgument("StartTimeWeekends") + "' AS TIME), "
+            + "CAST('" + arguments.getArgument("EndTimeWeekends") + "' AS TIME), "
+            + arguments.getArgument("MaxDivisions") + ", "
+            + pid +");");
+
+            st.close();
+            logger.info("Tournament Created: " + arguments.getArgument("Name"));
+            
+            JsonObject e = new JsonObject();
+            e.addProperty("result", "true");
+            return e;
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception while creating location: " + arguments.getArgument("TournamentName"));
+
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e;
+        }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception while creating location: " + arguments.getArgument("TournamentName"));
+
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e;
+        }
 	}
 	
 	public void createDivision(CommandArguments arguments)
