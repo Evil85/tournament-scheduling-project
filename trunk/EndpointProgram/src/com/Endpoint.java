@@ -1,7 +1,6 @@
 package com;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Date;
 
 import org.apache.log4j.Logger;
 
@@ -9,6 +8,7 @@ import com.Server.HttpExchange;
 import com.Server.HttpServer;
 import com.Server.IHttpHandler;
 import com.Utilities.CommandArguments;
+import com.google.gson.JsonObject;
 
 /**
  * User: Chris
@@ -35,10 +35,16 @@ public class Endpoint
 
 			public void onRequest(HttpExchange clientExchange)
 			{
-				processJson(clientExchange.getRequest());
-				String timeStamp = new Date().toString();
-				String returnMessage = "Server responded at " + timeStamp + (char) 13;
-				clientExchange.sendResponse(returnMessage);
+				JsonObject result = processJson(clientExchange.getRequest());
+
+				if (result != null)
+				{
+					clientExchange.sendResponse(result.getAsString());
+				}
+				else
+				{
+					logger.error("Resulting JsonObject is null");
+				}
 			}
 
 			public void onDisconnect(HttpExchange clientExchange)
@@ -54,14 +60,15 @@ public class Endpoint
 	 * This will handle the logic for parsing the json string received from the client. It will then call the respective command in the EndpointAPI.
 	 *
 	 * @param jsonString the string received from the client.
+	 * @return The response object from the processed json object.
 	 */
-	private static void processJson(String jsonString)
+	private static JsonObject processJson(String jsonString)
 	{
 		if (jsonString == null ||
 		    jsonString.isEmpty())
 		{
 			logger.error("There is nothing in the json string.");
-			return;
+			return null;
 		}
 
 		// Creates a wrapper for the arguments. This can be used to get arguments by a key value.
@@ -73,7 +80,7 @@ public class Endpoint
 		catch (Exception ex)
 		{
 			logger.error("Could not deserialize json object : " + jsonString);
-			return;
+			return null;
 		}
 
 		EndpointAPI endpointAPI = new EndpointAPI();
@@ -84,7 +91,7 @@ public class Endpoint
 		{
 			logger.info("Calling command: " + commandArguments.getCommandName());
 			logger.debug("Command Parameters: " + commandArguments.toString());
-			Class.forName("com.EndpointAPI").getMethod(commandArguments.getCommandName(), CommandArguments.class).invoke(endpointAPI, commandArguments);
+			return (JsonObject)Class.forName("com.EndpointAPI").getMethod(commandArguments.getCommandName(), CommandArguments.class).invoke(endpointAPI, commandArguments);
 		}
 		catch (IllegalAccessException e)
 		{
@@ -102,5 +109,7 @@ public class Endpoint
 		{
 			logger.error(e);
 		}
+
+		return null;
 	}
 }
