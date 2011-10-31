@@ -42,18 +42,12 @@ public class EndpointAPI
             Class.forName("com.mysql.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, user, pass);
 	
-	        st = conn.prepareStatement("SELECT `pid` FROM `person` WHERE `name` = ?;");
-            st.setString(1, (String)arguments.getArgument("PersonName"));
-	        ResultSet rs = st.executeQuery();
-	        rs.next();
-	        int pid = Integer.parseInt(rs.getString(1));
-
-	        st = conn.prepareStatement ("INSERT INTO `user` (`username`, `password`, `date_joined`, `permissions`, `pid_person`) VALUES (?, ?, CAST(CURRENT_TIMESTAMP AS DATE), ?, ?");
+	        st = conn.prepareStatement ("INSERT INTO `user` (`username`, `password`, `date_joined`, `permissions`, `pid_person`) VALUES (?, ?, CAST(CURRENT_TIMESTAMP AS DATE), ?, (SELECT `pid` FROM `person` WHERE `name` = ?)");
 	        
 	        st.setString(1, (String)arguments.getArgument("UserName"));
 	        st.setString(2, (String)arguments.getArgument("Password"));
             st.setString(3, (String)arguments.getArgument("Permissions"));
-	        st.setInt(4, pid);
+            st.setString(4, (String)arguments.getArgument("PersonName"));
 	        
             st.executeUpdate();
             conn.commit();
@@ -104,7 +98,7 @@ public class EndpointAPI
     		logger.info("Person Created: " + arguments.getArgument("Name"));
             
             JsonObject e = new JsonObject();
-            e.addProperty("result", "true");
+            e.addProperty("result", true);
             return e;
 		}
 		catch (SQLException ex)
@@ -112,7 +106,7 @@ public class EndpointAPI
 	        logger.error("SQL Exception while creating person: " + arguments.getArgument("PersonName"));
 
 			JsonObject e = new JsonObject();
-            e.addProperty("result", "false");
+            e.addProperty("result", false);
             return e;
 		}
 		catch (Exception ex)
@@ -120,7 +114,7 @@ public class EndpointAPI
 			logger.error("Java Exception while creating person: " + arguments.getArgument("PersonName"));
 			
 			JsonObject e = new JsonObject();
-            e.addProperty("result", "false");
+            e.addProperty("result", false);
             return e;
 		}
 	}
@@ -151,7 +145,7 @@ public class EndpointAPI
     		logger.info("Location Created: " + arguments.getArgument("Name"));
     		
             JsonObject e = new JsonObject();
-            e.addProperty("result", "true");
+            e.addProperty("result", true);
             return e;
         }
         catch (SQLException ex)
@@ -159,7 +153,7 @@ public class EndpointAPI
 	        logger.error("SQL Exception while creating location: " + arguments.getArgument("LocName"));
 
 			JsonObject e = new JsonObject();
-            e.addProperty("result", "false");
+            e.addProperty("result", false);
             return e;
         }
         catch (Exception ex)
@@ -167,7 +161,7 @@ public class EndpointAPI
 	        logger.error("Java Exception while creating location: " + arguments.getArgument("LocName"));
 
 			JsonObject e = new JsonObject();
-            e.addProperty("result", "false");
+            e.addProperty("result", false);
             return e;
         }
 	}
@@ -178,17 +172,11 @@ public class EndpointAPI
     	    Class.forName("com.mysql.jdbc.Driver");
 	        Connection conn = DriverManager.getConnection(URL, user, pass);
 
-            st = conn.prepareStatement("SELECT `lid` FROM `location` WHERE `name` = ?;");
-            st.setString(1, (String)arguments.getArgument("LocName"));
-	        ResultSet rs = st.executeQuery();
-	        rs.next();
-	        int lid = Integer.parseInt(rs.getString(1));
-
-	        st = conn.prepareStatement ("INSERT INTO `court` (`courtName`, `lid_location`) VALUES (?, ?");
+	        st = conn.prepareStatement ("INSERT INTO `court` (`courtName`, `lid_location`) VALUES (?, (SELECT `lid` FROM `location` WHERE `name` = ?))");
 	        
 	        st.setString(1, (String)arguments.getArgument("CourtName"));
-	        st.setInt(2, lid);
-	        
+            st.setString(2, (String)arguments.getArgument("LocName"));
+            	        
             st.executeUpdate();
             conn.commit();
 	        conn.close();
@@ -196,7 +184,7 @@ public class EndpointAPI
     		logger.info("Court Created: " + arguments.getArgument("Name"));
 
 	        JsonObject e = new JsonObject();
-            e.addProperty("result", "true");
+            e.addProperty("result", true);
             return e;
         }
         catch (SQLException ex)
@@ -204,7 +192,7 @@ public class EndpointAPI
 	        logger.error("SQL Exception while creating court: " + arguments.getArgument("CourtName"));
 
 			JsonObject e = new JsonObject();
-            e.addProperty("result", "false");
+            e.addProperty("result", false);
             return e;
         }
         catch (Exception ex)
@@ -212,10 +200,9 @@ public class EndpointAPI
 	        logger.error("Java Exception while creating court: " + arguments.getArgument("CourtName"));
 
 			JsonObject e = new JsonObject();
-            e.addProperty("result", "false");
+            e.addProperty("result", false);
             return e;
         }
-        
 	}
 	
 	public JsonObject createTournament(CommandArguments arguments)
@@ -230,7 +217,7 @@ public class EndpointAPI
 	        rs.next();
 	        int uid = Integer.parseInt(rs.getString(1));
 
-	        st = conn.prepareStatement ("INSERT INTO `tournament` (`name`, `start_date`, `end_date`, `isGuestViewable`, `travelTime`, `start_time_weekdays`, `end_time_weekdays`, `start_time_weekends`, `end_time_weekends`, `maxDivPerPlayer`, `uid_owner`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?");
+	        st = conn.prepareStatement ("INSERT INTO `tournament` (`name`, `start_date`, `end_date`, `isGuestViewable`, `travelTime`, `start_time_weekdays`, `end_time_weekdays`, `start_time_weekends`, `end_time_weekends`, `maxDivPerPlayer`, `uid_owner`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT `uid` FROM `user` WHERE `username` = ?)");
 	        
 	        st.setString(1, (String)arguments.getArgument("TournamentName"));
 	        st.setDate(2, java.sql.Date.valueOf((String)arguments.getArgument("StartDate")));
@@ -241,6 +228,8 @@ public class EndpointAPI
             st.setTime(7, java.sql.Time.valueOf((String)arguments.getArgument("EndTimeWeekdays")));
             st.setTime(8, java.sql.Time.valueOf((String)arguments.getArgument("StartTimeWeekends")));
             st.setTime(9, java.sql.Time.valueOf((String)arguments.getArgument("EndTimeWeekends")));
+            st.setInt(10, java.lang.Integer.valueOf((String)arguments.getArgument("MaxDivPerPlayer")));
+            st.setString(11, (String) arguments.getArgument("UserName"));
 
             st.executeUpdate();
             conn.commit();
