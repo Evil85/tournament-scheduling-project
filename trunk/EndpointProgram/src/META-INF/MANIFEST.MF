@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
-Class-Path: gson-1.7.1.jar log4j-1.2.16.jar
+Class-Path: gson-1.7.1.jar log4j-1.2.16.jar mysql-connector-java-5.0.8-bin.jar
 Main-Class: com.Endpoint
 

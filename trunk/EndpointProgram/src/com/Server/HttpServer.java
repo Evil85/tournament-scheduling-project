@@ -72,7 +72,7 @@ public class HttpServer
 						logger.debug("Connection Info:\n" + exchange.toString());
 						requestHandler.onConnect(exchange);
 
-						while (exchange.getMessageFromClient())
+						if (exchange.getMessageFromClient())
 						{
 							requestHandler.onRequest(exchange);
 						}
