@@ -15,7 +15,7 @@ find ./tempWebsite/ -name '.svn' -exec rm -rf {} \+
 scp -r ./tempWebsite/* ${projectserver}:"/ProjectSites/2011/Fall/Tournament\\ Scheduling/ClientWebsite"
 
 # Set the correct permissions to the client website folder
-ssh ${projectserver} -C "(cd /ProjectSites/2011/Fall/Tournament\\ Scheduling/; chmod 775 ./ClientWebsite)"
+ssh ${projectserver} -C "(cd /ProjectSites/2011/Fall/Tournament\\ Scheduling/; chmod -R 777 ./ClientWebsite)"
 		    
 echo -===Cleaning up website copy temp files===-
 			  
