@@ -1,24 +1,15 @@
 package com;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Date;
-import java.lang.Integer;
-import org.apache.log4j.Logger;
-import com.Utilities.CommandArguments;
-import java.sql.*;
+import java.sql.Connection;
 import java.sql.DriverManager;
-import com.Server.HttpExchange;
-import com.Server.HttpServer;
-import com.Server.IHttpHandler;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
+import org.apache.log4j.Logger;
+
+import com.Utilities.CommandArguments;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 /**
  * User: Chris
@@ -33,28 +24,47 @@ public class EndpointAPI
     private static final String URL = "jdbc:mysql://srproj.cs.wwu.edu:3306/tourn_201140";
     private static final String user = "admtourn201140";
     private static final String pass = "yinvamOph";
-    
+
     private PreparedStatement st;
-    
+
+	public EndpointAPI()
+	{
+		try
+		{
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+		}
+		catch (InstantiationException e)
+		{
+			logger.error(e);
+		}
+		catch (IllegalAccessException e)
+		{
+			logger.error(e);
+		}
+		catch (ClassNotFoundException e)
+		{
+			logger.error(e);
+		}
+	}
+
 	public JsonObject createUser(CommandArguments arguments)
 	{
         try {
-            Class.forName("com.mysql.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, user, pass);
-	
+
 	        st = conn.prepareStatement ("INSERT INTO `user` (`username`, `password`, `date_joined`, `permissions`, `pid_person`) VALUES (?, ?, CAST(CURRENT_TIMESTAMP AS DATE), ?, (SELECT `pid` FROM `person` WHERE `name` = ?)");
-	        
+
 	        st.setString(1, (String)arguments.getArgument("UserName"));
 	        st.setString(2, (String)arguments.getArgument("Password"));
             st.setString(3, (String)arguments.getArgument("Permissions"));
             st.setString(4, (String)arguments.getArgument("PersonName"));
-	        
+
             st.executeUpdate();
             conn.commit();
 	        conn.close();
-	
+
     		logger.info("User Created: " + arguments.getArgument("Username"));
-	        
+
 	        JsonObject e = new JsonObject();
             e.addProperty("result", "true");
             return e;
@@ -69,34 +79,33 @@ public class EndpointAPI
         catch (Exception ex)
         {
 	        logger.error("Java Exception during createUser:\n" + ex);
-	        
+
 	        JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e;
         }
 	}
-	
+
 	public JsonObject createPerson(CommandArguments arguments)
 	{
 	    try {
-            Class.forName("com.mysql.jdbc.Driver");
 			Connection conn = DriverManager.getConnection(URL, user, pass);
 
 	        st = conn.prepareStatement ("INSERT INTO `person` (`name`, `email`, `address`, `phone`, `gender`, `birthdate`) VALUES (?, ?, ?, ?, ?, ?)");
-	        
+
 	        st.setString(1, (String) arguments.getArgument("PersonName"));
 	        st.setString(2, (String) arguments.getArgument("Email"));
             st.setString(3, (String) arguments.getArgument("Address"));
             st.setString(4, (String) arguments.getArgument("Phone"));
             st.setString(5, (String) arguments.getArgument("Gender"));
             st.setDate(6, java.sql.Date.valueOf((String)arguments.getArgument("Birthday")));
-	        
+
             st.executeUpdate();
             conn.commit();
 	        conn.close();
 
     		logger.info("Person Created: " + arguments.getArgument("Name"));
-            
+
             JsonObject e = new JsonObject();
             e.addProperty("result", true);
             return e;
@@ -112,21 +121,20 @@ public class EndpointAPI
 		catch (Exception ex)
 		{
 			logger.error("Java Exception while creating person: " + arguments.getArgument("PersonName"));
-			
+
 			JsonObject e = new JsonObject();
             e.addProperty("result", false);
             return e;
 		}
 	}
-	
+
 	public JsonObject createLocation(CommandArguments arguments)
 	{
 	    try {
-    	    Class.forName("com.mysql.jdbc.Driver");
 	        Connection conn = DriverManager.getConnection(URL, user, pass);
 
 	        st = conn.prepareStatement ("INSERT INTO `location` (`name`, `address`, `city`, `state`, `zip`, `phone`, `weekdayOpenTime`, `weekdayCloseTime`, `weekendOpenTime`, `weekendCloseTime`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-	        
+
 	        st.setString(1, (String) arguments.getArgument("LocName"));
 	        st.setString(2, (String) arguments.getArgument("Address"));
             st.setString(3, (String) arguments.getArgument("City"));
@@ -137,13 +145,13 @@ public class EndpointAPI
             st.setDate(8, java.sql.Date.valueOf((String)arguments.getArgument("WeekdayCloseTime")));
             st.setDate(9, java.sql.Date.valueOf((String)arguments.getArgument("WeekendOpenTime")));
             st.setDate(10, java.sql.Date.valueOf((String)arguments.getArgument("WeekendCloseTime")));
-          
+
             st.executeUpdate();
             conn.commit();
 	        conn.close();
 
     		logger.info("Location Created: " + arguments.getArgument("Name"));
-    		
+
             JsonObject e = new JsonObject();
             e.addProperty("result", true);
             return e;
@@ -165,18 +173,17 @@ public class EndpointAPI
             return e;
         }
 	}
-	
+
 	public JsonObject createCourt(CommandArguments arguments)
 	{
 	    try {
-    	    Class.forName("com.mysql.jdbc.Driver");
 	        Connection conn = DriverManager.getConnection(URL, user, pass);
 
 	        st = conn.prepareStatement ("INSERT INTO `court` (`courtName`, `lid_location`) VALUES (?, (SELECT `lid` FROM `location` WHERE `name` = ?))");
-	        
+
 	        st.setString(1, (String)arguments.getArgument("CourtName"));
             st.setString(2, (String)arguments.getArgument("LocName"));
-            	        
+
             st.executeUpdate();
             conn.commit();
 	        conn.close();
@@ -204,11 +211,10 @@ public class EndpointAPI
             return e;
         }
 	}
-	
+
 	public JsonObject createTournament(CommandArguments arguments)
 	{
 	    try {
-    	    Class.forName("com.mysql.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, user, pass);
 
             st = conn.prepareStatement("SELECT `uid` FROM `user` WHERE `username` = ?;");
@@ -218,7 +224,7 @@ public class EndpointAPI
 	        int uid = Integer.parseInt(rs.getString(1));
 
 	        st = conn.prepareStatement ("INSERT INTO `tournament` (`name`, `start_date`, `end_date`, `isGuestViewable`, `travelTime`, `start_time_weekdays`, `end_time_weekdays`, `start_time_weekends`, `end_time_weekends`, `maxDivPerPlayer`, `uid_owner`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT `uid` FROM `user` WHERE `username` = ?)");
-	        
+
 	        st.setString(1, (String)arguments.getArgument("TournamentName"));
 	        st.setDate(2, java.sql.Date.valueOf((String)arguments.getArgument("StartDate")));
 	        st.setDate(3, java.sql.Date.valueOf((String)arguments.getArgument("EndDate")));
@@ -236,7 +242,7 @@ public class EndpointAPI
 	        conn.close();
 
             logger.info("Tournament Created: " + arguments.getArgument("Name"));
-            
+
             JsonObject e = new JsonObject();
             e.addProperty("result", "true");
             return e;
@@ -258,34 +264,34 @@ public class EndpointAPI
             return e;
         }
 	}
-	
+
 	public void createDivision(CommandArguments arguments)
 	{
-		logger.info("Division Created: " + arguments.getArgument("Name") 
+		logger.info("Division Created: " + arguments.getArgument("Name")
 		+ ", in Tournament: " + arguments.getArgument("Tournament"));
 	}
-	
+
 	public void addVenue(CommandArguments arguments)
 	{
-		logger.info("Venue added: " + arguments.getArgument("LocationName") 
+		logger.info("Venue added: " + arguments.getArgument("LocationName")
 		+ ", to Tournament: " + arguments.getArgument("TournamentName"));
 
 	}
-	
+
 	public void addPlayer(CommandArguments arguments)
 	{
 		logger.info("Player added: " + arguments.getArgument("Player1Name")
 		+ ", to Division: " + arguments.getArgument("DivisionName")
 		+ ", in Tournament: " + arguments.getArgument("TournamentName"));
 	}
-	
+
 	public void createMatch(CommandArguments arguments)
 	{
 		logger.info("Match created: " + arguments.getArgument("MatchNumber")
 		+ ", to Division: " + arguments.getArgument("DivisionName")
 		+ ", in Tournament: " + arguments.getArgument("TournamentName"));
 	}
-	
+
 	public void createGame(CommandArguments arguments)
 	{
 		logger.info("Game created: " + arguments.getArgument("GameNumber")

@@ -39,7 +39,7 @@ public class Endpoint
 
 				if (result != null)
 				{
-					clientExchange.sendResponse(result.getAsString());
+					clientExchange.sendResponse(result.toString());
 				}
 				else
 				{
@@ -52,7 +52,7 @@ public class Endpoint
 			}
 		};
 
-		HttpServer endPointServer = new HttpServer(8000, handler);
+		HttpServer endPointServer = new HttpServer(4545, handler);
 		endPointServer.run();
 	}
 
