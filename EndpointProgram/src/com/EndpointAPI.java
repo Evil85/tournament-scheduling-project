@@ -6,6 +6,7 @@ import java.lang.Integer;
 import org.apache.log4j.Logger;
 import com.Utilities.CommandArguments;
 import java.sql.*;
+import java.sql.DriverManager;
 import com.Server.HttpExchange;
 import com.Server.HttpServer;
 import com.Server.IHttpHandler;
@@ -38,7 +39,6 @@ public class EndpointAPI
 	public JsonObject createUser(CommandArguments arguments)
 	{
         try {
-            Class.forName("com.mysql.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, user, pass);
 	
 	        st = conn.prepareStatement("SELECT `pid` FROM `person` WHERE `name` = ?;");
@@ -84,7 +84,7 @@ public class EndpointAPI
 	public JsonObject createPerson(CommandArguments arguments)
 	{
 	    try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("mysql.jdbc.Driver");
 			Connection conn = DriverManager.getConnection(URL, user, pass);
 
 	        st = conn.prepareStatement ("INSERT INTO `person` (`name`, `email`, `address`, `phone`, `gender`, `birthdate`) VALUES (?, ?, ?, ?, ?, ?)");
@@ -127,7 +127,7 @@ public class EndpointAPI
 	public JsonObject createLocation(CommandArguments arguments)
 	{
 	    try {
-    	    Class.forName("com.mysql.jdbc.Driver");
+    	    Class.forName("mysql.jdbc.Driver");
 	        Connection conn = DriverManager.getConnection(URL, user, pass);
 
 	        st = conn.prepareStatement ("INSERT INTO `location` (`name`, `address`, `city`, `state`, `zip`, `phone`, `weekdayOpenTime`, `weekdayCloseTime`, `weekendOpenTime`, `weekendCloseTime`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -174,7 +174,7 @@ public class EndpointAPI
 	public JsonObject createCourt(CommandArguments arguments)
 	{
 	    try {
-    	    Class.forName("com.mysql.jdbc.Driver");
+    	    Class.forName("mysql.jdbc.Driver");
 	        Connection conn = DriverManager.getConnection(URL, user, pass);
 
             st = conn.prepareStatement("SELECT `lid` FROM `location` WHERE `name` = ?;");
@@ -220,8 +220,7 @@ public class EndpointAPI
 	public JsonObject createTournament(CommandArguments arguments)
 	{
 	    try {
-    	    Class.forName("com.mysql.jdbc.Driver");
-            Connection conn = DriverManager.getConnection(URL, user, pass);
+    	    Connection conn = DriverManager.getConnection(URL, user, pass);
 
             st = conn.prepareStatement("SELECT `uid` FROM `user` WHERE `username` = ?;");
             st.setString(1, (String)arguments.getArgument("UserName"));
