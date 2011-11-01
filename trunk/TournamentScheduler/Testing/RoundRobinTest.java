@@ -2,8 +2,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.sql.Timestamp;
-import java.util.SortedSet;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.Vector;
 
 import org.junit.Test;
 
@@ -20,24 +19,17 @@ public class RoundRobinTest {
 		TimeSpan threeToFive = new TimeSpan(threePM, fivePM);
 		TimeSpan fiveToSix = new TimeSpan(fivePM, sixPM);
 		
-		SortedSet<TimeSpan> times1 = new ConcurrentSkipListSet<TimeSpan>();
-		times1.add(threeToFive);
-		times1.add(tenToThree);
-		SortedSet<TimeSpan> times2 = new ConcurrentSkipListSet<TimeSpan>();
-		times2.add(tenToThree);
-		times2.add(fiveToSix);
-		
-		Court c1 = new Court("C1", times1, "V1");
-		Court c2 = new Court("C2", times2, "V1");
+		Court c1 = new Court("C1", "V1", threeToFive, tenToThree);
+		Court c2 = new Court("C2", "V1", tenToThree, fiveToSix);
 		CourtManager courts = new CourtManager(c1, c2);
 		
-		Player p1 = new Player("P1", times2);
-		Player p2 = new Player("P2", times2);
+		Player p1 = new Player("P1", tenToThree, fiveToSix);
+		Player p2 = new Player("P2", tenToThree, fiveToSix);
 		
 		RoundRobin robin = new RoundRobin("Robbin' Round", 30, courts, p1, p2);
-		Match firstMatch = robin.TryScheduleMatch();
-		assertThat(firstMatch.toString(), equalTo("Robbin' Round match 1: P1 vs. P2 at C2 (V1), 10/21/11 5:30 PM - 6:00 PM"));
-		assertThat(robin.FullyScheduled(), equalTo(true));
+		Vector<Match> schedule = new Vector<Match>();
+		assertThat(robin.TrySchedule(schedule), equalTo(true));
+		assertThat(schedule.firstElement().toString(), equalTo("Robbin' Round match 1: P1 vs. P2 at C2 (V1), 10/21/11 5:30 PM - 6:00 PM"));
 	}
 
 }
