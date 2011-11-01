@@ -2,8 +2,6 @@ import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
 import java.sql.Timestamp;
-import java.util.SortedSet;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.junit.Test;
 
@@ -18,13 +16,9 @@ public class CourtTest {
 		TimeSpan tenToThree = new TimeSpan(tenAM, threePM);
 		TimeSpan threeToFive = new TimeSpan(threePM, fivePM);
 		
-		SortedSet<TimeSpan> times = new ConcurrentSkipListSet<TimeSpan>();
-		times.add(threeToFive);
-		times.add(tenToThree);
-		
-		Court testCourt = new Court("Test Court", times, "Test Venue");
+		Court testCourt = new Court("Test Court", "Test Venue", threeToFive, tenToThree);
 		assertThat(testCourt.toString(), equalTo("Test Court (Test Venue) : [10/21/11 10:00 AM - 5:00 PM]"));
-		assertThat(testCourt.getVenue(), equalTo("Test Venue"));
+		assertThat(testCourt.Venue(), equalTo("Test Venue"));
 	}
 
 }

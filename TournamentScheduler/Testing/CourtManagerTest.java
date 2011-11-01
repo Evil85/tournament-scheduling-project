@@ -2,8 +2,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.sql.Timestamp;
-import java.util.SortedSet;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.Vector;
 
 import org.junit.Test;
 
@@ -20,25 +19,19 @@ public class CourtManagerTest {
 		TimeSpan threeToFive = new TimeSpan(threePM, fivePM);
 		TimeSpan fiveToSix = new TimeSpan(fivePM, sixPM);
 		
-		SortedSet<TimeSpan> times1 = new ConcurrentSkipListSet<TimeSpan>();
-		times1.add(threeToFive);
-		times1.add(tenToThree);
-		SortedSet<TimeSpan> times2 = new ConcurrentSkipListSet<TimeSpan>();
-		times2.add(tenToThree);
-		times2.add(fiveToSix);
-		
-		Court c1 = new Court("C1", times1, "V1");
-		Court c2 = new Court("C2", times2, "V1");
+		Court c1 = new Court("C1", "V1", threeToFive, tenToThree);
+		Court c2 = new Court("C2", "V1", tenToThree, fiveToSix);
 		CourtManager courts = new CourtManager(c1, c2);
 		
-		PlayerGroup t1 = new PlayerGroup("T1", new Player("P1", times2));
-		PlayerGroup t2 = new PlayerGroup("T2", new Player("P2", times2));
+		Team t1 = new Team("T1", new Player("P1", tenToThree, fiveToSix));
+		Team t2 = new Team("T2", new Player("P2", tenToThree, fiveToSix));
 		Match m = new Match("Title Match", t1, t2);
+		Vector<Match> schedule = new Vector<Match>();
 		
-		assertThat(courts.TryScheduleLatest(m, 20), equalTo(true));
-		assertThat(m.getCourt(), equalTo(c2));
+		assertThat(courts.TryScheduleLatest(m, 20, schedule), equalTo(true));
+		assertThat(m.Court(), equalTo(c2));
 		TimeSpan expected = new TimeSpan(Timestamp.valueOf("2011-10-21 17:40:00.000000000"), sixPM);
-		assertThat(m.getTime().toString(), equalTo(expected.toString()));
+		assertThat(m.Time().toString(), equalTo(expected.toString()));
 	}
 
 }

@@ -1,10 +1,11 @@
 import java.sql.Timestamp;
 import java.util.Comparator;
+import java.util.Vector;
 
 
 public class CourtComparator implements Comparator<Court> {
 	
-	public CourtComparator(int matchMinutes, Match m, Match... previouslyScheduled)
+	public CourtComparator(int matchMinutes, Match m, Vector<Match> previouslyScheduled)
 	{
 		m_nMatchMinutes = matchMinutes;
 		m_match = m;
@@ -14,12 +15,12 @@ public class CourtComparator implements Comparator<Court> {
 	public int compare(Court first, Court second)
 	{
 		Timestamp latestFirst = null;
-		for (TimeSpan span : m_match.getAvailability(first, m_previouslyScheduled))
+		for (TimeSpan span : SchedulingUtil.MatchAvailability(m_match, first, m_previouslyScheduled))
 			if (span.getMinutes() >= m_nMatchMinutes)
 					latestFirst = span.getEnd();
 				
 		Timestamp latestSecond = null;
-		for (TimeSpan span : m_match.getAvailability(second, m_previouslyScheduled))
+		for (TimeSpan span : SchedulingUtil.MatchAvailability(m_match, second, m_previouslyScheduled))
 			if (span.getMinutes() >= m_nMatchMinutes)
 				latestSecond = span.getEnd();
 				
@@ -31,7 +32,7 @@ public class CourtComparator implements Comparator<Court> {
 				if (nRelation != 0)
 					return nRelation;
 				else
-					return first.compareTo(second);
+					return first.Name().compareTo(second.Name());
 			}
 			else
 			{
@@ -49,6 +50,6 @@ public class CourtComparator implements Comparator<Court> {
 
 	private int m_nMatchMinutes;
 	private Match m_match;
-	private Match[] m_previouslyScheduled;
+	private Vector<Match> m_previouslyScheduled;
 	
 }
