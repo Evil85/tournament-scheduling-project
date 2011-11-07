@@ -142,6 +142,8 @@ CREATE  TABLE IF NOT EXISTS `tourn_201140`.`division` (
   `isDouble` TINYINT(1)  NOT NULL DEFAULT 0 ,
   `estTime` SMALLINT NOT NULL ,
   `genderConstraint` CHAR(1) DEFAULT NULL,
+  `minAge` INT DEFAULT NULL,
+  `maxAge` INT DEFAULT NULL,
   `tournType` VARCHAR(45) NOT NULL ,
   `phase` SMALLINT NOT NULL DEFAULT 0 ,
   PRIMARY KEY (`did`) ,
@@ -219,21 +221,21 @@ ENGINE = InnoDB;
 INSERT INTO `location` (`name`, `address`, `city`, `state`, `zip`, `phone`, 
 	`weekdayOpenTime`, `weekdayCloseTime`, `weekendOpenTime`, `weekendCloseTime`)
 VALUES
-('Bellingham Athletic Club', '2039 State St', 'Bellingham', 'WA', '98225', '3601234512', CAST('05:30:00' AS TIME), CAST('22:00:00' AS TIME), CAST('07:00:00' AS TIME), CAST('21:00:00' AS TIME),
-('WWU Racquetball Courts', 'Carver Gym WWU', 'Bellingham', 'WA', '98225', '3601213232', CAST('07:30:00' AS TIME), CAST('18:00:00' AS TIME), CAST('12:00:00' AS TIME), CAST('18:00:00' AS TIME));
+('Bellingham Athletic Club', '2039 State St', 'Bellingham', 'WA', '98225', '3601234512', CAST('05:30:00' AS TIME), CAST('22:00:00' AS TIME), CAST('07:00:00' AS TIME), CAST('21:00:00' AS TIME)),
+('Alderaan Racquetball Club', 'University of Alderaan', 'Aldera', 'Alderaan', '47023', '3601213482', CAST('07:30:00' AS TIME), CAST('18:00:00' AS TIME), CAST('12:00:00' AS TIME), CAST('18:00:00' AS TIME));
 
 SET @bac = (SELECT MAX(`lid`) FROM `location` WHERE `name`='Bellingham Athletic Club');
-SET @wrc = (SELECT MAX(`lid`) FROM `location` WHERE `name`='WWU Racquetball Courts');
+SET @adc = (SELECT MAX(`lid`) FROM `location` WHERE `name`='Alderaan Racquetball Club');
 
 INSERT INTO `court` (`courtName`, `lid_location`)
 VALUES
-('A', @bac), ('B', @bac), ('C', @bac), ('D', @bac), ('E', @bac),('A', @wrc), ('B', @wrc), ('C', @wrc);
+('A', @bac), ('B', @bac), ('C', @bac), ('D', @bac), ('E', @bac),('A', @adc), ('B', @adc), ('C', @adc);
 
 
 INSERT INTO `person` (`name`, `email`, `address`, `phone`, `gender`, `birthdate`, `unavailTimeStart1`, `unavailTimeEnd1`, `unavailTimeStart2`, `unavailTimeEnd2`, `lid_homeClub`)
 VALUES 
-('Guest', 'guest@guest.com', null, '1111111111', 'g', CAST('1900-1-1' AS DATE), null, null, null, null, null),
-)'Luke Skywalker', 'luke@jedi.com', null, '3601112222', 'm', CAST('1980-03-20' AS DATE), CAST('2011-12-03 12:00:00' AS DATETIME), 
+('Guest', 'guest@guest.com', null, '1111111111', 'g', CAST('1900-1-1' AS DATE), null, null, null, null, null), 
+('Luke Skywalker', 'luke@jedi.com', null, '3601112222', 'm', CAST('1980-03-20' AS DATE), CAST('2011-12-03 12:00:00' AS DATETIME), 
 	CAST('2011-12-03 13:00:00' AS DATETIME), null, null, @bac),
 ('Han Solo', 'hansolo@smuggler.com', null, '3601234567', 'm', CAST('1980-03-20' AS DATE), CAST('2011-12-03 14:00:00' AS DATETIME),
 	CAST('2011-12-03 17:00:00' AS DATETIME), null, null, @bac),
@@ -242,33 +244,33 @@ VALUES
 ('R2D2', 'r2@astromech.com', null, '0110001101', 'm', CAST('1980-03-20' AS DATE), CAST('2011-12-03 12:00:00' AS DATETIME),
 	CAST('2011-12-03 13:00:00' AS DATETIME), null, null, null),
 ('Chewbacca', 'chewy@kashyyyk.com', null, '4250391100', 'm', CAST('1980-03-20' AS DATE), CAST('2011-12-03 12:00:00' AS DATETIME),
-	CAST('2011-12-03 13:00:00' AS DATETIME), null, null, @wrc),
+	CAST('2011-12-03 13:00:00' AS DATETIME), null, null, @adc),
 ('Anakin', 'vader@empire.com', null, '0621002222', 'm', CAST('1980-03-20' AS DATE), CAST('2011-12-03 12:00:00' AS DATETIME),
 	CAST('2011-12-03 13:00:00' AS DATETIME), null, null, null),
-('Mon Mothma', 'monmothma@rebelalliance.org', null, '3601020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, @bac)
+('Mon Mothma', 'monmothma@rebelalliance.org', null, '3601020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, @bac),
 ('Padme Amidala', 'padme@galacticsenate.org', null, '3572991212', 'f', CAST('1985-9-12' AS DATE), null, null, null, null, null),
-('Obi Wan Kenobe', 'oldben@tatooine.org', null, '3657020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, @wrc),
+('Obi Wan Kenobe', 'oldben@tatooine.org', null, '3657020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, @adc),
 ('C3-PO', 'threePO@rebelalliance.org', null, '3601012256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
 ('Jabba the Hutt', 'jabba@tatooine.org', null, '3602120256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
 ('Yoda', 'yoda@jedi.org', null, '3601020126', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
 ('Mace Windu', 'windu@jedi.org', null, '360560256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
 ('Count Dooku', 'tyrannus@cis.org', null, '3631070256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
 ('Darth Maul', 'maul@sith.com', null, '3601020254', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
-('Qui-Gon Jinn', 'quigon@jedi.org', null, '3611020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, @wrc),
+('Qui-Gon Jinn', 'quigon@jedi.org', null, '3611020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, @adc),
 ('Ki Adi Mundi', 'mundi@jedi.org', null, '3601020288', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
-('Uncle Owen', 'owenlars@tatooine.org', null, '3602020256', 'm', CAST('1975-9-12' AS DATE), null, null, null,, null null),
-('Ant Beru', 'beru@tatooine.org', null, '3601070256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, @wrc),
+('Uncle Owen', 'owenlars@tatooine.org', null, '3602020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('Aunt Beru', 'beru@tatooine.org', null, '3601049188', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, @adc),
 ('Grand Moff Tarkin', 'tarkin@deathstar.com', null, '3601030256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
 ('Admiral Ackbar', 'itsatrap@rebelalliance.org', null, '3621020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
 ('Boba Fett', 'fettsvette@tatooine.org', null, '3604020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null,null),
 ('Jango Fett', 'bountyhunter@kamino.org', null, '6601020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
 ('Dengar', 'dengar@freelancer.com', null, '3601026256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
-('IG-88', 'ig88@freelancer.com', null, '3601020257', 'd', CAST('1975-9-12' AS DATE), null, null, null, null, null),
+('IG-88', 'ig88@freelancer.com', null, '3601020257', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
 ('Aayla Secura', 'aayla@jedi.org', null, '3601020756', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, null),
 ('Luminara Unduli', 'unduli@jedi.org', null, '3607020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, null),
 ('Shaak Ti', 'shaakti@jedi.org', null, '3601020856', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, null),
 ('Ahsoka Tano', 'snips@jedi.org', null, '3601050256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, null),
-('Asajj Ventress', 'ventress@cis.org', null, '3401020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, @wrc),
+('Asajj Ventress', 'ventress@cis.org', null, '3401020256', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, @adc),
 ('Revan', 'revan@jedi.org', null, '3601020258', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, @bac),
 ('Bastila Shan', 'bastila@jedi.org', null, '3601020156', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, @bac),
 ('HK-47', 'killallmeatbags@assassindroids.com', null, '3201020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
@@ -300,18 +302,93 @@ VALUES
 	
 INSERT INTO `tournament` (`name`, `start_date`, `end_date`, `isGuestViewable`, `travelTime`, `start_time_weekdays`, `end_time_weekdays`, `start_time_weekends`, `end_time_weekends`, `maxDivPerPlayer`, `uid_owner`)
 VALUES
-('WORLD CHAMPIONSHIP 2011', CAST('2011-12-02' AS DATE), CAST('2011-12-04' AS DATE), TRUE, 0, CAST('16:00:00' AS TIME), CAST('21:00:00' AS TIME), CAST('09:00:00' AS TIME), CAST('17:00:00' AS TIME), 3, 
+('WORLD CHAMPIONSHIP 2011', CAST('2011-12-02' AS DATE), CAST('2011-12-04' AS DATE), TRUE, 30, CAST('16:00:00' AS TIME), CAST('21:00:00' AS TIME), CAST('09:00:00' AS TIME), CAST('17:00:00' AS TIME), 3, 
+	(SELECT `uid` FROM `user` WHERE `username`='MonMothma')),
+('Clone Wars Racquetball', CAST('2011-10-13' AS DATE), CAST('2011-10-16' AS DATE), TRUE, 0, CAST('16:00:00' AS TIME), CAST('21:00:00' AS TIME), CAST('09:00:00' AS TIME), CAST('17:00:00' AS TIME), 3, 
 	(SELECT `uid` FROM `user` WHERE `username`='MonMothma'));
 	
 SET @tourn = (SELECT MAX(`tid`) FROM `tournament` WHERE `name`='WORLD CHAMPIONSHIP 2011');
-	
-INSERT INTO `division` (`name`, `isDouble`, `estTime`, `genderConstraint`, `tournType`, `tid_tournament`)
+SET @pasttourn = (SELECT MAX (`tid`) FROM `tournament` WHERE `name`='Clone Wars Racquetball');
+
+INSERT INTO `venues` (`lid_location`, `tid_tournament`)
 VALUES
-('Singles Men Open', FALSE, 30, 'm', 'round robin', @tourn),
-('Doubles Co-ed', True, 30, 'a', 'round robin', @tourn),
-('Singles Women Open', FALSE, 30, 'f', 'double round robin', @tourn),
-('Elite Men', FALSE, 30, 'm', 'single elimination', @tourn),
-('Elite Women', FALSE, 30, 'f', 'single elimination', @tourn);
+(@bac, @tourn), (@adc, @tourn), (@bac, pasttourn);
+
+
+INSERT INTO `division` (`name`, `isDouble`, `estTime`, `genderConstraint`, `minAge`, `maxAge`, `tournType`, `tid_tournament`)
+VALUES
+('Singles Men Open', FALSE, 30, 'm', 18, null, 'round robin', @tourn),
+('Singles Women Open', FALSE, 30, 'f', 18, null, 'double round robin', @tourn),
+('Doubles Co-ed', True, 30, 'a', null, null, 'round robin', @tourn),
+('Elite Men', FALSE, 45, 'm', null, null, 'single elimination', @tourn),
+('Elite Women', FALSE, 45, 'f', null, null, 'single elimination', @tourn),
+('Senior Men', false, 20, 'm', 65, null, 'round robin', @tourn);
+
+SET @smo = (SELECT MAX(`did`) FROM `division` WHERE `name`='Singles Men Open' AND `tid_tournament`=@tourn);
+SET @dco = (SELECT MAX(`did`) FROM `division` WHERE `name`='Doubles Co-ed' AND `tid_tournament`=@tourn);
+SET @swo = (SELECT MAX(`did`) FROM `division` WHERE `name`='Singles Women Open' AND `tid_tournament`=@tourn);
+SET @elm = (SELECT MAX(`did`) FROM `division` WHERE `name`='Elite Men' AND `tid_tournament`=@tourn);
+SET @elw = (SELECT MAX(`did`) FROM `division` WHERE `name`='Elite Women' AND `tid_tournament`=@tourn);
+SET @snm = (SELECT MAX(`did`) FROM `division` WHERE `name`='Senior Men' AND `tid_tournament`=@tourn);
+
+INSERT INTO `player` (`pid_player1`, `pid_player2`, `did_division`)
+VALUES
+((SELECT `pid` FROM `person` WHERE `name`='Han Solo'), null, @smo),
+((SELECT `pid` FROM `person` WHERE `name`='Uncle Owen'), null, @smo),
+((SELECT `pid` FROM `person` WHERE `name`='Chewbacca'), null, @smo),
+((SELECT `pid` FROM `person` WHERE `name`='Anakin'), null, @smo),
+((SELECT `pid` FROM `person` WHERE `name`='Darth Maul'), null, @smo),
+((SELECT `pid` FROM `person` WHERE `name`='Boba Fett'), null, @smo),
+((SELECT `pid` FROM `person` WHERE `name`='Jango Fett'), null, @smo),
+((SELECT `pid` FROM `person` WHERE `name`='Dengar'), null, @smo),
+((SELECT `pid` FROM `person` WHERE `name`='R2D2'), null, @smo),
+((SELECT `pid` FROM `person` WHERE `name`='C3-PO'), null, @smo),
+((SELECT `pid` FROM `person` WHERE `name`='Ahsoka Tano'), null, @swo),
+((SELECT `pid` FROM `person` WHERE `name`='Atris'), null, @swo),
+((SELECT `pid` FROM `person` WHERE `name`='Aunt Beru'), null, @swo),
+((SELECT `pid` FROM `person` WHERE `name`='Leia Organa'), null, @swo),
+((SELECT `pid` FROM `person` WHERE `name`='Mission Vao'), null, @swo),
+((SELECT `pid` FROM `person` WHERE `name`='Mon Mothma'), null, @swo),
+((SELECT `pid` FROM `person` WHERE `name`='Padme Amidala'), null, @swo),
+((SELECT `pid` FROM `person` WHERE `name`='Shaak Ti'), null, @swo),
+((SELECT `pid` FROM `person` WHERE `name`='Anakin'), (SELECT `pid` FROM `person` WHERE `name`='Ahsoka Tano'), @dco),
+((SELECT `pid` FROM `person` WHERE `name`='Asajj Ventress'), (SELECT `pid` FROM `person` WHERE `name`='Count Dooku'), @dco),
+((SELECT `pid` FROM `person` WHERE `name`='Jango Fett'), (SELECT `pid` FROM `person` WHERE `name`='Boba Fett'), @dco),
+((SELECT `pid` FROM `person` WHERE `name`='Uncle Owen'), (SELECT `pid` FROM `person` WHERE `name`='Aunt Beru'), @dco),
+((SELECT `pid` FROM `person` WHERE `name`='Obi Wan Kenobe'), (SELECT `pid` FROM `person` WHERE `name`='Qui-Gon Jinn'), @dco),
+((SELECT `pid` FROM `person` WHERE `name`='Han Solo'), (SELECT `pid` FROM `person` WHERE `name`='Chewbacca'), @dco),
+((SELECT `pid` FROM `person` WHERE `name`='Revan'), (SELECT `pid` FROM `person` WHERE `name`='Bastila Shan'), @dco),
+((SELECT `pid` FROM `person` WHERE `name`='Luke Skywalker'), (SELECT `pid` FROM `person` WHERE `name`='Leia Organa'), @dco),
+((SELECT `pid` FROM `person` WHERE `name`='HK-47'), (SELECT `pid` FROM `person` WHERE `name`='IG-88'), @dco),
+((SELECT `pid` FROM `person` WHERE `name`='Carth Onasi'), (SELECT `pid` FROM `person` WHERE `name`='Bao-Dur'), @dco),
+((SELECT `pid` FROM `person` WHERE `name`='Jolee Bindo'), null, @elm),
+((SELECT `pid` FROM `person` WHERE `name`='Jabba the Hutt'), null, @elm),
+((SELECT `pid` FROM `person` WHERE `name`='Yoda'), null, @elm),
+((SELECT `pid` FROM `person` WHERE `name`='Mace Windu'), null, @elm),
+((SELECT `pid` FROM `person` WHERE `name`='Qui-Gon Jinn'), null, @elm),
+((SELECT `pid` FROM `person` WHERE `name`='Ki Adi Mundi'), null, @elm),
+((SELECT `pid` FROM `person` WHERE `name`='Grand Moff Tarkin'), null, @elm),
+((SELECT `pid` FROM `person` WHERE `name`='Admiral Ackbar'), null, @elm),
+((SELECT `pid` FROM `person` WHERE `name`='HK-47'), null, @elm),
+((SELECT `pid` FROM `person` WHERE `name`='Darth Malak'), null, @elm),
+((SELECT `pid` FROM `person` WHERE `name`='Canderous Ordo'), null, @elm),
+((SELECT `pid` FROM `person` WHERE `name`='Aayla Secura'), null, @elw),
+((SELECT `pid` FROM `person` WHERE `name`='Kreia'), null, @elw),
+((SELECT `pid` FROM `person` WHERE `name`='Luminara Unduli'), null, @elw),
+((SELECT `pid` FROM `person` WHERE `name`='Shae Vizla'), null, @elw),
+((SELECT `pid` FROM `person` WHERE `name`='Visas Marr'), null, @elw),
+((SELECT `pid` FROM `person` WHERE `name`='Ahsoka Tano'), null, @elw),
+((SELECT `pid` FROM `person` WHERE `name`='Leia Organa'), null, @elw),
+((SELECT `pid` FROM `person` WHERE `name`='Asajj Ventress'), null, @elw),
+((SELECT `pid` FROM `person` WHERE `name`='Bastila Shan'), null, @elw),
+((SELECT `pid` FROM `person` WHERE `name`='Atris'), null, @elw),
+((SELECT `pid` FROM `person` WHERE `name`='Yoda'), null, @snm),
+((SELECT `pid` FROM `person` WHERE `name`='Obi Wan Kenobe'), null, @snm),
+((SELECT `pid` FROM `person` WHERE `name`='Grand Moff Tarkin'), null, @snm),
+((SELECT `pid` FROM `person` WHERE `name`='Qui-Gon Jinn'), null, @snm),
+((SELECT `pid` FROM `person` WHERE `name`='Jolee Bindo'), null, @snm),
+((SELECT `pid` FROM `person` WHERE `name`='Count Dooku'), null, @snm),
+((SELECT `pid` FROM `person` WHERE `name`='Chewbacca'), null, @snm);
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
