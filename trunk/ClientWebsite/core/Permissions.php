@@ -18,6 +18,23 @@ class Permissions{
 				'public'
 			)
 		),
+		'user' => array(
+			'menu' => array(
+				array(
+					'label' => 'Home',
+					'path'  => 'index.php',
+					'icon'  => 'home_icon'
+				),
+				array(
+					'label' => 'Logout',
+					'path'  => 'logout.php',
+					'icon'  => 'logout_icon'
+				)
+			),
+			'permissions' => array(
+				'public'
+			)
+		),
 		'admin' => array(
 			'menu' => array(
 				array(
@@ -29,11 +46,6 @@ class Permissions{
 					'label' => 'User List',
 					'path'  => 'users.php',
 					'icon'  => 'users_icon'
-				),
-				array(
-					'label' => 'Profile',
-					'path'  => 'profile.php',
-					'icon'  => 'profile_icon'
 				),
 				array(
 					'label' => 'Control',
@@ -53,7 +65,10 @@ class Permissions{
 		)
 	);
 	public static function getMenu(){
-		$user = User::get_user_info();
+		$user = DB_User::getUserData();
+		if($user['permissions'] == null || $user['permissions'] == ''){
+			return self::$data['guest']['menu'];
+		}
 		return self::$data[$user['permissions']]['menu'];
 	}
 	public static function getPermissions(){
@@ -63,7 +78,8 @@ class Permissions{
 		if (!is_array($key)) {
 			$key = array($key);
 		}
-		$user = User::get_user_info();
+		$user = DB_User::getUserData();
+		Debug::add('user',$user);
 		$intersection = array_intersect(
 			self::$data[$user['permissions']]['permissions'],
 			$key

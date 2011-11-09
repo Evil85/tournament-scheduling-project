@@ -16,6 +16,16 @@ form{
 	font-weight:bold;
 	padding-left:10px;
 }
+.form_title_subtext{
+	
+}
+.form_title_error{
+	border-radius:5px;
+	border-color:#f00;
+	border-style:solid;
+	border-width:2px;
+	padding:10px;
+}
 .form_toggle{
 	float:right;
 	display:block;

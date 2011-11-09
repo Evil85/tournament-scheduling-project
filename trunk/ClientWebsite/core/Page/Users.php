@@ -1,60 +1,70 @@
 <?php
 class Page_Users implements Page_Interface{
-	private $table;
-	private $users;
-	private $form;
+	private $count;
+	private $people;
+	private $p;
+	private $t;
 	public function __construct(){
-		$this->table = new Display_Table();
-		$this->form  = new Module_Add_User();
-		$this->users = User::get_user_list();
+		// creating display table
+		$this->t = new Display_Table();
+		
+		// creating pager
+		$perpage = 10;
+		$this->count = DB_Person::getPersonCount($_GET['id']);
+		$this->p     = new Display_Pager($perpage,$this->count);
+		
+		// getting people list
+		$this->people = DB_Person::getPersonList($this->p->skip,$perpage);
 	}
 	public function permissions(){
-		return array('admin');
+		return 'admin';
 	}
 	public function generate(){
-		?><h2>User List</h2><?php
-		$data = array('align' => 'center');
-		$t = $this->table;
-		?><div style="margin:10px;"><?php
-		$t->newTable(array('width' => '100%'));
-		$t->newTitle();
-		$t->newCol($data);
-		echo 'UID';
-		$t->newCol($data);
-		echo 'Name';
-		$t->newCol($data);
-		echo 'Username';
-		if(User::get_platform() == 'computer'){
-			$t->newCol($data);
-			echo 'Email';
-			$t->newCol($data);
-			echo 'Phone';
-			$t->newCol($data);
-			echo 'Permissions';
+		?><h2>All People<?php
+		if($this->count > 0) {
+			echo ' ('.$this->count.')';
 		}
-		
-		foreach($this->users as $user){
+		?></h2><?php
+		?><div style="margin:5px"><?php
+		$this->p->generate();
+		$t = $this->t;
+		$t->newTable(array('width'=>'100%'));
+		$t->newTitle();
+		$t->newCol();
+		echo 'ID';
+		$t->newCol();
+		echo 'Name';
+		$t->newCol();
+		echo 'Email';
+		$t->newCol();
+		echo 'Phone';
+		$t->newCol();
+		echo 'Gender';
+		foreach($this->people as $person){
 			$t->newRow();
-			$t->newCol($data);
-			?><a href="profile.php?uid=<?php echo $user['uid'];?>" title="View Profile"><?
-			echo $user['uid'];
+			$t->newCol();
+			?><a href="profile.php?pid=<?php
+			echo $person['pid'];
+			?>" title="View Profile"><?php
+			echo $person['pid'];
 			?></a><?php
 			$t->newCol();
-			echo $user['name'];
+			echo $person['name'];
 			$t->newCol();
-			echo $user['username'];
-			if(User::get_platform() == 'computer'){
-				$t->newCol();
-				echo $user['email'];
-				$t->newCol();
-				echo $user['phone'];
-				$t->newCol($data);
-				echo $user['permissions'];
+			echo $person['email'];
+			$t->newCol();
+			echo $person['phone'];
+			$t->newCol();
+			if($person['gender'] == 'm'){
+				echo 'Male';
+			} else if($person['gender'] == 'f'){
+				echo 'Female';
+			} else {
+				echo 'Unknown';
 			}
 		}
 		$t->end();
-		?></div><div style="margin:10px;"><?php
-		$this->form->generate();
+		$this->p->generate();
 		?></div><?php
 	}
 }

@@ -8,6 +8,7 @@ class Display_Form{
 	private $title;
 	private $subtext;
 	private $toggle;
+	private $error;
 	public $id;
 	private static $static_id = 0;
 	public function __construct($data = array('method' => 'post')){
@@ -19,6 +20,7 @@ class Display_Form{
 		$this->title     = false;
 		$this->subtext   = false;
 		$this->toggle    = false;
+		$this->error     = false;
 		$this->id        = 'form_'.self::$static_id;
 		self::$static_id++;
 		Script::get('display');
@@ -33,11 +35,17 @@ class Display_Form{
 		$center_js = "window.location = '#".$this->id."';";
 		Script::add($center_js);
 	}
-	public function getData($allow){
+	public function setError($error){
+		$this->error = $error;
+	}
+	public function getData($allow, $from = 0){
+		if($from === 0){
+			$from = $_POST;
+		}
 		$data = array();
 		foreach($allow as $key){
-			if(array_key_exists($key,$_POST)){
-				$data[$key] = $_POST[$key];
+			if(array_key_exists($key,$from)){
+				$data[$key] = $from[$key];
 			}
 		};
 		return $data;
@@ -104,6 +112,9 @@ class Display_Form{
 		?><div id="<?php echo $form_id;?>" style="<?php echo $form_style;?>"><?php
 		if($this->subtext !== false){
 			?><p class="form_title_subtext"><?php echo $this->subtext; ?></p><?php
+		}
+		if($this->error !== false){
+			?><p class="form_title_error"><?php echo $this->error; ?></p><?php
 		}
 		?><div class="form_container"><?php
 		?><form <?php echo $this->getParams($this->form_data); ?>><?php

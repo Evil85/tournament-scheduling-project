@@ -2,6 +2,7 @@
 class PageBuilder{
 	private $header;
 	private $page;
+	private $footer;
 	private $title;
 	public function __construct($data = array()){
 		if(!isset($data['page'])){
@@ -16,6 +17,7 @@ class PageBuilder{
 		}
 		$this->title  = $data['title']; 
 		$this->header = new Module_Header();
+		$this->footer = new Module_ChangePlatform();
 		Style::get('page');
 		Debug::add('session',$_SESSION);
 	}
@@ -23,7 +25,7 @@ class PageBuilder{
 		?><html><?php
 		?><head><?php
 		?><title><?php echo $this->title; ?></title><?php
-		if(User::get_platform() == 'mobile'){
+		if(User::isMobile()){
 			?><meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no"><?php
 		}
 		Style::generate(); 
@@ -33,8 +35,7 @@ class PageBuilder{
 		?><div class="main_content"><?php
 		$this->page->generate();
 		?></div><?php
-		$platform = new Module_ChangePlatform();
-		$platform->generate();
+		$this->footer->generate();
 		Debug::generate();
 		Script::generate();
 		?></body><?php

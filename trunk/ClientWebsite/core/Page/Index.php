@@ -2,26 +2,23 @@
 class Page_Index implements Page_Interface{
 	private $t;
 	private $p;
+	private $t_count;
 	public function __construct(){
 		$this->t = new Display_Table();
-		$this->p = new Display_Pager();
-		
-		$perpage = 2;
-		$skip = ($this->p->getPage()-1)*$perpage;
-		Debug::add('skip',$skip);
-		$get  = $perpage;
-		
-		$count = Tournament::getTournamentCount();
-		$pages = ceil($count/$perpage);
-		$this->p->setLimit($pages);
-
-		$this->tournaments = Tournament::getTournaments($skip,$get);
+		$perpage = 5;
+		$count   = DB_Tournament::getTournamentCount();
+		$this->p = new Display_Pager($perpage,$count);
+		$this->tournaments = DB_Tournament::getTournamentList($this->p->skip,$perpage);
 	}
 	public function permissions(){
 		return array('public');
 	}
 	public function generate(){
-		?><h2>Current Tournaments</h2><?php
+		?><h2>Current Tournaments<?php
+		if($this->t_count > 0) {
+			echo ' ('.$this->t_count.')';
+		}
+		?></h2><?php
 		if(count($this->tournaments) > 0){
 			?><div style="margin:10px;"><?php
 			$this->p->generate();
