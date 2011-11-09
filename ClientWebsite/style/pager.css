@@ -1,0 +1,26 @@
+.pager{
+	background-color:#efefef;
+}
+.pager td{
+	padding:2px;
+}
+.pager_link{
+	background-color:#cfcfcf;
+	border-radius:4px;
+	padding:4px;
+	text-decoration:none;
+	font-weight:bold;
+	color:#333;
+}
+.pager_link:hover{
+	background-color:#9BC4E2;
+	color:#35586C;
+}
+.pager_current{
+	background-color:#fff;
+	border-radius:4px;
+	padding:4px;
+	text-decoration:none;
+	font-weight:bold;
+	color:#333;
+}
