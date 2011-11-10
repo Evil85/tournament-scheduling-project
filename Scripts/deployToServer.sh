@@ -6,6 +6,7 @@ projectserver=${USER}@140.160.138.28
 
 if [ "$(id -u)" == $tomorrow ]
 then
+ssh ${projetserver} -C "(chmod -R 777 /ProjectSites/2011/Fall/Tournament\\ Scheduling/robs_dev/*)"
 echo -n -e $today
 stty -echo
 read inputline
