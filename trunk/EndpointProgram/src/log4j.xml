@@ -22,15 +22,15 @@
         </layout>
 	</appender>
 	<logger name="com.Server">
-		<level value="trace" />
+		<level value="info" />
 		<appender-ref ref="DebugFileAppender" />
 	</logger>
 	<logger name="com.EndpointAPI">
-	    <level value="trace"/>
+	    <level value="info"/>
 	    <appender-ref ref="EndpointAPIAppender"/>
 	</logger>
 	<root>
-		<priority value="trace"/>
+		<priority value="info"/>
 		<appender-ref ref="ConsoleAppender"/>
 
 	</root>
