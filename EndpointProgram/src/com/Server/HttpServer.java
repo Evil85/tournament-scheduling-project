@@ -28,6 +28,8 @@ public class HttpServer
 
 	private IHttpHandler requestHandler;
 
+	private boolean isServerRunning;
+
 	public int getNumberOfClientConnections()
 	{
 		return this.numberOfConnections;
@@ -46,18 +48,16 @@ public class HttpServer
 	 */
 	public void run()
 	{
+		this.isServerRunning = true;
+
 		try
 		{
 			ServerSocket socket = new ServerSocket(port);
 			logger.info("Server Initialized on port: " + port);
 
-			// TODO: Make a way to end this while loop to shut down the server safely.
-			while (true)
+			while (this.isServerRunning)
 			{
-				//logger.info("Waiting for connection...");
-
-				// TODO: If it is a localhost connection the we can just close the connection after we have recieved the message
-				// otherwise keep the socket open untill the user says to close it.
+				// otherwise keep the socket open until the user says to close it.
 				final Socket newConnection = socket.accept();
 
 				// Spawn a new thread for the new connectionSocket to run on.
@@ -94,7 +94,7 @@ public class HttpServer
 					}
 				});
 			}
-			// System.out.println("Server Shutdown");
+			logger.info("Server Shutdown");
 		}
 		catch (IOException e)
 		{
@@ -104,6 +104,6 @@ public class HttpServer
 
 	public void stop()
 	{
-	// TODO: Fill this in
+		this.isServerRunning = false;
 	}
 }

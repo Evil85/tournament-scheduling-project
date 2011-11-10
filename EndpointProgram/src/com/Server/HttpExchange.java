@@ -79,7 +79,7 @@ public class HttpExchange extends EventObject
 			outputStreamWriter.write(message);
 			outputStreamWriter.flush();
 			logger.info("Response Sent - ID : " + this.getExchangeId());
-			logger.debug("Response Message - ID : " + this.getExchangeId() + " -\n" + message);
+			logger.debug("Response Message - ID : " + this.getExchangeId() + " :\n" + message);
 		}
 		catch (IOException ex)
 		{
@@ -104,7 +104,6 @@ public class HttpExchange extends EventObject
 
 			// 13 is the ASCII character for carriage return or /r
 			// Read one character at a time from the socket and append it to the string buffer.
-			// TODO: Change to constant delimiter
 			while ((character = inputStreamFromClient.read()) != requestDelimiter &&
 			         character != -1)
 			{
@@ -132,7 +131,7 @@ public class HttpExchange extends EventObject
 
 		this.clientRequest = stringFromClient.toString();
 		logger.info("Request Received - ID : " + this.getExchangeId());
-		logger.debug("Request Message - ID : " + this.getExchangeId() + " -\n" + this.getRequest());
+		logger.debug("Request Message - ID : " + this.getExchangeId() + " :\n" + this.getRequest());
 
 		return true;
 	}
