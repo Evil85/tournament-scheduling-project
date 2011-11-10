@@ -25,6 +25,7 @@ public class EndpointAPI
     private static final String user = "admtourn201140";
     private static final String pass = "yinvamOph";
 
+    private ResultSet rs;
     private PreparedStatement st;
 
 	public EndpointAPI()
@@ -47,7 +48,8 @@ public class EndpointAPI
 		}
 	}
 
-	public JsonObject createUser(CommandArguments arguments)
+
+	public String createUser(CommandArguments arguments)
 	{
         try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
@@ -64,14 +66,14 @@ public class EndpointAPI
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", "true");
-            return e;
+            return e.toString();
         }
         catch (SQLException ex)
         {
 	        logger.error("SQL Exception during createUser:\n" + ex);
 	        JsonObject e = new JsonObject();
             e.addProperty("result", "false");
-            return e;
+            return e.toString();
 	    }
         catch (Exception ex)
         {
@@ -79,19 +81,194 @@ public class EndpointAPI
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", "false");
-            return e;
+            return e.toString();
         }
 	}
 
+
+	public String createPerson(CommandArguments arguments)
+	{
+        try {
+            Connection conn = DriverManager.getConnection(URL, user, pass);
+
+	        st = conn.prepareStatement ("INSERT INTO `person` (`name`, `email`, `city`, `state`, `phone`, `gender`, `birthdate`, `unavailTimeStart1`, `unavailTimeEnd1`, `unavailTimeStart2`, `unavailTimeEnd2`, `lid_homeClub`) VALUES (?, ?, null, null, ?, ?, ?, null, null, null, null, null);");
+	        st.setString(1, (String)arguments.getArgument("PersonName"));
+	        st.setString(2, (String)arguments.getArgument("Email"));
+            st.setString(3, (String)arguments.getArgument("Phone"));
+            st.setString(4, (String)arguments.getArgument("Gender"));
+            st.setDate(5, java.sql.Date.valueOf((String)arguments.getArgument("Birthdate")));
+            st.executeUpdate();
+	        conn.close();
+	        
+    		logger.info("Person Created: " + arguments.getArgument("PersonName"));
+
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "true");
+            return e.toString();
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception during createPerson:\n" + ex);
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+	    }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception during createPerson:\n" + ex);
+
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+	}
 	
-	public JsonObject getPersonID(CommandArguments arguments)
+	
+	public String createCourt(CommandArguments arguments)
+	{
+        try {
+            Connection conn = DriverManager.getConnection(URL, user, pass);
+
+	        st = conn.prepareStatement ("INSERT INTO `court` (`courtName`, `lid_location`) VALUES ('A', @bac);");
+	        st.setString(1, (String)arguments.getArgument("CourtName"));
+	        st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("LocationID")));
+            st.executeUpdate();
+	        conn.close();
+	        
+    		logger.info("Court Created: " + arguments.getArgument("CourtName"));
+
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "true");
+            return e.toString();
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception during createCourt:\n" + ex);
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+	    }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception during createCourt:\n" + ex);
+
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+	}
+	
+	
+	public String createLocation(CommandArguments arguments)
+	{
+        try {
+            Connection conn = DriverManager.getConnection(URL, user, pass);
+
+	        st = conn.prepareStatement ("INSERT INTO `location` (`name`, `address`, `city`, `state`, `zip`, `phone`, `weekdayOpenTime`, `weekdayCloseTime`, `weekendOpenTime`, `weekendCloseTime`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?));");
+	        st.setString(1, (String)arguments.getArgument("LocationName"));
+	        st.setString(2, (String)arguments.getArgument("Address"));
+            st.setString(3, (String)arguments.getArgument("City"));
+            st.setString(4, (String)arguments.getArgument("State"));
+            st.setString(5, (String)arguments.getArgument("Zip"));
+            st.setString(6, (String)arguments.getArgument("Phone"));
+            st.setTime(7, java.sql.Time.valueOf((String)arguments.getArgument("weekdayOpenTime")));
+            st.setTime(8, java.sql.Time.valueOf((String)arguments.getArgument("weekdayCloseTime")));
+            st.setTime(9, java.sql.Time.valueOf((String)arguments.getArgument("weekendOpenTime")));
+            st.setTime(10, java.sql.Time.valueOf((String)arguments.getArgument("weekendCloseTime")));
+            st.executeUpdate();
+	        conn.close();
+	        
+    		logger.info("Location Created: " + arguments.getArgument("LocationName"));
+
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "true");
+            return e.toString();
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception during createLocation:\n" + ex);
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+	    }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception during createLocation:\n" + ex);
+
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+	}
+
+
+	public String createTournament(CommandArguments arguments)
+	{
+        try {
+            Connection conn = DriverManager.getConnection(URL, user, pass);
+
+	        st = conn.prepareStatement ("INSERT INTO `tournament` (`name`, `start_date`, `end_date`, `isGuestViewable`, `travelTime`, `start_time_weekdays`, `end_time_weekdays`, `start_time_weekends`, `end_time_weekends`, `maxDivPerPlayer`, `uid_owner`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+	        st.setString(1, (String)arguments.getArgument("TournamentName"));
+            st.setDate(2, java.sql.Date.valueOf((String)arguments.getArgument("StartDate")));
+            st.setDate(3, java.sql.Date.valueOf((String)arguments.getArgument("EndDate")));
+            st.setInt(4, java.lang.Integer.valueOf((String)arguments.getArgument("IsGuestViewable")));
+            st.setInt(5, java.lang.Integer.valueOf((String)arguments.getArgument("TravelTime")));
+            st.setTime(6, java.sql.Time.valueOf((String)arguments.getArgument("StartTimeWeekdays")));
+            st.setTime(7, java.sql.Time.valueOf((String)arguments.getArgument("EndTimeWeekdays")));
+            st.setTime(8, java.sql.Time.valueOf((String)arguments.getArgument("StartTimeWeekends")));
+            st.setTime(9, java.sql.Time.valueOf((String)arguments.getArgument("EndTimeWeekends")));
+            st.setInt(10, java.lang.Integer.valueOf((String)arguments.getArgument("MaxDivPerPlayer")));
+            st.setInt(11, java.lang.Integer.valueOf((String)arguments.getArgument("OwnerUserID")));
+            st.executeUpdate();
+	        conn.close();
+	        
+    		logger.info("Tournament Created: " + arguments.getArgument("TournamentName"));
+
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "true");
+            return e.toString();
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception during createTournament:\n" + ex);
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+	    }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception during createTournament:\n" + ex);
+
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+	}
+	
+	
+	public String getPersonID(CommandArguments arguments)
 	{
 	    try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
 
+            st = conn.prepareStatement("select count(*) from `person` WHERE `name` = ?;");
+            rs = st.executeQuery();
+            int numberOfRows = rs.getInt(1);
+            if (numberOfRows == 0)
+            {
+                logger.error("Selecting person name that does not exist: " + arguments.getArgument("PersonName"));
+
+                JsonObject e = new JsonObject();
+                e.addProperty("result", "false");
+                e.addProperty("reason", "Person name does not exist");
+                return e.toString();
+            }         
+                
+
+
             st = conn.prepareStatement("SELECT `pid` FROM `person` WHERE `name` = ?;");
             st.setString(1, (String)arguments.getArgument("PersonName"));
-	        ResultSet rs = st.executeQuery();
+	        rs = st.executeQuery();
 	        rs.next();
 	        int pid = Integer.parseInt(rs.getString(1));
 
@@ -99,7 +276,7 @@ public class EndpointAPI
 
             JsonObject e = new JsonObject();
             e.addProperty("pid", pid);
-            return e;
+            return e.toString();
         }
         catch (SQLException ex)
         {
@@ -107,7 +284,8 @@ public class EndpointAPI
 
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
-            return e;
+            e.addProperty("reason", "SQL Exception");
+            return e.toString();
         }
         catch (Exception ex)
         {
@@ -115,18 +293,19 @@ public class EndpointAPI
 
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
-            return e;
+            e.addProperty("reason", "Java Exception");
+            return e.toString();
         }
 	}
 	
-	public JsonObject getUserID(CommandArguments arguments)
+	public String getUserID(CommandArguments arguments)
 	{
 	    try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
 
             st = conn.prepareStatement("SELECT `uid` FROM `user` WHERE `username` = ?;");
             st.setString(1, (String)arguments.getArgument("UserName"));
-	        ResultSet rs = st.executeQuery();
+	        rs = st.executeQuery();
 	        rs.next();
 	        int uid = Integer.parseInt(rs.getString(1));
 
@@ -134,7 +313,7 @@ public class EndpointAPI
 
             JsonObject e = new JsonObject();
             e.addProperty("uid", uid);
-            return e;
+            return e.toString();
         }
         catch (SQLException ex)
         {
@@ -142,7 +321,7 @@ public class EndpointAPI
 
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
-            return e;
+            return e.toString();
         }
         catch (Exception ex)
         {
@@ -150,7 +329,7 @@ public class EndpointAPI
 
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
-            return e;
+            return e.toString();
         }
 	}
 }
