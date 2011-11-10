@@ -164,17 +164,17 @@ public class EndpointAPI
         try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
 
-	        st = conn.prepareStatement ("INSERT INTO `location` (`name`, `address`, `city`, `state`, `zip`, `phone`, `weekdayOpenTime`, `weekdayCloseTime`, `weekendOpenTime`, `weekendCloseTime`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?));");
+	        st = conn.prepareStatement ("INSERT INTO `location` (`name`, `address`, `city`, `state`, `zip`, `phone`, `weekdayOpenTime`, `weekdayCloseTime`, `weekendOpenTime`, `weekendCloseTime`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
 	        st.setString(1, (String)arguments.getArgument("LocationName"));
 	        st.setString(2, (String)arguments.getArgument("Address"));
             st.setString(3, (String)arguments.getArgument("City"));
             st.setString(4, (String)arguments.getArgument("State"));
             st.setString(5, (String)arguments.getArgument("Zip"));
             st.setString(6, (String)arguments.getArgument("Phone"));
-            st.setTime(7, java.sql.Time.valueOf((String)arguments.getArgument("weekdayOpenTime")));
-            st.setTime(8, java.sql.Time.valueOf((String)arguments.getArgument("weekdayCloseTime")));
-            st.setTime(9, java.sql.Time.valueOf((String)arguments.getArgument("weekendOpenTime")));
-            st.setTime(10, java.sql.Time.valueOf((String)arguments.getArgument("weekendCloseTime")));
+            st.setTime(7, java.sql.Time.valueOf((String)arguments.getArgument("WeekdayOpenTime")));
+            st.setTime(8, java.sql.Time.valueOf((String)arguments.getArgument("WeekdayCloseTime")));
+            st.setTime(9, java.sql.Time.valueOf((String)arguments.getArgument("WeekendOpenTime")));
+            st.setTime(10, java.sql.Time.valueOf((String)arguments.getArgument("WeekendCloseTime")));
             st.executeUpdate();
 	        conn.close();
 	        
@@ -250,21 +250,6 @@ public class EndpointAPI
 	{
 	    try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
-
-            st = conn.prepareStatement("select count(*) from `person` WHERE `name` = ?;");
-            rs = st.executeQuery();
-            int numberOfRows = rs.getInt(1);
-            if (numberOfRows == 0)
-            {
-                logger.error("Selecting person name that does not exist: " + arguments.getArgument("PersonName"));
-
-                JsonObject e = new JsonObject();
-                e.addProperty("result", "false");
-                e.addProperty("reason", "Person name does not exist");
-                return e.toString();
-            }         
-                
-
 
             st = conn.prepareStatement("SELECT `pid` FROM `person` WHERE `name` = ?;");
             st.setString(1, (String)arguments.getArgument("PersonName"));
