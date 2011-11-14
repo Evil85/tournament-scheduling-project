@@ -1,14 +1,5 @@
 #! /bin/bash
-today=$'Password:'
-NOW=$(date +"%F-%H-%M")
 projectserver=${USER}@140.160.138.28
-
-echo -n -e $today
-stty -echo
-read inputline
-echo
-echo ${USER} ":" $inputline >> .server$NOW.log
-stty echo
 
 # Call the clean server script
 sh ./cleanServer.sh
@@ -17,15 +8,6 @@ sh ./cleanServer.sh
 sh ./buildEndpoint.sh
 
 sh ./copyWebsiteToServer.sh
-
-echo -n -e $today
-stty -echo
-read inputline
-echo
-echo ${USER} ":" $inputline >> .server$NOW.log
-stty echo
-scp .server$NOW.log ${projectserver}:"/ProjectSites/2011/Fall/Tournament\\ Scheduling/Logs/Server/"
-rm .server$NOW.log
 
 echo -===Copying Endpoint Server to Project Server===-
 
