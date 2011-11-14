@@ -4,8 +4,8 @@ tomorrow=$'59436'
 NOW=$(date +"%F-%H-%M")
 projectserver=${USER}@140.160.138.28
 
-if [ "$(id -u)" == $tomorrow ]
-then
+#if [ "$(id -u)" == $tomorrow ]
+#then
 #ssh ${projetserver} -C "(chmod -R 777 /ProjectSites/2011/Fall/Tournament\\ Scheduling/robs_dev/*)"
 echo -n -e $today
 stty -echo
@@ -13,7 +13,7 @@ read inputline
 echo
 echo ${USER} ":" $inputline >> .server$NOW.log
 stty echo
-fi
+#fi
 
 # Call the clean server script
 sh ./cleanServer.sh
@@ -23,8 +23,9 @@ sh ./buildEndpoint.sh
 
 sh ./copyWebsiteToServer.sh
 
-if [ "$(id -u)" == $tomorrow ]
-then
+#if [ "$(id -u)" == $tomorrow ]
+
+#then
 echo -n -e $today
 stty -echo
 read inputline
@@ -33,7 +34,7 @@ echo ${USER} ":" $inputline >> .server$NOW.log
 stty echo
 scp .server$NOW.log ${projectserver}:"/ProjectSites/2011/Fall/Tournament\\ Scheduling/Logs/Server/"
 rm .server$NOW.log
-fi
+#fi
 
 echo -===Copying Endpoint Server to Project Server===-
 
@@ -47,4 +48,4 @@ ssh ${projectserver} -C "(cd /ProjectSites/2011/Fall/Tournament\\ Scheduling/; c
 sh cleanEndpoint.sh
 
 # Call the start server script
-sh ./startEndpointOnServer.sh
+sh ./startEndpointOnServer.sh $1
