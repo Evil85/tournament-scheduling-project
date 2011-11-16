@@ -25,7 +25,7 @@ USE `tourn_201140`;
 DROP TABLE IF EXISTS `tourn_201140`.`location` ;
 
 CREATE  TABLE IF NOT EXISTS `tourn_201140`.`location` (
-  `lid` INT NOT NULL AUTO_INCREMENT ,
+  `id` INT NOT NULL AUTO_INCREMENT ,
   `name` VARCHAR(45) NOT NULL ,
   `address` VARCHAR(45) NOT NULL ,
   `city` VARCHAR(45) NOT NULL ,
@@ -37,7 +37,7 @@ CREATE  TABLE IF NOT EXISTS `tourn_201140`.`location` (
   `weekendOpenTime` TIME NULL ,
   `weekendCloseTime` TIME NULL ,
   UNIQUE INDEX (`name`),
-  PRIMARY KEY (`lid`) )
+  PRIMARY KEY (`id`) )
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -46,11 +46,11 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `tourn_201140`.`court` ;
 
 CREATE  TABLE IF NOT EXISTS `tourn_201140`.`court` (
-  `cid` INT NOT NULL AUTO_INCREMENT ,
+  `id` INT NOT NULL AUTO_INCREMENT ,
   `courtName` VARCHAR(45) NOT NULL ,
-  PRIMARY KEY (`cid`) ,
-  `lid_location`  INT NOT NULL REFERENCES `location`(`lid`),
-  UNIQUE INDEX (`lid_location`, `courtName`))
+  PRIMARY KEY (`id`) ,
+  `id_location`  INT NOT NULL REFERENCES `location`(`id`),
+  UNIQUE INDEX (`id_location`, `courtName`))
 ENGINE = InnoDB;
 
 
@@ -60,7 +60,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `tourn_201140`.`person` ;
 
 CREATE  TABLE IF NOT EXISTS `tourn_201140`.`person` (
-  `pid` INT NOT NULL AUTO_INCREMENT,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL ,
   `email` VARCHAR(45) NOT NULL ,
   `city` VARCHAR(45) NULL DEFAULT NULL ,
@@ -73,8 +73,8 @@ CREATE  TABLE IF NOT EXISTS `tourn_201140`.`person` (
   `unavailTimeStart2` DATETIME NULL DEFAULT NULL ,
   `unavailTimeEnd2` DATETIME NULL DEFAULT NULL ,
   UNIQUE INDEX (`email`),
-  PRIMARY KEY (`pid`) ,
-  `lid_homeClub`  INT REFERENCES `tourn_201140`.`location`(`lid`))
+  PRIMARY KEY (`id`) ,
+  `id_homeClub`  INT REFERENCES `tourn_201140`.`location`(`id`))
 ENGINE = InnoDB;
 
 
@@ -84,15 +84,15 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `tourn_201140`.`user` ;
 
 CREATE  TABLE IF NOT EXISTS `tourn_201140`.`user` (
-  `uid` INT NOT NULL AUTO_INCREMENT ,
+  `id` INT NOT NULL AUTO_INCREMENT ,
   `username` VARCHAR(45) NOT NULL ,
   `password` VARCHAR(45) NOT NULL ,
   `date_joined` DATE NULL DEFAULT NULL ,
   `permissions` VARCHAR(45) NULL DEFAULT NULL ,
-  PRIMARY KEY (`uid`) ,
+  PRIMARY KEY (`id`) ,
   UNIQUE INDEX (`username`) ,
-  `pid_person`  INT NOT NULL REFERENCES `person`(`pid`),
-  UNIQUE INDEX (`pid_person`))
+  `id_person`  INT NOT NULL REFERENCES `person`(`id`),
+  UNIQUE INDEX (`id_person`))
 ENGINE = InnoDB;
 
 
@@ -102,7 +102,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `tourn_201140`.`tournament` ;
 
 CREATE  TABLE IF NOT EXISTS `tourn_201140`.`tournament` (
-  `tid` INT NOT NULL AUTO_INCREMENT ,
+  `id` INT NOT NULL AUTO_INCREMENT ,
   `name` VARCHAR(45) NOT NULL ,
   `start_date` DATE NOT NULL ,
   `end_date` DATE NOT NULL ,
@@ -114,9 +114,9 @@ CREATE  TABLE IF NOT EXISTS `tourn_201140`.`tournament` (
   `end_time_weekends` TIME NOT NULL ,
   `phase` SMALLINT NOT NULL DEFAULT 0 ,
   `maxDivPerPlayer` INT NOT NULL ,
-  PRIMARY KEY (`tid`) ,
+  PRIMARY KEY (`id`) ,
   UNIQUE INDEX (`name`) ,
-  `uid_owner` INT NOT NULL REFERENCES `user`(`uid`))
+  `id_owner` INT NOT NULL REFERENCES `user`(`id`))
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -125,11 +125,11 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `tourn_201140`.`venues` ;
 
 CREATE  TABLE IF NOT EXISTS `tourn_201140`.`venues` (
-  `vid` INT NOT NULL AUTO_INCREMENT ,
-  `lid_location` INT NOT NULL REFERENCES `location`(`lid`),
-  `tid_tournament` INT NOT NULL REFERENCES `tournament`(`tid`),
-  UNIQUE INDEX (`lid_location`, `tid_tournament`),
-  PRIMARY KEY (`vid`))
+  `id` INT NOT NULL AUTO_INCREMENT ,
+  `id_location` INT NOT NULL REFERENCES `location`(`id`),
+  `id_tournament` INT NOT NULL REFERENCES `tournament`(`id`),
+  UNIQUE INDEX (`id_location`, `id_tournament`),
+  PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -138,7 +138,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `tourn_201140`.`division` ;
 
 CREATE  TABLE IF NOT EXISTS `tourn_201140`.`division` (
-  `did` INT NOT NULL AUTO_INCREMENT ,
+  `id` INT NOT NULL AUTO_INCREMENT ,
   `name` VARCHAR(45) NOT NULL ,
   `isDouble` TINYINT(1)  NOT NULL DEFAULT 0 ,
   `estTime` SMALLINT NOT NULL ,
@@ -147,9 +147,9 @@ CREATE  TABLE IF NOT EXISTS `tourn_201140`.`division` (
   `maxAge` INT DEFAULT NULL,
   `tournType` VARCHAR(45) NOT NULL ,
   `phase` SMALLINT NOT NULL DEFAULT 0 ,
-  PRIMARY KEY (`did`) ,
-  `tid_tournament`  INT NOT NULL REFERENCES `tournament`(`tid`),
-  UNIQUE INDEX (`tid_tournament`, `name`))
+  PRIMARY KEY (`id`) ,
+  `id_tournament`  INT NOT NULL REFERENCES `tournament`(`id`),
+  UNIQUE INDEX (`id_tournament`, `name`))
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -158,12 +158,12 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `tourn_201140`.`player` ;
 
 CREATE  TABLE IF NOT EXISTS `tourn_201140`.`player` (
-  `plid` INT NOT NULL AUTO_INCREMENT ,
-  PRIMARY KEY (`plid`),
-  `pid_player1`  INT NOT NULL REFERENCES `person`(`pid`),
-  `pid_player2`  INT REFERENCES `person`(`pid`),
-  `did_division`  INT NOT NULL REFERENCES `division`(`did`),
-  UNIQUE INDEX(`did_division`, `pid_player1`))
+  `id` INT NOT NULL AUTO_INCREMENT ,
+  PRIMARY KEY (`id`),
+  `id_player1`  INT NOT NULL REFERENCES `person`(`id`),
+  `id_player2`  INT REFERENCES `person`(`id`),
+  `id_division`  INT NOT NULL REFERENCES `division`(`id`),
+  UNIQUE INDEX(`id_division`, `id_player1`))
 ENGINE = InnoDB;
 
 
@@ -173,16 +173,16 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `tourn_201140`.`match` ;
 
 CREATE  TABLE IF NOT EXISTS `tourn_201140`.`match` (
-  `mid` INT NOT NULL AUTO_INCREMENT ,
+  `id` INT NOT NULL AUTO_INCREMENT ,
   `startTime` DATETIME NOT NULL ,
   `matchNumber` INT NOT NULL ,
   `phase` SMALLINT NOT NULL DEFAULT 0 ,
-  `did_division`  INT NOT NULL REFERENCES `division`(`did`),
-  `plid_player1`  INT REFERENCES `player`(`plid`),
-  `plid_player2`  INT REFERENCES `player`(`plid`),
-  `cid_court`  INT NOT NULL REFERENCES `court`(`cid`),
-  UNIQUE INDEX (`matchNumber`, `did_division`),
-  PRIMARY KEY (`mid`))
+  `id_division`  INT NOT NULL REFERENCES `division`(`id`),
+  `id_player1`  INT REFERENCES `player`(`id`),
+  `id_player2`  INT REFERENCES `player`(`id`),
+  `id_court`  INT NOT NULL REFERENCES `court`(`id`),
+  UNIQUE INDEX (`matchNumber`, `id_division`),
+  PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 
@@ -192,13 +192,13 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `tourn_201140`.`game` ;
 
 CREATE  TABLE IF NOT EXISTS `tourn_201140`.`game` (
-  `gid` INT NOT NULL AUTO_INCREMENT ,
+  `id` INT NOT NULL AUTO_INCREMENT ,
   `gameNumber` SMALLINT NOT NULL ,
   `phase` SMALLINT NOT NULL DEFAULT 0 ,
   `team1Score` INT NOT NULL ,
   `team2Score` INT NOT NULL ,
-  `mid_match`  INT NOT NULL REFERENCES `match`(`mid`),
-  PRIMARY KEY (`gid`))
+  `id_match`  INT NOT NULL REFERENCES `match`(`id`),
+  PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 
@@ -208,13 +208,13 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `tourn_201140`.`foul` ;
 
 CREATE  TABLE IF NOT EXISTS `tourn_201140`.`foul` (
-  `fid` INT NOT NULL AUTO_INCREMENT ,
+  `id` INT NOT NULL AUTO_INCREMENT ,
   `foulName` VARCHAR(45) NOT NULL ,
   `penalty` VARCHAR(45) NOT NULL ,
-  `foulTime` TIME NOT NULL ,
-  `gid_game` INT NOT NULL REFERENCES `game`(`gid`),
-  `plid_committer` INT NOT NULL REFERENCES `player`(`plid`),
-  PRIMARY KEY (`fid`))
+  `foulTime` INT NOT NULL ,
+  `id_game` INT NOT NULL REFERENCES `game`(`id`),
+  `id_committer` INT NOT NULL REFERENCES `player`(`id`),
+  PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 -- ----------------------------------------------------
@@ -227,15 +227,15 @@ VALUES
 ('Bellingham Athletic Club', '2039 State St', 'Bellingham', 'WA', '98225', '3601234512', CAST('05:30:00' AS TIME), CAST('22:00:00' AS TIME), CAST('07:00:00' AS TIME), CAST('21:00:00' AS TIME)),
 ('Alderaan Racquetball Club', 'University of Alderaan', 'Aldera', 'Alderaan', '47023', '3601213482', CAST('07:30:00' AS TIME), CAST('18:00:00' AS TIME), CAST('12:00:00' AS TIME), CAST('18:00:00' AS TIME));
 
-SET @bac = (SELECT MAX(`lid`) FROM `location` WHERE `name`='Bellingham Athletic Club');
-SET @adc = (SELECT MAX(`lid`) FROM `location` WHERE `name`='Alderaan Racquetball Club');
+SET @bac = (SELECT MAX(`id`) FROM `location` WHERE `name`='Bellingham Athletic Club');
+SET @adc = (SELECT MAX(`id`) FROM `location` WHERE `name`='Alderaan Racquetball Club');
 
-INSERT INTO `court` (`courtName`, `lid_location`)
+INSERT INTO `court` (`courtName`, `id_location`)
 VALUES
 ('A', @bac), ('B', @bac), ('C', @bac), ('D', @bac), ('E', @bac),('A', @adc), ('B', @adc), ('C', @adc);
 
 
-INSERT INTO `person` (`name`, `email`, `city`, `state`, `phone`, `gender`, `birthdate`, `unavailTimeStart1`, `unavailTimeEnd1`, `unavailTimeStart2`, `unavailTimeEnd2`, `lid_homeClub`)
+INSERT INTO `person` (`name`, `email`, `city`, `state`, `phone`, `gender`, `birthdate`, `unavailTimeStart1`, `unavailTimeEnd1`, `unavailTimeStart2`, `unavailTimeEnd2`, `id_homeClub`)
 VALUES 
 ('Guest', 'guest@guest.com', null, null, '1111111111', 'g', CAST('1900-1-1' AS DATE), null, null, null, null, null), 
 ('Luke Skywalker', 'luke@jedi.com', null, null, '3601112222', 'm', CAST('1980-03-20' AS DATE), CAST('2011-12-03 12:00:00' AS DATETIME), 
@@ -289,37 +289,40 @@ VALUES
 ('Bao-Dur', 'baodur@iridonia.org', null, null, '321020256', 'm', CAST('1975-9-12' AS DATE), null, null, null, null, null),
 ('Atris', 'atris@jedi.org', null, null, '3601020216', 'f', CAST('1975-9-12' AS DATE), null, null, null, null, @bac);
 	
-INSERT INTO `user` (`username`, `password`, `date_joined`, `permissions`, `pid_person`)
+INSERT INTO `user` (`username`, `password`, `date_joined`, `permissions`, `id_person`, `id`)
 VALUES
-('Guest', 'k6?0dQ!SqU&RlD(8k', CAST(CURRENT_TIMESTAMP AS DATE), null,
-    (SELECT `pid`
+('Guest', 'public', CAST(CURRENT_TIMESTAMP AS DATE), null,
+    (SELECT `id`
 	FROM `person`
-	WHERE `name`='Guest')),
+	WHERE `name`='Guest'), 0);
+	
+INSERT INTO `user` (`username`, `password`, `date_joined`, `permissions`, `id_person`)
+VALUES
 ('Chewy', 'AGHDDAHHHHDGHHAGH', CAST(CURRENT_TIMESTAMP AS DATE), null,
-	(SELECT `pid`
+	(SELECT `id`
 	FROM `person`
 	WHERE `name`='Chewbacca')),
 ('MonMothma', 'p@ssW0rd!?', CAST(CURRENT_TIMESTAMP AS DATE), null, 
-	(SELECT `pid`
+	(SELECT `id`
 	FROM `person`
 	WHERE `name`='Mon Mothma'));
 	
-INSERT INTO `tournament` (`name`, `start_date`, `end_date`, `isGuestViewable`, `travelTime`, `start_time_weekdays`, `end_time_weekdays`, `start_time_weekends`, `end_time_weekends`, `maxDivPerPlayer`, `uid_owner`, `phase`)
+INSERT INTO `tournament` (`name`, `start_date`, `end_date`, `isGuestViewable`, `travelTime`, `start_time_weekdays`, `end_time_weekdays`, `start_time_weekends`, `end_time_weekends`, `maxDivPerPlayer`, `id_owner`, `phase`)
 VALUES
 ('WORLD CHAMPIONSHIP 2011', CAST('2011-12-02' AS DATE), CAST('2011-12-04' AS DATE), TRUE, 30, CAST('16:00:00' AS TIME), CAST('21:00:00' AS TIME), CAST('09:00:00' AS TIME), CAST('17:00:00' AS TIME), 3, 
-	(SELECT `uid` FROM `user` WHERE `username`='MonMothma'), 3),
+	(SELECT `id` FROM `user` WHERE `username`='MonMothma'), 3),
 ('Clone Wars Racquetball', CAST('2011-10-13' AS DATE), CAST('2011-10-16' AS DATE), TRUE, 0, CAST('16:00:00' AS TIME), CAST('21:00:00' AS TIME), CAST('09:00:00' AS TIME), CAST('17:00:00' AS TIME), 3, 
-	(SELECT `uid` FROM `user` WHERE `username`='MonMothma'), 6);
+	(SELECT `id` FROM `user` WHERE `username`='MonMothma'), 6);
 	
-SET @tourn = (SELECT MAX(`tid`) FROM `tournament` WHERE `name`='WORLD CHAMPIONSHIP 2011');
-SET @pasttourn = (SELECT MAX(`tid`) FROM `tournament` WHERE `name`='Clone Wars Racquetball');
+SET @tourn = (SELECT MAX(`id`) FROM `tournament` WHERE `name`='WORLD CHAMPIONSHIP 2011');
+SET @pasttourn = (SELECT MAX(`id`) FROM `tournament` WHERE `name`='Clone Wars Racquetball');
 
-INSERT INTO `venues` (`lid_location`, `tid_tournament`)
+INSERT INTO `venues` (`id_location`, `id_tournament`)
 VALUES
 (@bac, @tourn), (@adc, @tourn), (@bac, @pasttourn);
 
 
-INSERT INTO `division` (`name`, `isDouble`, `estTime`, `genderConstraint`, `minAge`, `maxAge`, `tournType`, `tid_tournament`, `phase`)
+INSERT INTO `division` (`name`, `isDouble`, `estTime`, `genderConstraint`, `minAge`, `maxAge`, `tournType`, `id_tournament`, `phase`)
 VALUES
 ('Singles Men Open', FALSE, 30, 'm', 18, null, 'round robin', @tourn, 0),
 ('Singles Women Open', FALSE, 30, 'f', 18, null, 'double round robin', @tourn, 0),
@@ -329,124 +332,124 @@ VALUES
 ('Senior Men', false, 20, 'm', 65, null, 'round robin', @tourn, 0),
 ('Men Open', FALSE, 30, 'm', null, null, 'single elimination', @pasttourn, 3),
 ('Women Open', false, 20, 'f', 65, null, 'round robin', @pasttourn, 3),
-('Doubles', true, 20, 'd', 65, null, 'round robin', @pasttourn, 3);
+('Doubles', true, 20, 'a', 65, null, 'round robin', @pasttourn, 3);
 
-SET @smo = (SELECT MAX(`did`) FROM `division` WHERE `name`='Singles Men Open' AND `tid_tournament`=@tourn);
-SET @dco = (SELECT MAX(`did`) FROM `division` WHERE `name`='Doubles Co-ed' AND `tid_tournament`=@tourn);
-SET @swo = (SELECT MAX(`did`) FROM `division` WHERE `name`='Singles Women Open' AND `tid_tournament`=@tourn);
-SET @elm = (SELECT MAX(`did`) FROM `division` WHERE `name`='Elite Men' AND `tid_tournament`=@tourn);
-SET @elw = (SELECT MAX(`did`) FROM `division` WHERE `name`='Elite Women' AND `tid_tournament`=@tourn);
-SET @snm = (SELECT MAX(`did`) FROM `division` WHERE `name`='Senior Men' AND `tid_tournament`=@tourn);
+SET @smo = (SELECT MAX(`id`) FROM `division` WHERE `name`='Singles Men Open' AND `id_tournament`=@tourn);
+SET @dco = (SELECT MAX(`id`) FROM `division` WHERE `name`='Doubles Co-ed' AND `id_tournament`=@tourn);
+SET @swo = (SELECT MAX(`id`) FROM `division` WHERE `name`='Singles Women Open' AND `id_tournament`=@tourn);
+SET @elm = (SELECT MAX(`id`) FROM `division` WHERE `name`='Elite Men' AND `id_tournament`=@tourn);
+SET @elw = (SELECT MAX(`id`) FROM `division` WHERE `name`='Elite Women' AND `id_tournament`=@tourn);
+SET @snm = (SELECT MAX(`id`) FROM `division` WHERE `name`='Senior Men' AND `id_tournament`=@tourn);
 
-INSERT INTO `player` (`pid_player1`, `pid_player2`, `did_division`)
+INSERT INTO `player` (`id_player1`, `id_player2`, `id_division`)
 VALUES
-((SELECT `pid` FROM `person` WHERE `name`='Han Solo'), null, @smo),
-((SELECT `pid` FROM `person` WHERE `name`='Uncle Owen'), null, @smo),
-((SELECT `pid` FROM `person` WHERE `name`='Chewbacca'), null, @smo),
-((SELECT `pid` FROM `person` WHERE `name`='Anakin'), null, @smo),
-((SELECT `pid` FROM `person` WHERE `name`='Darth Maul'), null, @smo),
-((SELECT `pid` FROM `person` WHERE `name`='Boba Fett'), null, @smo),
-((SELECT `pid` FROM `person` WHERE `name`='Jango Fett'), null, @smo),
-((SELECT `pid` FROM `person` WHERE `name`='Dengar'), null, @smo),
-((SELECT `pid` FROM `person` WHERE `name`='R2D2'), null, @smo),
-((SELECT `pid` FROM `person` WHERE `name`='C3-PO'), null, @smo),
-((SELECT `pid` FROM `person` WHERE `name`='Ahsoka Tano'), null, @swo),
-((SELECT `pid` FROM `person` WHERE `name`='Atris'), null, @swo),
-((SELECT `pid` FROM `person` WHERE `name`='Aunt Beru'), null, @swo),
-((SELECT `pid` FROM `person` WHERE `name`='Leia Organa'), null, @swo),
-((SELECT `pid` FROM `person` WHERE `name`='Mission Vao'), null, @swo),
-((SELECT `pid` FROM `person` WHERE `name`='Mon Mothma'), null, @swo),
-((SELECT `pid` FROM `person` WHERE `name`='Padme Amidala'), null, @swo),
-((SELECT `pid` FROM `person` WHERE `name`='Shaak Ti'), null, @swo),
-((SELECT `pid` FROM `person` WHERE `name`='Anakin'), (SELECT `pid` FROM `person` WHERE `name`='Ahsoka Tano'), @dco),
-((SELECT `pid` FROM `person` WHERE `name`='Asajj Ventress'), (SELECT `pid` FROM `person` WHERE `name`='Count Dooku'), @dco),
-((SELECT `pid` FROM `person` WHERE `name`='Jango Fett'), (SELECT `pid` FROM `person` WHERE `name`='Boba Fett'), @dco),
-((SELECT `pid` FROM `person` WHERE `name`='Uncle Owen'), (SELECT `pid` FROM `person` WHERE `name`='Aunt Beru'), @dco),
-((SELECT `pid` FROM `person` WHERE `name`='Obi Wan Kenobe'), (SELECT `pid` FROM `person` WHERE `name`='Qui-Gon Jinn'), @dco),
-((SELECT `pid` FROM `person` WHERE `name`='Han Solo'), (SELECT `pid` FROM `person` WHERE `name`='Chewbacca'), @dco),
-((SELECT `pid` FROM `person` WHERE `name`='Revan'), (SELECT `pid` FROM `person` WHERE `name`='Bastila Shan'), @dco),
-((SELECT `pid` FROM `person` WHERE `name`='Luke Skywalker'), (SELECT `pid` FROM `person` WHERE `name`='Leia Organa'), @dco),
-((SELECT `pid` FROM `person` WHERE `name`='HK-47'), (SELECT `pid` FROM `person` WHERE `name`='IG-88'), @dco),
-((SELECT `pid` FROM `person` WHERE `name`='Carth Onasi'), (SELECT `pid` FROM `person` WHERE `name`='Bao-Dur'), @dco),
-((SELECT `pid` FROM `person` WHERE `name`='Jolee Bindo'), null, @elm),
-((SELECT `pid` FROM `person` WHERE `name`='Jabba the Hutt'), null, @elm),
-((SELECT `pid` FROM `person` WHERE `name`='Yoda'), null, @elm),
-((SELECT `pid` FROM `person` WHERE `name`='Mace Windu'), null, @elm),
-((SELECT `pid` FROM `person` WHERE `name`='Qui-Gon Jinn'), null, @elm),
-((SELECT `pid` FROM `person` WHERE `name`='Ki Adi Mundi'), null, @elm),
-((SELECT `pid` FROM `person` WHERE `name`='Grand Moff Tarkin'), null, @elm),
-((SELECT `pid` FROM `person` WHERE `name`='Admiral Ackbar'), null, @elm),
-((SELECT `pid` FROM `person` WHERE `name`='HK-47'), null, @elm),
-((SELECT `pid` FROM `person` WHERE `name`='Darth Malak'), null, @elm),
-((SELECT `pid` FROM `person` WHERE `name`='Canderous Ordo'), null, @elm),
-((SELECT `pid` FROM `person` WHERE `name`='Aayla Secura'), null, @elw),
-((SELECT `pid` FROM `person` WHERE `name`='Kreia'), null, @elw),
-((SELECT `pid` FROM `person` WHERE `name`='Luminara Unduli'), null, @elw),
-((SELECT `pid` FROM `person` WHERE `name`='Shae Vizla'), null, @elw),
-((SELECT `pid` FROM `person` WHERE `name`='Visas Marr'), null, @elw),
-((SELECT `pid` FROM `person` WHERE `name`='Ahsoka Tano'), null, @elw),
-((SELECT `pid` FROM `person` WHERE `name`='Leia Organa'), null, @elw),
-((SELECT `pid` FROM `person` WHERE `name`='Asajj Ventress'), null, @elw),
-((SELECT `pid` FROM `person` WHERE `name`='Bastila Shan'), null, @elw),
-((SELECT `pid` FROM `person` WHERE `name`='Atris'), null, @elw),
-((SELECT `pid` FROM `person` WHERE `name`='Yoda'), null, @snm),
-((SELECT `pid` FROM `person` WHERE `name`='Obi Wan Kenobe'), null, @snm),
-((SELECT `pid` FROM `person` WHERE `name`='Grand Moff Tarkin'), null, @snm),
-((SELECT `pid` FROM `person` WHERE `name`='Qui-Gon Jinn'), null, @snm),
-((SELECT `pid` FROM `person` WHERE `name`='Jolee Bindo'), null, @snm),
-((SELECT `pid` FROM `person` WHERE `name`='Count Dooku'), null, @snm),
-((SELECT `pid` FROM `person` WHERE `name`='Chewbacca'), null, @snm);
+((SELECT `id` FROM `person` WHERE `name`='Han Solo'), null, @smo),
+((SELECT `id` FROM `person` WHERE `name`='Uncle Owen'), null, @smo),
+((SELECT `id` FROM `person` WHERE `name`='Chewbacca'), null, @smo),
+((SELECT `id` FROM `person` WHERE `name`='Anakin'), null, @smo),
+((SELECT `id` FROM `person` WHERE `name`='Darth Maul'), null, @smo),
+((SELECT `id` FROM `person` WHERE `name`='Boba Fett'), null, @smo),
+((SELECT `id` FROM `person` WHERE `name`='Jango Fett'), null, @smo),
+((SELECT `id` FROM `person` WHERE `name`='Dengar'), null, @smo),
+((SELECT `id` FROM `person` WHERE `name`='R2D2'), null, @smo),
+((SELECT `id` FROM `person` WHERE `name`='C3-PO'), null, @smo),
+((SELECT `id` FROM `person` WHERE `name`='Ahsoka Tano'), null, @swo),
+((SELECT `id` FROM `person` WHERE `name`='Atris'), null, @swo),
+((SELECT `id` FROM `person` WHERE `name`='Aunt Beru'), null, @swo),
+((SELECT `id` FROM `person` WHERE `name`='Leia Organa'), null, @swo),
+((SELECT `id` FROM `person` WHERE `name`='Mission Vao'), null, @swo),
+((SELECT `id` FROM `person` WHERE `name`='Mon Mothma'), null, @swo),
+((SELECT `id` FROM `person` WHERE `name`='Padme Amidala'), null, @swo),
+((SELECT `id` FROM `person` WHERE `name`='Shaak Ti'), null, @swo),
+((SELECT `id` FROM `person` WHERE `name`='Anakin'), (SELECT `id` FROM `person` WHERE `name`='Ahsoka Tano'), @dco),
+((SELECT `id` FROM `person` WHERE `name`='Asajj Ventress'), (SELECT `id` FROM `person` WHERE `name`='Count Dooku'), @dco),
+((SELECT `id` FROM `person` WHERE `name`='Jango Fett'), (SELECT `id` FROM `person` WHERE `name`='Boba Fett'), @dco),
+((SELECT `id` FROM `person` WHERE `name`='Uncle Owen'), (SELECT `id` FROM `person` WHERE `name`='Aunt Beru'), @dco),
+((SELECT `id` FROM `person` WHERE `name`='Obi Wan Kenobe'), (SELECT `id` FROM `person` WHERE `name`='Qui-Gon Jinn'), @dco),
+((SELECT `id` FROM `person` WHERE `name`='Han Solo'), (SELECT `id` FROM `person` WHERE `name`='Chewbacca'), @dco),
+((SELECT `id` FROM `person` WHERE `name`='Revan'), (SELECT `id` FROM `person` WHERE `name`='Bastila Shan'), @dco),
+((SELECT `id` FROM `person` WHERE `name`='Luke Skywalker'), (SELECT `id` FROM `person` WHERE `name`='Leia Organa'), @dco),
+((SELECT `id` FROM `person` WHERE `name`='HK-47'), (SELECT `id` FROM `person` WHERE `name`='IG-88'), @dco),
+((SELECT `id` FROM `person` WHERE `name`='Carth Onasi'), (SELECT `id` FROM `person` WHERE `name`='Bao-Dur'), @dco),
+((SELECT `id` FROM `person` WHERE `name`='Jolee Bindo'), null, @elm),
+((SELECT `id` FROM `person` WHERE `name`='Jabba the Hutt'), null, @elm),
+((SELECT `id` FROM `person` WHERE `name`='Yoda'), null, @elm),
+((SELECT `id` FROM `person` WHERE `name`='Mace Windu'), null, @elm),
+((SELECT `id` FROM `person` WHERE `name`='Qui-Gon Jinn'), null, @elm),
+((SELECT `id` FROM `person` WHERE `name`='Ki Adi Mundi'), null, @elm),
+((SELECT `id` FROM `person` WHERE `name`='Grand Moff Tarkin'), null, @elm),
+((SELECT `id` FROM `person` WHERE `name`='Admiral Ackbar'), null, @elm),
+((SELECT `id` FROM `person` WHERE `name`='HK-47'), null, @elm),
+((SELECT `id` FROM `person` WHERE `name`='Darth Malak'), null, @elm),
+((SELECT `id` FROM `person` WHERE `name`='Canderous Ordo'), null, @elm),
+((SELECT `id` FROM `person` WHERE `name`='Aayla Secura'), null, @elw),
+((SELECT `id` FROM `person` WHERE `name`='Kreia'), null, @elw),
+((SELECT `id` FROM `person` WHERE `name`='Luminara Unduli'), null, @elw),
+((SELECT `id` FROM `person` WHERE `name`='Shae Vizla'), null, @elw),
+((SELECT `id` FROM `person` WHERE `name`='Visas Marr'), null, @elw),
+((SELECT `id` FROM `person` WHERE `name`='Ahsoka Tano'), null, @elw),
+((SELECT `id` FROM `person` WHERE `name`='Leia Organa'), null, @elw),
+((SELECT `id` FROM `person` WHERE `name`='Asajj Ventress'), null, @elw),
+((SELECT `id` FROM `person` WHERE `name`='Bastila Shan'), null, @elw),
+((SELECT `id` FROM `person` WHERE `name`='Atris'), null, @elw),
+((SELECT `id` FROM `person` WHERE `name`='Yoda'), null, @snm),
+((SELECT `id` FROM `person` WHERE `name`='Obi Wan Kenobe'), null, @snm),
+((SELECT `id` FROM `person` WHERE `name`='Grand Moff Tarkin'), null, @snm),
+((SELECT `id` FROM `person` WHERE `name`='Qui-Gon Jinn'), null, @snm),
+((SELECT `id` FROM `person` WHERE `name`='Jolee Bindo'), null, @snm),
+((SELECT `id` FROM `person` WHERE `name`='Count Dooku'), null, @snm),
+((SELECT `id` FROM `person` WHERE `name`='Chewbacca'), null, @snm);
 
 
-SET @cwm = (SELECT MAX(`did`) FROM `division` WHERE `name`='Men Open' AND `tid_tournament`=@pasttourn);
-SET @cww = (SELECT MAX(`did`) FROM `division` WHERE `name`='Women Open' AND `tid_tournament`=@pasttourn);
-SET @cwd = (SELECT MAX(`did`) FROM `division` WHERE `name`='Doubles' AND `tid_tournament`=@pasttourn);
+SET @cwm = (SELECT MAX(`id`) FROM `division` WHERE `name`='Men Open' AND `id_tournament`=@pasttourn);
+SET @cww = (SELECT MAX(`id`) FROM `division` WHERE `name`='Women Open' AND `id_tournament`=@pasttourn);
+SET @cwd = (SELECT MAX(`id`) FROM `division` WHERE `name`='Doubles' AND `id_tournament`=@pasttourn);
 
-INSERT INTO `player` (`pid_player1`, `pid_player2`, `did_division`)
+INSERT INTO `player` (`id_player1`, `id_player2`, `id_division`)
 VALUES
-((SELECT `pid` FROM `person` WHERE `name`='Anakin'), null, @cwm),
-((SELECT `pid` FROM `person` WHERE `name`='R2D2'), null, @cwm),
-((SELECT `pid` FROM `person` WHERE `name`='Obi Wan Kenobe'), null, @cwm),
-((SELECT `pid` FROM `person` WHERE `name`='Mace Windu'), null, @cwm),
-((SELECT `pid` FROM `person` WHERE `name`='Boba Fett'), null, @cwm),
-((SELECT `pid` FROM `person` WHERE `name`='Count Dooku'), null, @cwm),
-((SELECT `pid` FROM `person` WHERE `name`='Darth Maul'), null, @cwm),
-((SELECT `pid` FROM `person` WHERE `name`='Darth Sidious'), null, @cwm),
-((SELECT `pid` FROM `person` WHERE `name`='Shaak Ti'), null, @cww),
-((SELECT `pid` FROM `person` WHERE `name`='Ahsoka Tano'), null, @cww),
-((SELECT `pid` FROM `person` WHERE `name`='Aayla Secura'), null, @cww),
-((SELECT `pid` FROM `person` WHERE `name`='Luminara Unduli'), null, @cww),
-((SELECT `pid` FROM `person` WHERE `name`='Asajj Ventress'), null, @cww),
-((SELECT `pid` FROM `person` WHERE `name`='Anakin'), (SELECT `pid` FROM `person` WHERE `name`='Obi Wan Kenobe'), @cwd),
-((SELECT `pid` FROM `person` WHERE `name`='R2D2'), (SELECT `pid` FROM `person` WHERE `name`='Chewbacca'), @cwd),
-((SELECT `pid` FROM `person` WHERE `name`='Asajj Ventress'), (SELECT `pid` FROM `person` WHERE `name`='Count Dooku'), @cwd),
-((SELECT `pid` FROM `person` WHERE `name`='Darth Maul'), (SELECT `pid` FROM `person` WHERE `name`='Darth Sidious'), @cwd);
+((SELECT `id` FROM `person` WHERE `name`='Anakin'), null, @cwm),
+((SELECT `id` FROM `person` WHERE `name`='R2D2'), null, @cwm),
+((SELECT `id` FROM `person` WHERE `name`='Obi Wan Kenobe'), null, @cwm),
+((SELECT `id` FROM `person` WHERE `name`='Mace Windu'), null, @cwm),
+((SELECT `id` FROM `person` WHERE `name`='Boba Fett'), null, @cwm),
+((SELECT `id` FROM `person` WHERE `name`='Count Dooku'), null, @cwm),
+((SELECT `id` FROM `person` WHERE `name`='Darth Maul'), null, @cwm),
+((SELECT `id` FROM `person` WHERE `name`='Darth Sidious'), null, @cwm),
+((SELECT `id` FROM `person` WHERE `name`='Shaak Ti'), null, @cww),
+((SELECT `id` FROM `person` WHERE `name`='Ahsoka Tano'), null, @cww),
+((SELECT `id` FROM `person` WHERE `name`='Aayla Secura'), null, @cww),
+((SELECT `id` FROM `person` WHERE `name`='Luminara Unduli'), null, @cww),
+((SELECT `id` FROM `person` WHERE `name`='Asajj Ventress'), null, @cww),
+((SELECT `id` FROM `person` WHERE `name`='Anakin'), (SELECT `id` FROM `person` WHERE `name`='Obi Wan Kenobe'), @cwd),
+((SELECT `id` FROM `person` WHERE `name`='R2D2'), (SELECT `id` FROM `person` WHERE `name`='Chewbacca'), @cwd),
+((SELECT `id` FROM `person` WHERE `name`='Asajj Ventress'), (SELECT `id` FROM `person` WHERE `name`='Count Dooku'), @cwd),
+((SELECT `id` FROM `person` WHERE `name`='Darth Maul'), (SELECT `id` FROM `person` WHERE `name`='Darth Sidious'), @cwd);
 
-SET @courta = (SELECT MAX(`cid`) FROM `court` WHERE `courtName`='A' AND `lid_location`=@adc);
-SET @courtb = (SELECT MAX(`cid`) FROM `court` WHERE `courtName`='B' AND `lid_location`=@adc);
-SET @courtc = (SELECT MAX(`cid`) FROM `court` WHERE `courtName`='C' AND `lid_location`=@adc);
+SET @courta = (SELECT MAX(`id`) FROM `court` WHERE `courtName`='A' AND `id_location`=@adc);
+SET @courtb = (SELECT MAX(`id`) FROM `court` WHERE `courtName`='B' AND `id_location`=@adc);
+SET @courtc = (SELECT MAX(`id`) FROM `court` WHERE `courtName`='C' AND `id_location`=@adc);
 
-SET @playerAnakin = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='Anakin') AND `did_division`= @cwm);
-SET @playerR2 = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='R2D2') AND `did_division`= @cwm);
-SET @playerObi = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='Obi Wan Kenobe') AND `did_division`= @cwm);
-SET @playerWindu = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='Mace Windu') AND `did_division`= @cwm);
-SET @playerFett = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='Boba Fett') AND `did_division`= @cwm);
-SET @playerDooku = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='Count Dooku') AND `did_division`= @cwm);
-SET @playerMaul = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='Darth Maul') AND `did_division`= @cwm);
-SET @playerSidious = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='Darth Sidious') AND `did_division`= @cwm);
+SET @playerAnakin = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='Anakin') AND `id_division`= @cwm);
+SET @playerR2 = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='R2D2') AND `id_division`= @cwm);
+SET @playerObi = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='Obi Wan Kenobe') AND `id_division`= @cwm);
+SET @playerWindu = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='Mace Windu') AND `id_division`= @cwm);
+SET @playerFett = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='Boba Fett') AND `id_division`= @cwm);
+SET @playerDooku = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='Count Dooku') AND `id_division`= @cwm);
+SET @playerMaul = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='Darth Maul') AND `id_division`= @cwm);
+SET @playerSidious = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='Darth Sidious') AND `id_division`= @cwm);
 
-SET @playerAhsoka = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='Ahsoka Tano') AND `did_division`= @cww);
-SET @playerShaak = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='Shaak Ti') AND `did_division`= @cww);
-SET @playerSecura = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='Aayla Secura') AND `did_division`= @cww);
-SET @playerUnduli = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='Luminara Unduli') AND `did_division`= @cww);
-SET @playerVentress = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='Asajj Ventress') AND `did_division`= @cww);
+SET @playerAhsoka = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='Ahsoka Tano') AND `id_division`= @cww);
+SET @playerShaak = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='Shaak Ti') AND `id_division`= @cww);
+SET @playerSecura = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='Aayla Secura') AND `id_division`= @cww);
+SET @playerUnduli = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='Luminara Unduli') AND `id_division`= @cww);
+SET @playerVentress = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='Asajj Ventress') AND `id_division`= @cww);
 
-SET @doubleAnakin = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='Anakin') AND `did_division`= @cwd);
-SET @doubleR2D2 = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='R2D2') AND `did_division`= @cwd);
-SET @doubleVentress = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='Asajj Ventress') AND `did_division`= @cwd);
-SET @doubleMaul = (SELECT MAX(`plid`) FROM `player` WHERE `pid_player1`=(SELECT `pid` FROM `person` WHERE `name`='Darth Maul') AND `did_division`= @cwd);
+SET @doubleAnakin = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='Anakin') AND `id_division`= @cwd);
+SET @doubleR2D2 = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='R2D2') AND `id_division`= @cwd);
+SET @doubleVentress = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='Asajj Ventress') AND `id_division`= @cwd);
+SET @doubleMaul = (SELECT MAX(`id`) FROM `player` WHERE `id_player1`=(SELECT `id` FROM `person` WHERE `name`='Darth Maul') AND `id_division`= @cwd);
 
-INSERT INTO `match` (`startTime`, `matchNumber`, `phase`, `did_division`, `plid_player1`, `plid_player2`, `cid_court`)
+INSERT INTO `match` (`startTime`, `matchNumber`, `phase`, `id_division`, `id_player1`, `id_player2`, `id_court`)
 VALUES
 (CAST('2011-10-13T16:00:00' AS DATETIME), 1, 4, @cwd, @doubleAnakin, @doubleR2D2, @courta),
 (CAST('2011-10-13T16:30:00' AS DATETIME), 2, 4, @cwd, @doubleAnakin, @doubleMaul, @courtb),
