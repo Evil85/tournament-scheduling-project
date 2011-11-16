@@ -144,14 +144,8 @@ public class SchedulingUtil {
 		SortedSet<TimeSpan> availableTimes = IntersectAvailability(constraints.toArray(new TimeConstraint[0]));
 		
 		// Truncate the available times for any Matches for which this Match is based on the outcome.
-		/*Boolean bMatch1 = getGroup1() instanceof Match;
-		Boolean bMatch2 = getGroup2() instanceof Match;
-		if (bMatch1 && bMatch2)
-			Truncate(availableTimes, TruncateSide.Start, (Match)getGroup1(), (Match)getGroup2());
-		else if (bMatch1)
-			Truncate(availableTimes, TruncateSide.Start, (Match)getGroup1());
-		else if (bMatch2)
-			Truncate(availableTimes, TruncateSide.Start, (Match)getGroup2());*/
+		for (Match parent : m.Parents())
+			Truncate(availableTimes, TruncateSide.Start, parent);
 			
 		for(Match other : previouslyScheduled)
 		{
@@ -159,11 +153,16 @@ public class SchedulingUtil {
 			if (otherTime != null)
 			{
 				// If the other match is dependent on the outcome of this match, truncate the available times.
-				/*if (other.getGroup1() == this || other.getGroup2() == this)
-					Truncate(availableTimes, TruncateSide.End, other);*/
-				// If the other match shares one or more players (or court) with this one, exclude the other match's time.
-				if (c == other.Court() || m.SharesPlayers(other))
-					Exclude(availableTimes, other.Time());
+				if (other.Parents().contains(m))
+					Truncate(availableTimes, TruncateSide.End, other);
+				// If the other match shares players with this one and is at a different Venue, Exclude a window of time for travel.
+				if (m.SharesPlayers(other) && c.Venue() != other.Court().Venue())
+				{
+					Timestamp travelTimeStart = new Timestamp(otherTime.getStart().getTime() - c_nMsTravelTime);
+					Timestamp travelTimeEnd = new Timestamp(otherTime.getEnd().getTime() + c_nMsTravelTime);
+					TimeSpan travelTimeWindow = new TimeSpan(travelTimeStart, travelTimeEnd);
+					Exclude(availableTimes, travelTimeWindow);
+				}
 			}
 		}
 		
@@ -191,21 +190,21 @@ public class SchedulingUtil {
 		set.addAll(additionList);
 	}
 	
-	/*private static void Truncate(SortedSet<TimeSpan> set, TruncateSide side, Match... matches)
+	private static void Truncate(SortedSet<TimeSpan> set, TruncateSide side, Match m)
 	{
-		for (Match m : matches)
+		TimeSpan scheduledFor = m.Time();
+		if (scheduledFor != null)
 		{
-			TimeSpan scheduledFor = m.Time();
-			if (scheduledFor != null)
-			{
-				if (side == TruncateSide.End)
-					Exclude(set, new TimeSpan(scheduledFor.getStart(), set.last().getEnd()));
-				else
-					Exclude(set, new TimeSpan(scheduledFor.getEnd(), set.first().getStart()));
-			}
+			if (side == TruncateSide.End)
+				Exclude(set, new TimeSpan(scheduledFor.getStart(), set.last().getEnd()));
+			else
+				Exclude(set, new TimeSpan(scheduledFor.getEnd(), set.first().getStart()));
 		}
-	}*/
+	}
 	
-	//private static enum TruncateSide { Start, End }
+	private static enum TruncateSide { Start, End }
+	
+	// 3,600,000 ms = 1 hour;
+	private static final int c_nMsTravelTime = 3600000;
 	
 }
