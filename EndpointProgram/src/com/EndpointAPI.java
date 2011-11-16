@@ -54,20 +54,19 @@ public class EndpointAPI
 	    try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
 
-            st = conn.prepareStatement("SELECT * FROM `person` WHERE `id` = ?;");
-//            st.setString(1, (String)arguments.getArgument("TableName"));
+            st = conn.prepareStatement("SELECT * FROM `" + (String)arguments.getArgument("TableName") + "` WHERE `id` = ?;");
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("ID")));
 	        rs = st.executeQuery();
 	        rs.next();
 	        int size = rs.getMetaData().getColumnCount();
 
             JsonObject e = new JsonObject();
-//            e.addProperty("colsize", size);
-                   
-	        for (int i = 0; i < size; i++)
+
+	        for (int i = 1; i < size; i++)
 	        {
-//	            logger.info("colname: " + rs.getMetaData().getColumnName(i) + ", coldata: " + rs.getString(i));
-                e.addProperty(rs.getMetaData().getColumnName(i), (String)rs.getObject(i));
+	            String key = rs.getMetaData().getColumnName(i);
+	            String item = rs.getString(i);
+                e.addProperty(key, item);
             }
 
             logger.info("Selected row from table: " + arguments.getArgument("TableName"));
