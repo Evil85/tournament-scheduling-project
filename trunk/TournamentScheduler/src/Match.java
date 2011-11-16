@@ -1,3 +1,4 @@
+import java.sql.Timestamp;
 import java.util.Vector;
 
 public class Match {
@@ -11,6 +12,17 @@ public class Match {
 		m_players.addAll(team2.Players());
 		m_court = null;
 		m_time = null;
+		m_parents = new Vector<Match>();
+	}
+	
+	public void AddParent(Match parent)
+	{
+		m_parents.add(parent);
+	}
+	
+	public Vector<Match> Parents()
+	{
+		return m_parents;
 	}
 	
 	public String toString()
@@ -25,6 +37,27 @@ public class Match {
 	{
 		m_court = court;
 		m_time = time;
+		
+		for (Player p : m_players)
+			p.RemoveTime(m_time);
+		m_court.RemoveTime(m_time);
+	}
+	
+	public Boolean IsIdeal(Vector<Match> context)
+	{
+		for (Match other : context)
+		{
+			if (SharesPlayers(other))
+			{
+				Timestamp comfortStart = new Timestamp(m_time.getStart().getTime() - c_nMsComfortWindow);
+				Timestamp comfortEnd = new Timestamp(m_time.getEnd().getTime() + c_nMsComfortWindow);
+				TimeSpan comfortWindow = new TimeSpan(comfortStart, comfortEnd);
+				if (comfortWindow.Overlaps(other.Time()))
+					return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	public Boolean SharesPlayers(Match other)
@@ -58,5 +91,9 @@ public class Match {
 	private Team m_team2;
 	private Vector<Player> m_players;
 	private TimeSpan m_time;
+	private Vector<Match> m_parents;
+	
+	// 1,800,000 ms = 30 minutes;
+	private static final int c_nMsComfortWindow = 1800000;
 	
 }
