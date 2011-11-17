@@ -31,15 +31,12 @@ public class RoundRobinTest {
 		robin.LinkTo(robin);
 		Vector<Match> schedule = new Vector<Match>();
 		assertThat(robin.TrySchedule(schedule), equalTo(true));
-		String strSchedule = "";
-		for (Match m : schedule)
-			strSchedule += m.toString() + "; ";
-		assertThat(strSchedule, equalTo("Robbin' Round match 1: P1 vs. P2 at C2 (V2), 10/21/11 5:30 PM - 6:00 PM; " +
-				"Robbin' Round match 2: P1 vs. P3 at C1 (V1), 10/21/11 2:30 PM - 3:00 PM; " +
-				"Robbin' Round match 3: P2 vs. P3 at C1 (V1), 10/21/11 1:30 PM - 2:00 PM; "));
-		assertThat(p1.Availability().toString(), equalTo("[10/21/11 10:00 AM - 2:30 PM, 10/21/11 5:00 PM - 5:30 PM]"));
+		assertThat(schedule.size(), equalTo(3));
+		assertThat(schedule.elementAt(0).toString(), equalTo("Robbin' Round match 1: P1 vs. P2 at C2 (V2), 10/21/11 5:30 PM - 6:00 PM"));
+		assertThat(schedule.elementAt(1).toString(), equalTo("Robbin' Round match 2: P1 vs. P3 at C1 (V1), 10/21/11 2:30 PM - 3:00 PM"));
+		assertThat(schedule.elementAt(2).toString(), equalTo("Robbin' Round match 3: P2 vs. P3 at C1 (V1), 10/21/11 1:30 PM - 2:00 PM"));
 		
-		// Try again with longer matches to force non-ideal matches.
+		// Try again with longer matches to force uncomfortably close matches.
 		c1 = new Court("C1", "V1", threeToFive, tenToThree);
 		c2 = new Court("C2", "V2", tenToThree, fiveToSix);
 		courts = new CourtManager(c1, c2);
@@ -47,16 +44,13 @@ public class RoundRobinTest {
 		p1 = new Player("P1", tenToThree, fiveToSix);
 		p2 = new Player("P2", tenToThree, fiveToSix);
 		p3 = new Player("P3", tenToThree);
-		robin = new RoundRobin("SLG Tournament", 70, courts, p1, p2, p3);
+		robin = new RoundRobin("SLG Tournament", 80, courts, p1, p2, p3);
 		robin.LinkTo(robin);
 		schedule = new Vector<Match>();
 		assertThat(robin.TrySchedule(schedule), equalTo(true));
-		strSchedule = "";
-		for (Match m : schedule)
-			strSchedule += m.toString() + "; ";
-		assertThat(strSchedule, equalTo("SLG Tournament match 1: P1 vs. P2 at C1 (V1), 10/21/11 1:50 PM - 3:00 PM; " +
-				"SLG Tournament match 2: P1 vs. P3 at C1 (V1), 10/21/11 11:30 AM - 12:40 PM; " +
-				"SLG Tournament match 3: P2 vs. P3 at C1 (V1), 10/21/11 10:20 AM - 11:30 AM; "));
+		assertThat(schedule.size(), equalTo(3));
+		assertThat(schedule.elementAt(0).toString(), equalTo("SLG Tournament match 1: P1 vs. P2 at C1 (V1), 10/21/11 12:40 PM - 2:00 PM"));
+		assertThat(schedule.elementAt(1).toString(), equalTo("SLG Tournament match 2: P1 vs. P3 at C1 (V1), 10/21/11 10:00 AM - 11:20 AM"));
+		assertThat(schedule.elementAt(2).toString(), equalTo("SLG Tournament match 3: P2 vs. P3 at C1 (V1), 10/21/11 11:20 AM - 12:40 PM"));
 	}
-
 }

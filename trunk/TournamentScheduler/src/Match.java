@@ -1,4 +1,5 @@
-import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 public class Match {
@@ -8,7 +9,7 @@ public class Match {
 		m_strName = name;
 		m_team1 = team1;
 		m_team2 = team2;
-		m_players = new Vector<Player>(team1.Players());
+		m_players = new HashSet<Player>(team1.Players());
 		m_players.addAll(team2.Players());
 		m_court = null;
 		m_time = null;
@@ -33,31 +34,16 @@ public class Match {
 			return String.format("%s: %s vs. %s at %s, %s", m_strName, m_team1.Name(), m_team2.Name(), m_court.Name(), m_time);
     }
 	
-	public void Schedule(Court court, TimeSpan time)
+	public void Schedule(CourtTime ct)
 	{
-		m_court = court;
-		m_time = time;
-		
-		for (Player p : m_players)
-			p.RemoveTime(m_time);
-		m_court.RemoveTime(m_time);
+		m_court = ct.m_court;
+		m_time = ct.m_time;
 	}
 	
-	public Boolean IsIdeal(Vector<Match> context)
+	public void Unschedule()
 	{
-		for (Match other : context)
-		{
-			if (SharesPlayers(other))
-			{
-				Timestamp comfortStart = new Timestamp(m_time.getStart().getTime() - c_nMsComfortWindow);
-				Timestamp comfortEnd = new Timestamp(m_time.getEnd().getTime() + c_nMsComfortWindow);
-				TimeSpan comfortWindow = new TimeSpan(comfortStart, comfortEnd);
-				if (comfortWindow.Overlaps(other.Time()))
-					return false;
-			}
-		}
-		
-		return true;
+		m_court = null;
+		m_time = null;
 	}
 	
 	public Boolean SharesPlayers(Match other)
@@ -80,7 +66,12 @@ public class Match {
 		return m_court;
 	}
 	
-	protected Vector<Player> Players()
+	public String Name()
+	{
+		return m_strName;
+	}
+	
+	protected Set<Player> Players()
 	{
 		return m_players;
 	}
@@ -89,11 +80,8 @@ public class Match {
 	private Court m_court;
 	private Team m_team1;
 	private Team m_team2;
-	private Vector<Player> m_players;
+	private Set<Player> m_players;
 	private TimeSpan m_time;
 	private Vector<Match> m_parents;
-	
-	// 1,800,000 ms = 30 minutes;
-	private static final int c_nMsComfortWindow = 1800000;
 	
 }

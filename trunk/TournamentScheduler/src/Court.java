@@ -11,7 +11,7 @@ public class Court implements TimeConstraint {
 		if (availability.length != 0)
 			m_availability.add(availability[0]);
 		for (int i = 1; i < availability.length; i++)
-			AddTime(availability[i]);
+			SchedulingUtil.AddAvailability(m_availability, availability[i]);
 		UpdateAvailabilityMinutes();
 	}
 	
@@ -37,20 +37,6 @@ public class Court implements TimeConstraint {
 	public String toString()
 	{
 		return String.format("%s : %s", m_strName, m_availability);
-	}
-	
-	public void AddTime(TimeSpan add)
-	{
-		SchedulingUtil.AddAvailability(m_availability, add);
-		
-		UpdateAvailabilityMinutes();
-	}
-	
-	public void RemoveTime(TimeSpan remove)
-	{
-		SchedulingUtil.RemoveAvailability(m_availability, remove);
-		
-		UpdateAvailabilityMinutes();
 	}
 	
 	private void UpdateAvailabilityMinutes()

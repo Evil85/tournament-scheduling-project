@@ -39,34 +39,23 @@ public class RoundRobin implements Division {
 		
 		if (m_unscheduled.size() != 0)
 		{
-			List<TimeSpan> fallbacks = new LinkedList<TimeSpan>();
-			Match m = m_unscheduled.get(0);
-			while (m_courts.TryScheduleLatest(m, m_nMinutesPerMatch, schedule))
-			{
-				if (m.IsIdeal(schedule))
-				{
-					m_unscheduled.remove(0);
-					schedule.add(m);
-					return m_nextDivision.TrySchedule(schedule);
-				}
-				else
-				{
-					m.Court().AddTime(m.Time());
-					fallbacks.add(m.Time());
-				}
-			}
+			Match m = m_unscheduled.remove(0);
 			
-			for (TimeSpan span : fallbacks)
-				for (Player p : m.Players())
-					p.AddTime(span);
-						
-			while (m_courts.TryScheduleLatest(m, m_nMinutesPerMatch, schedule))
+			List<CourtTime> times = m_courts.CourtTimesByLatest(m, m_nMinutesPerMatch, schedule);
+			
+			for (CourtTime ct : times)
 			{
-				m_unscheduled.remove(0);
+				m.Schedule(ct);
 				schedule.add(m);
-				return m_nextDivision.TrySchedule(schedule);
+				
+				if (m_nextDivision.TrySchedule(schedule))
+					return true;
+				else
+					schedule.remove(m);
 			}
 			
+			m.Unschedule();
+			m_unscheduled.add(0, m);
 			return false;
 		}
 		else
