@@ -1,7 +1,8 @@
 import java.sql.Timestamp;
-import java.util.SortedSet;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 
 
@@ -12,29 +13,51 @@ public class CourtManager {
 		m_courts = courts;
 	}
 	
-	public Boolean TryScheduleLatest(Match m, int matchMinutes, Vector<Match> schedule)
+	public List<CourtTime> CourtTimesByLatest(Match m, int matchMinutes, Vector<Match> schedule)
 	{
-		LatestAvailableCourt comp = new LatestAvailableCourt(matchMinutes, m, schedule);
-		SortedSet<Court> set = new ConcurrentSkipListSet<Court>(comp);
-		for (Court c : m_courts)
-			set.add(c);
+		int matchMs = matchMinutes * c_nMsPerMinute;
+		List<CourtTime> comfortTimes = CourtTimes(m, matchMs, schedule, AvailabilityType.Comfort);
+		List<CourtTime> allTimes = CourtTimes(m, matchMs, schedule, AvailabilityType.All);
+		Collections.sort(comfortTimes, LatestCourtTime.getInstance());
+		Collections.sort(allTimes, LatestCourtTime.getInstance());
 		
-		Court latestCourt = set.first();
-		Timestamp latestEnd = null;
-		for (TimeSpan span : SchedulingUtil.MatchAvailability(m, latestCourt, schedule))
-			if (span.getMinutes() >= matchMinutes)
-				latestEnd = span.getEnd();
-				
-		if (latestEnd != null)
+		List<CourtTime> all = comfortTimes;
+		for (CourtTime ct : allTimes)
+			if (!AlreadyRepresented(ct, all))
+				all.add(ct);
+		return all;
+	}
+	
+	private boolean AlreadyRepresented(CourtTime ct, List<CourtTime> times)
+	{
+		for (CourtTime time : times)
+			if (time.toString().equals(ct.toString()))
+				return true;
+		
+		return false;
+	}
+	
+	private List<CourtTime> CourtTimes(Match m, int matchMs, Vector<Match> schedule, AvailabilityType type)
+	{
+		List<CourtTime> times = new LinkedList<CourtTime>();
+		for (Court c : m_courts)
 		{
-			m.Schedule(latestCourt, new TimeSpan(matchMinutes, latestEnd));
-			return true;
+			for (TimeSpan span : SchedulingUtil.MatchAvailability(m, c, schedule, type))
+			{
+				Timestamp startTime = span.getStart();
+				Timestamp endTime = new Timestamp(startTime.getTime() + matchMs);
+				while (!endTime.after(span.getEnd()))
+				{
+					times.add(new CourtTime(c, new TimeSpan(startTime, endTime)));
+					startTime = endTime;
+					endTime = new Timestamp(startTime.getTime() + matchMs);
+				}
+			}
 		}
-		else
-		{
-			return false;
-		}
+		return times;
 	}
 	
 	private Court[] m_courts;
+	
+	private static final int c_nMsPerMinute = 60000;
 }

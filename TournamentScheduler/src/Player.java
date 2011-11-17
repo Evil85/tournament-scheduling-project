@@ -12,7 +12,7 @@ public class Player implements TimeConstraint {
 		if (availability.length != 0)
 			m_availability.add(availability[0]);
 		for (int i = 1; i < availability.length; i++)
-			AddTime(availability[i]);
+			SchedulingUtil.AddAvailability(m_availability, availability[i]);
 		UpdateAvailabilityMinutes();
 	}
 	
@@ -39,24 +39,6 @@ public class Player implements TimeConstraint {
 	public void Enroll(Team t)
 	{
 		m_teams.add(t);
-	}
-	
-	public void AddTime(TimeSpan add)
-	{
-		SchedulingUtil.AddAvailability(m_availability, add);
-		
-		UpdateAvailabilityMinutes();
-		for (Team t : m_teams)
-			t.UpdateAvailability();
-	}
-	
-	public void RemoveTime(TimeSpan remove)
-	{
-		SchedulingUtil.RemoveAvailability(m_availability, remove);
-		
-		UpdateAvailabilityMinutes();
-		for (Team t : m_teams)
-			t.UpdateAvailability();
 	}
 	
 	private void UpdateAvailabilityMinutes()

@@ -43,19 +43,6 @@ public class Team implements TimeConstraint {
 		return String.format("%s : %s", m_strName, Availability());
 	}
 	
-	protected void UpdateAvailability()
-	{
-		m_availability = SchedulingUtil.IntersectAvailability(m_players.toArray(new TimeConstraint[0]));
-		UpdateAvailabilityMinutes();
-	}
-	
-	private void UpdateAvailabilityMinutes()
-	{
-		m_nAvailableMinutes = 0;
-		for (TimeSpan span : m_availability)
-			m_nAvailableMinutes += span.getMinutes();
-	}
-	
 	private String m_strName;
 	private SortedSet<TimeSpan> m_availability;
 	private int m_nAvailableMinutes;

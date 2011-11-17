@@ -71,7 +71,7 @@ public class SchedulingUtil {
 					}
 					
 					if (!otherIterator.hasNext())
-						return intersection;
+						break;
 					else
 						currentOther = otherIterator.next();
 				}
@@ -137,15 +137,17 @@ public class SchedulingUtil {
 		set.addAll(additionList);
 	}
 	
-	public static SortedSet<TimeSpan> MatchAvailability(Match m, Court c, Vector<Match> previouslyScheduled)
+	public static SortedSet<TimeSpan> MatchAvailability(Match m, Court c, Vector<Match> previouslyScheduled, AvailabilityType type)
 	{
 		Vector<TimeConstraint> constraints = new Vector<TimeConstraint>(m.Players());
 		constraints.add(c);
 		SortedSet<TimeSpan> availableTimes = IntersectAvailability(constraints.toArray(new TimeConstraint[0]));
+		SortedSet<TimeSpan> discomfortTimes = new TreeSet<TimeSpan>();
 		
 		// Truncate the available times for any Matches for which this Match is based on the outcome.
 		for (Match parent : m.Parents())
-			Truncate(availableTimes, TruncateSide.Start, parent);
+			if (parent.Time() != null)
+				Truncate(availableTimes, TruncateSide.Start, parent.Time().getEnd());
 			
 		for(Match other : previouslyScheduled)
 		{
@@ -154,19 +156,51 @@ public class SchedulingUtil {
 			{
 				// If the other match is dependent on the outcome of this match, truncate the available times.
 				if (other.Parents().contains(m))
-					Truncate(availableTimes, TruncateSide.End, other);
-				// If the other match shares players with this one and is at a different Venue, Exclude a window of time for travel.
-				if (m.SharesPlayers(other) && c.Venue() != other.Court().Venue())
+					if (other.Time() != null)
+						Truncate(availableTimes, TruncateSide.End, other.Time().getStart());
+				
+				// If the other match shares players with this one, exclude the appropriate time window.
+				if (m.SharesPlayers(other))
+				{	
+					if (c.Venue() != other.Court().Venue())
+					{
+						Timestamp travelTimeStart = new Timestamp(otherTime.getStart().getTime() - c_nMsTravelTime);
+						Timestamp travelTimeEnd = new Timestamp(otherTime.getEnd().getTime() + c_nMsTravelTime);
+						TimeSpan travelTimeWindow = new TimeSpan(travelTimeStart, travelTimeEnd);
+						Exclude(availableTimes, travelTimeWindow);
+					}
+					else
+					{
+						Exclude(availableTimes, otherTime);
+					}
+					
+					if (type != AvailabilityType.All)
+					{
+						Timestamp discomfortStart = new Timestamp(otherTime.getStart().getTime() - c_nMsComfortWindow);
+						Timestamp discomfortEnd = new Timestamp(otherTime.getEnd().getTime() + c_nMsComfortWindow);
+						AddAvailability(discomfortTimes, new TimeSpan(discomfortStart, discomfortEnd));
+					}
+				}
+				else if (c == other.Court())
 				{
-					Timestamp travelTimeStart = new Timestamp(otherTime.getStart().getTime() - c_nMsTravelTime);
-					Timestamp travelTimeEnd = new Timestamp(otherTime.getEnd().getTime() + c_nMsTravelTime);
-					TimeSpan travelTimeWindow = new TimeSpan(travelTimeStart, travelTimeEnd);
-					Exclude(availableTimes, travelTimeWindow);
+					Exclude(availableTimes, otherTime);
 				}
 			}
 		}
 		
-		return availableTimes;
+		switch (type)
+		{
+			case All:
+				return availableTimes;
+			case Comfort:
+				for (TimeSpan span : discomfortTimes)
+					RemoveAvailability(availableTimes, span);
+				return availableTimes;
+			case Discomfort:
+				return IntersectAvailability(availableTimes, discomfortTimes);
+			default:
+				throw new UnsupportedOperationException();
+		}
 	}
 		
 	private static void Exclude(SortedSet<TimeSpan> set, TimeSpan exclude)
@@ -190,15 +224,22 @@ public class SchedulingUtil {
 		set.addAll(additionList);
 	}
 	
-	private static void Truncate(SortedSet<TimeSpan> set, TruncateSide side, Match m)
+	private static void Truncate(SortedSet<TimeSpan> set, TruncateSide side, Timestamp boundary)
 	{
-		TimeSpan scheduledFor = m.Time();
-		if (scheduledFor != null)
+		if (!set.isEmpty())
 		{
 			if (side == TruncateSide.End)
-				Exclude(set, new TimeSpan(scheduledFor.getStart(), set.last().getEnd()));
+			{
+				Timestamp end = set.last().getEnd();
+				if (boundary.before(end))
+					Exclude(set, new TimeSpan(boundary, end));
+			}
 			else
-				Exclude(set, new TimeSpan(scheduledFor.getEnd(), set.first().getStart()));
+			{
+				Timestamp start = set.first().getStart();
+				if (start.before(boundary))
+					Exclude(set, new TimeSpan(start, boundary));
+			}
 		}
 	}
 	
@@ -206,5 +247,8 @@ public class SchedulingUtil {
 	
 	// 3,600,000 ms = 1 hour;
 	private static final int c_nMsTravelTime = 3600000;
+	
+	// 1,800,000 ms = 30 minutes;
+	private static final int c_nMsComfortWindow = 1800000;
 	
 }
