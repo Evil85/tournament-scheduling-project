@@ -1,5 +1,4 @@
 import java.sql.Timestamp;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -167,11 +166,11 @@ public class SchedulingUtil {
 						Timestamp travelTimeStart = new Timestamp(otherTime.getStart().getTime() - c_nMsTravelTime);
 						Timestamp travelTimeEnd = new Timestamp(otherTime.getEnd().getTime() + c_nMsTravelTime);
 						TimeSpan travelTimeWindow = new TimeSpan(travelTimeStart, travelTimeEnd);
-						Exclude(availableTimes, travelTimeWindow);
+						RemoveAvailability(availableTimes, travelTimeWindow);
 					}
 					else
 					{
-						Exclude(availableTimes, otherTime);
+						RemoveAvailability(availableTimes, otherTime);
 					}
 					
 					if (type != AvailabilityType.All)
@@ -183,7 +182,7 @@ public class SchedulingUtil {
 				}
 				else if (c == other.Court())
 				{
-					Exclude(availableTimes, otherTime);
+					RemoveAvailability(availableTimes, otherTime);
 				}
 			}
 		}
@@ -202,27 +201,6 @@ public class SchedulingUtil {
 				throw new UnsupportedOperationException();
 		}
 	}
-		
-	private static void Exclude(SortedSet<TimeSpan> set, TimeSpan exclude)
-	{
-		Collection<TimeSpan> removalList = new Vector<TimeSpan>();
-		Collection<TimeSpan> additionList = new Vector<TimeSpan>();
-		
-		for (TimeSpan originalSpan : set)
-		{
-			if(originalSpan.Overlaps(exclude))
-			{
-				removalList.add(originalSpan);
-				if (originalSpan.getStart().before(exclude.getStart()))
-					additionList.add(new TimeSpan(originalSpan.getStart(), exclude.getStart()));
-				if (originalSpan.getEnd().after(exclude.getEnd()))
-					additionList.add(new TimeSpan(exclude.getEnd(), originalSpan.getEnd()));
-			}
-		}
-		
-		set.removeAll(removalList);
-		set.addAll(additionList);
-	}
 	
 	private static void Truncate(SortedSet<TimeSpan> set, TruncateSide side, Timestamp boundary)
 	{
@@ -232,13 +210,13 @@ public class SchedulingUtil {
 			{
 				Timestamp end = set.last().getEnd();
 				if (boundary.before(end))
-					Exclude(set, new TimeSpan(boundary, end));
+					RemoveAvailability(set, new TimeSpan(boundary, end));
 			}
 			else
 			{
 				Timestamp start = set.first().getStart();
 				if (start.before(boundary))
-					Exclude(set, new TimeSpan(start, boundary));
+					RemoveAvailability(set, new TimeSpan(start, boundary));
 			}
 		}
 	}
