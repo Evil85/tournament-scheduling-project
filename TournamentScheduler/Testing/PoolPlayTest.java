@@ -51,7 +51,6 @@ public class PoolPlayTest {
 		Vector<Match> schedule = new Vector<Match>();
 		assertThat(pool.TrySchedule(schedule), equalTo(true));
 		assertThat(schedule.size(), equalTo(9));
-		System.out.println(schedule);
 		assertThat(schedule.elementAt(0).toString(), equalTo("X final match: Finalist A vs. Finalist B at C1 (V1), 10/21/11 10:00 AM - 11:00 AM"));
 		assertThat(schedule.elementAt(1).toString(), equalTo("X semifinal match 1: Winner A vs. Runner-up A at C1 (V1), 10/21/11 9:00 AM - 10:00 AM"));
 		assertThat(schedule.elementAt(2).toString(), equalTo("X semifinal match 2: Winner B vs. Runner-up B at C1 (V1), 10/21/11 7:00 AM - 8:00 AM"));
