@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
+import java.util.LinkedHashMap;
 import org.apache.log4j.Logger;
 
 import com.Utilities.CommandArguments;
@@ -48,47 +48,153 @@ public class EndpointAPI
 		}
 	}
 	
-	//Get whole tuple by id for table type
+	public boolean checkString(String s)
+	{
+	    int length = s.length();
+        for (int i = 0; i < length; i++) 
+        {
+            if (!Character.isLetter(s.charAt(i)))
+                return false;
+        } 
+        return true;
+	}
+	
+	//Get whole tuple by id for table type (user table will NOT send back passwords)
 	public String getTupleByID(CommandArguments arguments)
 	{
 	    try {
+            String name = (String)arguments.getArgument("TableName");
+            if (!checkString(name))
+                throw new Exception("Possible SQL attack!");
+                
             Connection conn = DriverManager.getConnection(URL, user, pass);
 
-            st = conn.prepareStatement("SELECT * FROM `" + (String)arguments.getArgument("TableName") + "` WHERE `id` = ?;");
+            st = conn.prepareStatement("SELECT * FROM `" + name + "` WHERE `id` = ?;");
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("ID")));
+            
+            if (arguments.getArgument("NOPE") == null)
+                System.err.println("NOPE NOT FOUND!!!!");
+            
+            
 	        rs = st.executeQuery();
 	        rs.next();
 	        int size = rs.getMetaData().getColumnCount();
 
             JsonObject e = new JsonObject();
 
-	        for (int i = 1; i < size; i++)
+	        for (int i = 1; i < size+1; i++)
 	        {
-	            String key = rs.getMetaData().getColumnName(i);
-	            String item = rs.getString(i);
-                e.addProperty(key, item);
+	            if (!(rs.getMetaData().getColumnName(i).equalsIgnoreCase("password")))
+                    e.addProperty(rs.getMetaData().getColumnName(i), rs.getString(i));
             }
 
-            logger.info("Selected row from table: " + arguments.getArgument("TableName"));
+            logger.info("Selected row from table: " + name);
             return e.toString();
         }
         catch (SQLException ex)
         {
-	        logger.error("SQL Exception while selecting row from table: " + arguments.getArgument("TableName"));
-
+	        logger.error("SQL Exception while selecting row from table: " + (String)arguments.getArgument("TableName"));
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
         }
         catch (Exception ex)
         {
-	        logger.error("Java Exception while selecting row from table: " + arguments.getArgument("TableName"));
-
+	        logger.error("Java Exception while selecting row from table: " + (String)arguments.getArgument("TableName"));
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
         }
 	}
+	
+	//Get whole table by name (user table will NOT send back passwords)
+	public String getTableByName(CommandArguments arguments)
+	{
+	    try {
+	        String name = (String)arguments.getArgument("TableName");
+            if (!checkString(name))
+                throw new Exception("Possible SQL attack!");
+	    
+            Connection conn = DriverManager.getConnection(URL, user, pass);
+            
+            st = conn.prepareStatement("SELECT * FROM `" + name + "`;");
+	        rs = st.executeQuery();
+
+			int colSize = rs.getMetaData().getColumnCount();
+			JsonObject e = new JsonObject();
+			int rowSize = 0;
+			while(rs.next())
+			{
+			    JsonObject m = new JsonObject();
+			    for (int i = 1; i < colSize+1; i++)
+                {
+                    if (!(rs.getMetaData().getColumnName(i).equalsIgnoreCase("password")))
+                        m.addProperty(rs.getMetaData().getColumnName(i), rs.getString(i));
+                }
+                e.addProperty(java.lang.String.valueOf(rowSize++), m.toString());
+			}
+
+            logger.info("Selected whole table: " + name);
+            return e.toString();
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception while selecting whole table: " + (String)arguments.getArgument("TableName"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception while selecting whole table: " + (String)arguments.getArgument("TableName"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+	}
+	
+	//Get table count by name
+	public String getTableCountByName(CommandArguments arguments)
+	{
+	    try {
+	        String name = (String)arguments.getArgument("TableName");
+            if (!checkString(name))
+                throw new Exception("Possible SQL attack!");
+	    
+            Connection conn = DriverManager.getConnection(URL, user, pass);
+            
+            st = conn.prepareStatement("SELECT count(`id`) FROM `" + name + "`;");
+	        rs = st.executeQuery();
+	        rs.next();
+	        int count = Integer.parseInt(rs.getString(1));
+	        
+			JsonObject e = new JsonObject();
+            e.addProperty("result", count);
+            logger.info("Selected count on table: " + name);
+            return e.toString();
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception while selecting count on table: " + (String)arguments.getArgument("TableName"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception while selecting count on table: " + (String)arguments.getArgument("TableName"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+	}
+	
 
 
     //Getters and setters for USER: createUser, getUserID
@@ -149,7 +255,7 @@ public class EndpointAPI
         catch (SQLException ex)
         {
 	        logger.error("SQL Exception while selecting uid: " + arguments.getArgument("UserName"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -157,7 +263,7 @@ public class EndpointAPI
         catch (Exception ex)
         {
 	        logger.error("Java Exception while selecting uid: " + arguments.getArgument("UserName"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -223,7 +329,7 @@ public class EndpointAPI
         catch (SQLException ex)
         {
 	        logger.error("SQL Exception while selecting pid: " + arguments.getArgument("PersonEmail"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -231,7 +337,7 @@ public class EndpointAPI
         catch (Exception ex)
         {
 	        logger.error("Java Exception while selecting pid: " + arguments.getArgument("PersonEmail"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -295,7 +401,7 @@ public class EndpointAPI
         catch (SQLException ex)
         {
 	        logger.error("SQL Exception while selecting cid: " + arguments.getArgument("CourtName"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -303,14 +409,57 @@ public class EndpointAPI
         catch (Exception ex)
         {
 	        logger.error("Java Exception while selecting cid: " + arguments.getArgument("CourtName"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
         }
 	}
 	
-    //Getters and setters for LOCATION: createLocation, getLocationID
+	public String getCourtsByLocationID(CommandArguments arguments)
+	{
+	    try {
+            Connection conn = DriverManager.getConnection(URL, user, pass);
+
+            st = conn.prepareStatement("SELECT * FROM `court` WHERE `id_location` = ?;");
+            st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("LocationID")));
+	        rs = st.executeQuery();
+
+			int colSize = rs.getMetaData().getColumnCount();
+			JsonObject e = new JsonObject();
+			int rowSize = 0;
+			while(rs.next())
+			{
+			    JsonObject m = new JsonObject();
+			    for (int i = 1; i < colSize+1; i++)
+                {
+                    m.addProperty(rs.getMetaData().getColumnName(i), rs.getString(i));
+                }
+                e.addProperty(java.lang.String.valueOf(rowSize++), m.toString());
+			}
+
+            logger.info("Selected courts by locationID: " + arguments.getArgument("LocationID"));
+            return e.toString();
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception while selecting courts by locationID: " + arguments.getArgument("LocationID"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception while selecting courts by locationID: " + arguments.getArgument("LocationID"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+	}
+	
+   //Getters and setters for LOCATION: createLocation, getLocationID
 	
 	public String createLocation(CommandArguments arguments)
 	{
@@ -374,7 +523,7 @@ public class EndpointAPI
         catch (SQLException ex)
         {
 	        logger.error("SQL Exception while selecting lid: " + arguments.getArgument("LocationName"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -382,12 +531,56 @@ public class EndpointAPI
         catch (Exception ex)
         {
 	        logger.error("Java Exception while selecting lid: " + arguments.getArgument("LocationName"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
         }
 	}
+	
+	public String getLocationsByTournamentID(CommandArguments arguments)
+	{
+	    try {
+            Connection conn = DriverManager.getConnection(URL, user, pass);
+
+            st = conn.prepareStatement("SELECT * FROM `location`, `venues` WHERE `location`.`id`=`venues`.`id_location` AND `venues`.`id_tournament` = ?;");
+            st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
+	        rs = st.executeQuery();
+
+			int colSize = rs.getMetaData().getColumnCount();
+			JsonObject e = new JsonObject();
+			int rowSize = 0;
+			while(rs.next())
+			{
+			    JsonObject m = new JsonObject();
+			    for (int i = 1; i < colSize+1; i++)
+                {
+                    m.addProperty(rs.getMetaData().getColumnName(i), rs.getString(i));
+                }
+                e.addProperty(java.lang.String.valueOf(rowSize++), m.toString());
+			}
+
+            logger.info("Selected location (venues) by TournamentID: " + arguments.getArgument("TournamentID"));
+            return e.toString();
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception while selecting location (venues) by TournamentID: " + arguments.getArgument("TournamentID"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception while selecting location (venues) by TournamentID: " + arguments.getArgument("TournamentID"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+	}
+	
 
     //Getters and setters for TOURNAMENT: createTournament, getTournamentID
 
@@ -454,7 +647,7 @@ public class EndpointAPI
         catch (SQLException ex)
         {
 	        logger.error("SQL Exception while selecting tid: " + arguments.getArgument("TournamentName"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -462,7 +655,7 @@ public class EndpointAPI
         catch (Exception ex)
         {
 	        logger.error("Java Exception while selecting tid: " + arguments.getArgument("TournamentName"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -476,7 +669,7 @@ public class EndpointAPI
         try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
 
-	        st = conn.prepareStatement ("INSERT INTO `venue` (`id_location`, `id_tournament`) VALUES (?, ?);");
+	        st = conn.prepareStatement ("INSERT INTO `venues` (`id_location`, `id_tournament`) VALUES (?, ?);");
 
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("LocationID")));
             st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
@@ -570,7 +763,7 @@ public class EndpointAPI
         catch (SQLException ex)
         {
 	        logger.error("SQL Exception while selecting did: " + arguments.getArgument("DivisionName"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -578,7 +771,7 @@ public class EndpointAPI
         catch (Exception ex)
         {
 	        logger.error("Java Exception while selecting did: " + arguments.getArgument("DivisionName"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -629,7 +822,7 @@ public class EndpointAPI
         catch (Exception ex)
         {
 	        logger.error("Java Exception during addPlayer:\n" + ex);
-
+	        logger.error("error: " + ex);
 	        JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -657,7 +850,7 @@ public class EndpointAPI
         catch (SQLException ex)
         {
 	        logger.error("SQL Exception while selecting plid: " + arguments.getArgument("Player1ID"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -665,7 +858,7 @@ public class EndpointAPI
         catch (Exception ex)
         {
 	        logger.error("Java Exception while selecting plid: " + arguments.getArgument("Player1ID"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -736,7 +929,7 @@ public class EndpointAPI
         catch (SQLException ex)
         {
 	        logger.error("SQL Exception while selecting mid: " + arguments.getArgument("MatchNumber"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -744,7 +937,7 @@ public class EndpointAPI
         catch (Exception ex)
         {
 	        logger.error("Java Exception while selecting mid: " + arguments.getArgument("MatchNumber"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -811,7 +1004,7 @@ public class EndpointAPI
         catch (SQLException ex)
         {
 	        logger.error("SQL Exception while selecting gid: " + arguments.getArgument("GameNumber"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
@@ -819,7 +1012,7 @@ public class EndpointAPI
         catch (Exception ex)
         {
 	        logger.error("Java Exception while selecting gid: " + arguments.getArgument("GameNumber"));
-
+	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
