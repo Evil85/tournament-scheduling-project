@@ -16,7 +16,7 @@ public class CourtTest {
 		TimeSpan tenToThree = new TimeSpan(tenAM, threePM);
 		TimeSpan threeToFive = new TimeSpan(threePM, fivePM);
 		
-		Court testCourt = new Court("Test Court", "Test Venue", threeToFive, tenToThree);
+		Court testCourt = new Court(1, "Test Court", "Test Venue", threeToFive, tenToThree);
 		assertThat(testCourt.toString(), equalTo("Test Court (Test Venue) : [10/21/11 10:00 AM - 5:00 PM]"));
 		assertThat(testCourt.Venue(), equalTo("Test Venue"));
 	}

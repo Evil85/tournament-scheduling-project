@@ -18,8 +18,8 @@ public class TeamTest {
 		TimeSpan threeToFive = new TimeSpan(threePM, fivePM);
 		TimeSpan fourToFive = new TimeSpan(fourPM, fivePM);
 		
-		Player p1 = new Player("P1", threeToFive, tenToThree);
-		Player p2 = new Player("P2", threeToFive, fourToFive);
+		Player p1 = new Player(1, "P1", threeToFive, tenToThree);
+		Player p2 = new Player(2, "P2", threeToFive, fourToFive);
 		Team g1 = new Team("G1", p1, p2);
 		assertThat(g1.Players().size(), equalTo(2));
 		assertThat(g1.Players().contains(p1), equalTo(true));
