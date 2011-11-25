@@ -4,9 +4,10 @@ import java.util.Vector;
 
 public class Match {
 
-	public Match(String name, Team team1, Team team2)
+	public Match(String name, Division division, Team team1, Team team2)
 	{
 		m_strName = name;
+		m_division = division;
 		m_team1 = team1;
 		m_team2 = team2;
 		m_players = new HashSet<Player>(team1.Players());
@@ -71,6 +72,11 @@ public class Match {
 		return m_strName;
 	}
 	
+	public Division Division()
+	{
+		return m_division;
+	}
+	
 	protected Set<Player> Players()
 	{
 		return m_players;
@@ -78,6 +84,7 @@ public class Match {
 
 	private String m_strName;
 	private Court m_court;
+	private Division m_division;
 	private Team m_team1;
 	private Team m_team2;
 	private Set<Player> m_players;

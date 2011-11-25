@@ -5,7 +5,8 @@ import java.util.Vector;
 
 public class Player implements TimeConstraint {
 
-	public Player(String name, TimeSpan... availability) {
+	public Player(int id, String name, TimeSpan... availability) {
+		m_nId = id;
 		m_strName = name;
 		m_teams = new Vector<Team>();
 		m_availability = new TreeSet<TimeSpan>();
@@ -31,6 +32,11 @@ public class Player implements TimeConstraint {
 		return m_strName;
 	}
 	
+	public int Id()
+	{
+		return m_nId;
+	}
+	
 	public String toString()
 	{
 		return String.format("%s : %s", m_strName, m_availability);
@@ -52,5 +58,6 @@ public class Player implements TimeConstraint {
 	private SortedSet<TimeSpan> m_availability;
 	private int m_nAvailableMinutes;
 	private Vector<Team> m_teams;
+	private int m_nId;
 	
 }

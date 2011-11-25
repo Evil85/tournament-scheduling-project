@@ -4,7 +4,8 @@ import java.util.TreeSet;
 
 public class Court implements TimeConstraint {
 
-	public Court(String name, String venue, TimeSpan... availability) {
+	public Court(int id, String name, String venue, TimeSpan... availability) {
+		m_nId = id;
 		m_strName = String.format("%s (%s)", name, venue);
 		m_strVenue = venue;
 		m_availability = new TreeSet<TimeSpan>();
@@ -34,6 +35,11 @@ public class Court implements TimeConstraint {
 		return m_strName;
 	}
 	
+	public int Id()
+	{
+		return m_nId;
+	}
+	
 	public String toString()
 	{
 		return String.format("%s : %s", m_strName, m_availability);
@@ -50,5 +56,6 @@ public class Court implements TimeConstraint {
 	private String m_strVenue;
 	private SortedSet<TimeSpan> m_availability;
 	private int m_nAvailableMinutes;
+	private int m_nId;
 
 }
