@@ -75,7 +75,7 @@ public abstract class Division {
 	{
 		if (m_unscheduled.size() != 0)
 		{
-			while(m_teams.size() != 0)
+			while(m_unscheduled.size() != 0)
 			{
 				boolean bSuccess = false;
 				Match m = m_unscheduled.remove(0);

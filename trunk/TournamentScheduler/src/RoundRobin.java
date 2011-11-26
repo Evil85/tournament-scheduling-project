@@ -18,6 +18,9 @@ public class RoundRobin extends Division {
 	protected void SetupMatches()
 	{
 		m_unscheduled = new LinkedList<Match>();
+		if (m_teams.size() < 3)
+			return;
+		
 		Team[] teams = m_teams.toArray(new Team[0]);
 		for (int i = 0; i < teams.length; i++)
 			for (int j = i + 1; j < teams.length; j++)
