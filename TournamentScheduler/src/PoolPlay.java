@@ -20,6 +20,9 @@ public class PoolPlay extends Division {
 	protected void SetupMatches()
 	{
 		m_unscheduled = new LinkedList<Match>();
+		if (m_teams.size() < 6)
+			return;
+		
 		Set<Player> firstRound = new HashSet<Player>();
 		Set<Player> secondRound = new HashSet<Player>();
 		Team[] teams = m_teams.toArray(new Team[0]);

@@ -65,7 +65,6 @@ public class RoundRobinTest {
 		robin.LinkTo(robin);
 		schedule = new Vector<Match>();
 		assertThat(robin.TrySchedule(schedule), equalTo(true));
-		assertThat(schedule.size(), equalTo(1));
-		assertThat(schedule.elementAt(0).toString(), equalTo("Fail Tournament match 1: P1 vs. P2 at C1 (V1), 10/21/11 12:00 PM - 2:00 PM"));
+		assertThat(schedule.size(), equalTo(0));
 	}
 }
