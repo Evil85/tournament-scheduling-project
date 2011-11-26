@@ -17,7 +17,7 @@ public class PoolPlay extends Division {
 		SetupMatches();
 	}
 	
-	private void SetupMatches()
+	protected void SetupMatches()
 	{
 		m_unscheduled = new LinkedList<Match>();
 		Set<Player> firstRound = new HashSet<Player>();

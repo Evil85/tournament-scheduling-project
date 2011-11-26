@@ -15,7 +15,7 @@ public class RoundRobin extends Division {
 		SetupMatches();
 	}
 	
-	private void SetupMatches()
+	protected void SetupMatches()
 	{
 		m_unscheduled = new LinkedList<Match>();
 		Team[] teams = m_teams.toArray(new Team[0]);
