@@ -57,7 +57,24 @@ public class CommandArguments
 	 */
 	public Object getArgument(String key)
 	{
-		return this.getArgument(key, this.objectMap);
+		Object result;
+		try
+		{
+			result = this.getArgument(key, this.objectMap);
+		}
+		catch(Exception ex)
+		{
+			logger.error("Could not find key from get property. Key : " + key + "\n" + ex);
+			return null;
+		}
+
+		// If it is still null then we couldn't find the value associated with the key.
+		if(result == null)
+		{
+			logger.error("Could not find key from get property. Key : " + key);
+		}
+
+		return result;
 	}
 
 	/**
@@ -84,6 +101,11 @@ public class CommandArguments
 		return this.originalJsonString;
 	}
 
+	public boolean doesKeyExist(String key)
+	{
+		return this.getArgument(key, this.objectMap) != null;
+	}
+
 	private Object getArgument(String key, Map<String, Object> subMap)
 	{
 		Object result;
@@ -95,33 +117,19 @@ public class CommandArguments
 			return subMap;
 		}
 
-		try
-		{
-			// Try to find the array accessor first
-			result = findArray(key, subMap);
+		// Try to find the array accessor first
+		result = findArray(key, subMap);
 
-			// If we dont find one then check to see if there is a .
-			if (result == null)
-			{
-				result = findSubKey(key, subMap);
-			}
-
-			// If we still cant find anything then it has to just a key so get it from the submap.
-			if (result == null)
-			{
-				result = subMap.get(key);
-			}
-		}
-		catch (Exception ex)
-		{
-			logger.error("Could not find key from get property. Key : " + key + "\n" + ex);
-			return null;
-		}
-
-		// If it is still null then we couldn't find the value associated with the key.
+		// If we dont find one then check to see if there is a .
 		if (result == null)
 		{
-			logger.error("Could not find key from get property. Key : " + key);
+			result = findSubKey(key, subMap);
+		}
+
+		// If we still cant find anything then it has to just a key so get it from the submap.
+		if (result == null)
+		{
+			result = subMap.get(key);
 		}
 
 		return result;
