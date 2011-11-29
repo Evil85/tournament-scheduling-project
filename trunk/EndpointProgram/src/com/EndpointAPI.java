@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
+import java.util.SortedSet;
+import java.util.Calendar;
 import org.apache.log4j.Logger;
 
 import com.Utilities.CommandArguments;
@@ -59,6 +61,113 @@ public class EndpointAPI
         return true;
 	}
 	
+	//Schedule tournament
+	public String scheduleTournament(CommandArguments arguments)
+	{
+	    try {
+            Connection conn = DriverManager.getConnection(URL, user, pass);
+
+            st = conn.prepareStatement("SELECT * FROM `tournament` WHERE `id` = ?;");
+            st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
+            rs = st.executeQuery();
+            rs.next();
+
+    /*
+            SortedSet<TimeSpan> tournTimes = new SortedSet<TimeSpan>();
+            Calendar cal = Calendar.getInstance();
+
+            String tStart = rs.getDate("start_date");
+            String tEnd = rs.getDate("end_date");
+
+            Time std = rs.getDate("start_time_weekdays");
+            Time etd = rs.getDate("end_time_weekdays");
+            Time ste = rs.getDate("start_time_weekends");
+            Time ete = rs.getDate("end_time_weekends");
+
+            cal.setTime(dateFormat.parse(tStart));
+            while (!cal.after(dateFormat.parse(tEnd)))
+            {
+                if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) || (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))
+                {
+                    cal.set(Calendar.HOUR_OF_DAY, ste.get(Calendar.HOUR_OF_DAY));
+                    cal.set(Calendar.MINUTE, ste.get(Calendar.MINUTE));
+                    Timestamp start = cal.getTime().getTime();
+                    
+                    cal.set(Calendar.HOUR_OF_DAY, ete.get(Calendar.HOUR_OF_DAY));
+                    cal.set(Calendar.MINUTE, ete.get(Calendar.MINUTE));
+                    Timestamp end = cal.getTime().getTime();
+                    
+                    tournTimes.add(new TimeSpan(start, end));
+                }
+                else
+                {
+                    cal.set(Calendar.HOUR_OF_DAY, std.get(Calendar.HOUR_OF_DAY));
+                    cal.set(Calendar.MINUTE, std.get(Calendar.MINUTE));
+                    Timestamp start = cal.getTime().getTime();
+                    
+                    cal.set(Calendar.HOUR_OF_DAY, etd.get(Calendar.HOUR_OF_DAY));
+                    cal.set(Calendar.MINUTE, etd.get(Calendar.MINUTE));
+                    Timestamp end = cal.getTime().getTime();
+                    
+                    tournTimes.add(new TimeSpan(start, end));
+                }
+                cal.add(Calendar.DATE, 1);
+            }
+
+            st = conn.prepareStatement("SELECT DISTINCT `person`.`id`, `person`.`name`, `person`.`unavailTimeStart1`, `person`.`unavailTimeEnd1`, `person`.`unavailTimeStart2`, `person`.`unavailTimeEnd2` FROM `person`, `player`, `division` WHERE (`person`.`id` = `player`.`id_player1` OR `person`.`id` = `player`.`id_player2`) AND `player`.`id_division` = `division`.`id` AND `division`.`id_tournament` = ?;");
+            
+            st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
+	        rs = st.executeQuery();
+
+
+
+            Map<String, Player> map = new HashMap<String, Player>();
+            while (rs.next())
+            {
+
+//                map.put(new Player(rs.getInt("id"), rs.getString("name"),
+            }            
+
+
+            JsonObject e = new JsonObject();
+            
+            int rowSize = 0;
+            int colSize = rs.getMetaData().getColumnCount();
+	        while(rs.next())
+			{
+			    JsonObject m = new JsonObject();
+			    for (int i = 1; i < colSize+1; i++)
+                {
+                    if (!(rs.getMetaData().getColumnName(i).equalsIgnoreCase("password")))
+                        m.addProperty(rs.getMetaData().getColumnName(i), rs.getString(i));
+                }
+                e.addProperty(java.lang.String.valueOf(rowSize++), m.toString());
+			}
+*/
+            JsonObject e = new JsonObject();
+            e.addProperty("result", "tournament scheduled");
+
+            logger.info("Scheduled tournament: " + (String)arguments.getArgument("TournamentID"));
+            return e.toString();
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception while scheduling tournament: " + (String)arguments.getArgument("TournamentID"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception while scheduling tournament: " + (String)arguments.getArgument("TournamentID"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+	}
+	
 	//Get whole tuple by id for table type (user table will NOT send back passwords)
 	public String getTupleByID(CommandArguments arguments)
 	{
@@ -71,11 +180,7 @@ public class EndpointAPI
 
             st = conn.prepareStatement("SELECT * FROM `" + name + "` WHERE `id` = ?;");
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("ID")));
-            
-            if (arguments.getArgument("NOPE") == null)
-                System.err.println("NOPE NOT FOUND!!!!");
-            
-            
+                        
 	        rs = st.executeQuery();
 	        rs.next();
 	        int size = rs.getMetaData().getColumnCount();
@@ -121,10 +226,9 @@ public class EndpointAPI
             
             st = conn.prepareStatement("SELECT * FROM `" + name + "`;");
 	        rs = st.executeQuery();
-
+            int rowSize = 0;
 			int colSize = rs.getMetaData().getColumnCount();
 			JsonObject e = new JsonObject();
-			int rowSize = 0;
 			while(rs.next())
 			{
 			    JsonObject m = new JsonObject();
