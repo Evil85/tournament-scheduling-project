@@ -4,6 +4,7 @@ echo -===Building Endpoint Server===-
 
 # Find all the java files in the Endpoint Program and store them in javasrc.txt
 find ../EndpointProgram/src/ -name "*.java" > ./javasrc.txt
+find ../TournamentScheduler/src/ -name "*.java" >> ./javasrc.txt
 
 # Put all the compiled class files in this dir
 mkdir -p ./javaclasses
