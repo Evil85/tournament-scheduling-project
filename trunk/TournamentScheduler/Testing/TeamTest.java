@@ -5,6 +5,9 @@ import java.sql.Timestamp;
 
 import org.junit.Test;
 
+import com.Player;
+import com.Team;
+import com.TimeSpan;
 
 public class TeamTest {
 
@@ -17,7 +20,7 @@ public class TeamTest {
 		TimeSpan tenToThree = new TimeSpan(tenAM, threePM);
 		TimeSpan threeToFive = new TimeSpan(threePM, fivePM);
 		TimeSpan fourToFive = new TimeSpan(fourPM, fivePM);
-		
+
 		Player p1 = new Player(1, "P1", threeToFive, tenToThree);
 		Player p2 = new Player(2, "P2", threeToFive, fourToFive);
 		Team g1 = new Team("G1", p1, p2);

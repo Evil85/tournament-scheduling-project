@@ -5,6 +5,8 @@ import java.sql.Timestamp;
 
 import org.junit.Test;
 
+import com.Court;
+import com.TimeSpan;
 
 public class CourtTest {
 
@@ -15,7 +17,7 @@ public class CourtTest {
 		Timestamp fivePM = Timestamp.valueOf("2011-10-21 17:00:00.000000000");
 		TimeSpan tenToThree = new TimeSpan(tenAM, threePM);
 		TimeSpan threeToFive = new TimeSpan(threePM, fivePM);
-		
+
 		Court testCourt = new Court(1, "Test Court", "Test Venue", threeToFive, tenToThree);
 		assertThat(testCourt.toString(), equalTo("Test Court (Test Venue) : [10/21/11 10:00 AM - 5:00 PM]"));
 		assertThat(testCourt.Venue(), equalTo("Test Venue"));

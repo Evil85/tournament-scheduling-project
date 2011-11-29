@@ -1,3 +1,5 @@
+package com;
+
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -12,7 +14,7 @@ public class CourtManager {
 	{
 		m_courts = courts;
 	}
-	
+
 	public List<CourtTime> CourtTimesByLatest(Match m, int matchMinutes, Vector<Match> schedule)
 	{
 		int matchMs = matchMinutes * c_nMsPerMinute;
@@ -20,23 +22,23 @@ public class CourtManager {
 		List<CourtTime> allTimes = CourtTimes(m, matchMs, schedule, AvailabilityType.All);
 		Collections.sort(comfortTimes, LatestCourtTime.getInstance());
 		Collections.sort(allTimes, LatestCourtTime.getInstance());
-		
+
 		List<CourtTime> all = comfortTimes;
 		for (CourtTime ct : allTimes)
 			if (!AlreadyRepresented(ct, all))
 				all.add(ct);
 		return all;
 	}
-	
+
 	private boolean AlreadyRepresented(CourtTime ct, List<CourtTime> times)
 	{
 		for (CourtTime time : times)
 			if (time.toString().equals(ct.toString()))
 				return true;
-		
+
 		return false;
 	}
-	
+
 	private List<CourtTime> CourtTimes(Match m, int matchMs, Vector<Match> schedule, AvailabilityType type)
 	{
 		List<CourtTime> times = new LinkedList<CourtTime>();
@@ -56,8 +58,8 @@ public class CourtManager {
 		}
 		return times;
 	}
-	
+
 	private Court[] m_courts;
-	
+
 	private static final int c_nMsPerMinute = 60000;
 }

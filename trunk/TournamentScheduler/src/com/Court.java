@@ -1,14 +1,15 @@
+package com;
+
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Vector;
 
 
-public class Player implements TimeConstraint {
+public class Court implements TimeConstraint {
 
-	public Player(int id, String name, TimeSpan... availability) {
+	public Court(int id, String name, String venue, TimeSpan... availability) {
 		m_nId = id;
-		m_strName = name;
-		m_teams = new Vector<Team>();
+		m_strName = String.format("%s (%s)", name, venue);
+		m_strVenue = venue;
 		m_availability = new TreeSet<TimeSpan>();
 		if (availability.length != 0)
 			m_availability.add(availability[0]);
@@ -16,48 +17,47 @@ public class Player implements TimeConstraint {
 			SchedulingUtil.AddAvailability(m_availability, availability[i]);
 		UpdateAvailabilityMinutes();
 	}
-	
+
+	public String Venue() {
+		return m_strVenue;
+	}
+
 	public SortedSet<TimeSpan> Availability()
 	{
 		return m_availability;
 	}
-	
+
 	public int AvailableMinutes()
 	{
 		return m_nAvailableMinutes;
 	}
-	
+
 	public String Name()
 	{
 		return m_strName;
 	}
-	
+
 	public int Id()
 	{
 		return m_nId;
 	}
-	
+
 	public String toString()
 	{
 		return String.format("%s : %s", m_strName, m_availability);
 	}
-	
-	public void Enroll(Team t)
-	{
-		m_teams.add(t);
-	}
-	
+
 	private void UpdateAvailabilityMinutes()
 	{
 		m_nAvailableMinutes = 0;
 		for (TimeSpan span : m_availability)
 			m_nAvailableMinutes += span.getMinutes();
 	}
-	
+
 	private String m_strName;
+	private String m_strVenue;
 	private SortedSet<TimeSpan> m_availability;
 	private int m_nAvailableMinutes;
-	private Vector<Team> m_teams;
 	private int m_nId;
-	
+
 }

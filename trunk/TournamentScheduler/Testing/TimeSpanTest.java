@@ -5,9 +5,10 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import com.TimeSpan;
 
 public class TimeSpanTest {
-	
+
 	@Test
 	public void testTimeSpan() {
 		Timestamp tenAM = Timestamp.valueOf("2011-10-21 10:00:00.000000000");
@@ -17,7 +18,7 @@ public class TimeSpanTest {
 		assertEquals(span.getEnd(), threeOhOne);
 		assertEquals(span.getMinutes(), 301);
 	}
-	
+
 	@Test(expected=IllegalArgumentException.class)
 	public void testTimeSpanIllegalOrder() {
 		Timestamp tenAM = Timestamp.valueOf("2011-10-21 10:00:00.000000000");
@@ -25,7 +26,7 @@ public class TimeSpanTest {
 		new TimeSpan(threePM, tenAM);
 		fail();
 	}
-	
+
 	@Test(expected=IllegalArgumentException.class)
 	public void testTimeSpanIllegalPrecisionS() {
 		Timestamp tenAM = Timestamp.valueOf("2011-10-21 10:00:01.000000000");
@@ -33,7 +34,7 @@ public class TimeSpanTest {
 		new TimeSpan(threePM, tenAM);
 		fail();
 	}
-	
+
 	@Test(expected=IllegalArgumentException.class)
 	public void testTimeSpanIllegalPrecisionMs() {
 		Timestamp tenAM = Timestamp.valueOf("2011-10-21 10:00:00.001000000");
@@ -41,7 +42,7 @@ public class TimeSpanTest {
 		new TimeSpan(threePM, tenAM);
 		fail();
 	}
-	
+
 	@Test(expected=IllegalArgumentException.class)
 	public void testTimeSpanIllegalPrecisionNs() {
 		Timestamp tenAM = Timestamp.valueOf("2011-10-21 10:00:00.000000001");
@@ -49,7 +50,7 @@ public class TimeSpanTest {
 		new TimeSpan(threePM, tenAM);
 		fail();
 	}
-	
+
 	@Test(expected=IllegalArgumentException.class)
 	public void testTimeSpanIllegalZeroSpan() {
 		Timestamp tenAM = Timestamp.valueOf("2011-10-21 10:00:00.000000000");
@@ -101,7 +102,7 @@ public class TimeSpanTest {
 		assertTrue(oneToNoonToThree.Overlaps(tenToNoon));
 		assertTrue(tenToNoon.Overlaps(oneToNoonToThree));
 	}
-	
+
 	@Test
 	public void testWithin() {
 		Timestamp tenAM = Timestamp.valueOf("2011-10-21 10:00:00.000000000");
