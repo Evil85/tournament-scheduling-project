@@ -6,6 +6,12 @@ import java.util.Vector;
 
 import org.junit.Test;
 
+import com.Court;
+import com.CourtManager;
+import com.Match;
+import com.Player;
+import com.PoolPlay;
+import com.TimeSpan;
 
 public class PoolPlayTest {
 
@@ -32,20 +38,20 @@ public class PoolPlayTest {
 		TimeSpan eightS = new TimeSpan(eight, nine);
 		TimeSpan nineS = new TimeSpan(nine, ten);
 		TimeSpan tenS = new TimeSpan(ten, eleven);
-		
+
 		Court c1 = new Court(1, "C1", "V1", oneS, sixS, sevenS, eightS, nineS, tenS);
 		Court c2 = new Court(2, "C2", "V1", oneS, twoS, threeS, fourS, fiveS, sixS, nineS);
 		CourtManager courts = new CourtManager(c1, c2);
-		
+
 		Player p1 = new Player(1, "P1", oneS, twoS, sevenS, nineS, tenS);
 		Player p2 = new Player(2, "P2", oneS, sevenS, eightS, nineS, tenS);
 		Player p3 = new Player(3, "P3", twoS, sevenS, eightS, nineS, tenS);
-		
+
 		Player p4 = new Player(4, "P4", oneS, twoS, sixS, sevenS, nineS, tenS);
 		Player p5 = new Player(5, "P5", oneS, fourS, fiveS, sevenS, eightS, nineS, tenS);
 		Player p6 = new Player(6, "P6", threeS, fiveS, sixS, sevenS, eightS, nineS, tenS);
-		
-		
+
+
 		PoolPlay pool = new PoolPlay(1, "X", 60, courts, new Player[] {p1, p2, p3, p4, p5, p6});
 		pool.LinkTo(pool);
 		Vector<Match> schedule = new Vector<Match>();

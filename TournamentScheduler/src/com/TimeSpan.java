@@ -1,9 +1,11 @@
+package com;
+
 import java.text.DateFormat;
 import java.util.Collection;
 import java.sql.Timestamp;
 
 public class TimeSpan implements Comparable<TimeSpan> {
-	
+
     /**
      * A wrapper on two Timestamp objects which provides a bit of
      * extra functionality.
@@ -17,7 +19,7 @@ public class TimeSpan implements Comparable<TimeSpan> {
 		Validate();
 		CalculateMinutes();
 	}
-	
+
 	public TimeSpan(int minutes, Timestamp end)
 	{
 		setStart(new Timestamp(end.getTime() - minutes * c_nMsPerMinute));
@@ -25,7 +27,7 @@ public class TimeSpan implements Comparable<TimeSpan> {
 		Validate();
 		setMinutes(minutes);
 	}
-	
+
 	/**
 	 * Overlapping TimeSpans are return 0 in order to get the desired behavior in a SortedSet.
 	 */
@@ -44,23 +46,23 @@ public class TimeSpan implements Comparable<TimeSpan> {
 			return 1;
 		}
 	}
-	
+
 	public String toString()
 	{
 		DateFormat shortDate = DateFormat.getDateInstance(DateFormat.SHORT);
 		DateFormat shortTime = DateFormat.getTimeInstance(DateFormat.SHORT);
-		
+
 		String strStartDate = shortDate.format(getStart());
 		String strEndDate = shortDate.format(getEnd());
 		String strStartTime = shortTime.format(getStart());
 		String strEndTime = shortTime.format(getEnd());
-		
+
 		if (strEndDate.equals(strStartDate))
 			return String.format("%s %s - %s", strStartDate, strStartTime, strEndTime);
 		else
 			return String.format("%s %s - %s %s", strStartDate, strStartTime, strEndDate, strEndTime);
 	}
-	
+
 	/**
 	 * Check to see whether or not this TimeSpan overlaps with another.
 	 * @param other
@@ -72,7 +74,7 @@ public class TimeSpan implements Comparable<TimeSpan> {
             (other.getStart().after(getStart()) && other.getStart().before(getEnd())) ||
             (other.getEnd().before(getEnd()) && other.getEnd().after(getStart()));
     }
-	
+
 	/**
 	 * Determines whether this TimeSpan is contained within at least one of the specified TimeSpans.
 	 * @param others
@@ -82,16 +84,16 @@ public class TimeSpan implements Comparable<TimeSpan> {
 	{
 		return Within(others.toArray(new TimeSpan[0]));
 	}
-	
+
 	public boolean Within(TimeSpan... others)
 	{
 		for (TimeSpan o : others)
 			if (!(o.getStart().after(getStart()) || o.getEnd().before(getEnd())))
 				return true;
-				
+
 		return false;
 	}
-	
+
 	public Timestamp getStart() {
 		return m_start;
 	}
@@ -128,7 +130,7 @@ public class TimeSpan implements Comparable<TimeSpan> {
 		getEnd().getNanos() == 0))
 			throw new IllegalArgumentException();
 	}
-	
+
 	/**
 	 * Calculates the duration of this TimeSpan.
 	 */
@@ -136,10 +138,10 @@ public class TimeSpan implements Comparable<TimeSpan> {
 	{
 		setMinutes(((int)getEnd().getTime() - (int)getStart().getTime()) / c_nMsPerMinute);
 	}
-	
+
 	private Timestamp m_start;
 	private Timestamp m_end;
 	private int m_nMinutes;
-	
+
 	private static final int c_nMsPerMinute = 60000;
 }

@@ -6,21 +6,32 @@ import java.util.Vector;
 
 import org.junit.Test;
 
+import com.AvailabilityType;
+import com.Court;
+import com.CourtManager;
+import com.CourtTime;
+import com.Division;
+import com.Match;
+import com.Player;
+import com.RoundRobin;
+import com.SchedulingUtil;
+import com.Team;
+import com.TimeSpan;
 
 public class MatchTest {
 
 	@Test
 	public void testToString() {
 		Division dummy = new RoundRobin(-1, "dud", -1, new CourtManager(), new Player(1, "nobody"));
-		
+
 		Timestamp tenAM = Timestamp.valueOf("2011-10-21 10:00:00.000000000");
 		Timestamp threePM = Timestamp.valueOf("2011-10-21 15:00:00.000000000");
 		TimeSpan tenToThree = new TimeSpan(tenAM, threePM);
-		
+
 		Team t1 = new Team("T1", new Player(1, "P1", tenToThree));
 		Team t2 = new Team("T2", new Player(2, "P2", tenToThree));
 		Court c1 = new Court(1, "C1", "V1", tenToThree);
-		
+
 		Match m = new Match("Title Match", dummy, t1, t2);
 		assertThat(m.toString(), equalTo("Title Match: T1 vs. T2"));
 		assertThat(m.Time(), equalTo(null));
@@ -28,11 +39,11 @@ public class MatchTest {
 		assertThat(m.toString(), equalTo("Title Match: T1 vs. T2 at C1 (V1), 10/21/11 10:00 AM - 3:00 PM"));
 		assertThat(m.Time(), equalTo(tenToThree));
 	}
-	
+
 	@Test
 	public void testAvailableTimes() {
 		Division dummy = new RoundRobin(-1, "dud", -1, new CourtManager(), new Player(1, "nobody"));
-		
+
 		Timestamp sixAM = Timestamp.valueOf("2011-10-21 6:00:00.000000000");
 		Timestamp tenAM = Timestamp.valueOf("2011-10-21 10:00:00.000000000");
 		Timestamp elevenAM = Timestamp.valueOf("2011-10-21 11:00:00.000000000");
@@ -44,7 +55,7 @@ public class MatchTest {
 		TimeSpan tenToFour = new TimeSpan(tenAM, fourPM);
 		TimeSpan threeToFive = new TimeSpan(threePM, fivePM);
 		TimeSpan threeToFour = new TimeSpan(threePM, fourPM);
-		
+
 		Court c1 = new Court(1, "C1", "V1", sixToEleven, elevenToThree, threeToFive);
 		Player p1a = new Player(1, "P1a", sixToEleven);
 		Player p1b = new Player(2, "P1b", sixToEleven);
@@ -62,32 +73,32 @@ public class MatchTest {
 		Team g3b = new Team(p3b.Name(), p3b);
 		Team g4a = new Team(p4a.Name(), p4a);
 		Team g4b = new Team(p4b.Name(), p4b);
-		
+
 		Match m1 = new Match("M1", dummy, g1a, g1b);
 		Match m2 = new Match("M2", dummy, g2a, g2b);
 		Match m3 = new Match("M3", dummy, g3a, g3b);
 		Match m4 = new Match("M4", dummy, g4a, g4b);
 		Vector<Match> schedule = new Vector<Match>();
-		
+
 		assertThat(SchedulingUtil.MatchAvailability(m1, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 6:00 AM - 11:00 AM]"));
 		assertThat(SchedulingUtil.MatchAvailability(m2, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 10:00 AM - 4:00 PM]"));
 		assertThat(SchedulingUtil.MatchAvailability(m3, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 3:00 PM - 5:00 PM]"));
 		assertThat(SchedulingUtil.MatchAvailability(m4, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 6:00 AM - 5:00 PM]"));
-		
+
 		m1.Schedule(new CourtTime(c1, sixToEleven));
 		schedule.add(m1);
 		assertThat(SchedulingUtil.MatchAvailability(m1, c1, schedule, AvailabilityType.All).toString(), equalTo("[]"));
 		assertThat(SchedulingUtil.MatchAvailability(m2, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 11:00 AM - 4:00 PM]"));
 		assertThat(SchedulingUtil.MatchAvailability(m3, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 3:00 PM - 5:00 PM]"));
 		assertThat(SchedulingUtil.MatchAvailability(m4, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 11:00 AM - 5:00 PM]"));
-		
+
 		m3.Schedule(new CourtTime(c1, threeToFour));
 		schedule.add(m3);
 		assertThat(SchedulingUtil.MatchAvailability(m1, c1, schedule, AvailabilityType.All).toString(), equalTo("[]"));
 		assertThat(SchedulingUtil.MatchAvailability(m2, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 11:00 AM - 3:00 PM]"));
 		assertThat(SchedulingUtil.MatchAvailability(m3, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 4:00 PM - 5:00 PM]"));
 		assertThat(SchedulingUtil.MatchAvailability(m4, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 11:00 AM - 3:00 PM, 10/21/11 4:00 PM - 5:00 PM]"));
-		
+
 		m4.Schedule(new CourtTime(c1, elevenToThree));
 		schedule.add(m4);
 		assertThat(SchedulingUtil.MatchAvailability(m1, c1, schedule, AvailabilityType.All).toString(), equalTo("[]"));

@@ -1,3 +1,5 @@
+package com;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -10,19 +12,19 @@ public class PoolPlay extends Division {
 		super(id, name, minutesPerMatch, courts, players);
 		SetupMatches();
 	}
-	
+
 	public PoolPlay(int id, String name, int minutesPerMatch, CourtManager courts, Team... teams)
 	{
 		super(id, name, minutesPerMatch, courts, teams);
 		SetupMatches();
 	}
-	
+
 	protected void SetupMatches()
 	{
 		m_unscheduled = new LinkedList<Match>();
 		if (m_teams.size() < 6)
 			return;
-		
+
 		Set<Player> firstRound = new HashSet<Player>();
 		Set<Player> secondRound = new HashSet<Player>();
 		Team[] teams = m_teams.toArray(new Team[0]);
@@ -32,12 +34,12 @@ public class PoolPlay extends Division {
 			secondRound.addAll(teams[i].Players());
 		Player[] firstRoundPlayers = firstRound.toArray(new Player[0]);
 		Player[] secondRoundPlayers = secondRound.toArray(new Player[0]);
-		
+
 		Team finalistA =  new Team("Finalist A", firstRoundPlayers);
 		Team finalistB =  new Team("Finalist B", secondRoundPlayers);
 		Match finalMatch = new Match(String.format("%s final match", m_strName), this, finalistA, finalistB);
 		m_unscheduled.add(finalMatch);
-		
+
 		Team winnerRoundA = new Team("Winner A", firstRoundPlayers);
 		Team runnerRoundA = new Team("Runner-up A", firstRoundPlayers);
 		Team winnerRoundB = new Team("Winner B", secondRoundPlayers);
@@ -48,7 +50,7 @@ public class PoolPlay extends Division {
 		Match semi2 = new Match(String.format("%s semifinal match 2", m_strName), this, winnerRoundB, runnerRoundB);
 		m_unscheduled.add(semi2);
 		finalMatch.AddParent(semi2);
-		
+
 		for (int i = 0; i < teams.length / 2; i++)
 		{
 			for (int j = i + 1; j < teams.length / 2; j++)
@@ -58,7 +60,7 @@ public class PoolPlay extends Division {
 				semi1.AddParent(m);
 			}
 		}
-		
+
 		for (int i = teams.length / 2; i < teams.length; i++)
 		{
 			for (int j = i + 1; j < teams.length; j++)
@@ -69,5 +71,5 @@ public class PoolPlay extends Division {
 			}
 		}
 	}
-	
+
 }
