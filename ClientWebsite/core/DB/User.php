@@ -14,7 +14,7 @@ class DB_User {
 		if($result === false){
 			return false;
 		}
-		$_SESSION['uid'] = $result['uid'];
+		$_SESSION['uid'] = $result['id'];
 		self::$userData[0] = $result;
 		return true;
 	}
@@ -42,7 +42,7 @@ class DB_User {
 				'username'    => 'Guest',
 				'password'    => 'public',
 				'permissions' => 'guest',
-				'pid_person'  => 0
+				'id_person'  => 0
 			);
 		}
 		// gettin user id if not specified
@@ -54,8 +54,8 @@ class DB_User {
 			$sql = "
 				select * from
 				user u left join
-				person p on u.pid_person = p.pid 
-				where uid = {$id}
+				person p on u.id_person = p.id 
+				where u.id = {$id}
 			";
 			self::$userData[$id] = $db->fetch_row($sql);
 		}
