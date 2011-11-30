@@ -190,7 +190,7 @@ public class EndpointAPI
 
             st = conn.prepareStatement("SELECT * FROM `" + name + "` WHERE `id` = ?;");
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("ID")));
-                        
+
 	        rs = st.executeQuery();
 	        rs.next();
 	        int size = rs.getMetaData().getColumnCount();
@@ -224,17 +224,52 @@ public class EndpointAPI
         }
 	}
 	
-	//Get whole table by name (user table will NOT send back passwords)
-	public String getTableByName(CommandArguments arguments)
+	//Get limited sorted table by name (user table will NOT send back passwords)
+	public String getTableOrderLimitSpecify(CommandArguments arguments)
 	{
 	    try {
 	        String name = (String)arguments.getArgument("TableName");
             if (!checkString(name))
                 throw new Exception("Possible SQL attack!");
-	    
+
+
+            String sqlStr = "select * from `" + name + "` ";
+
+  	        if (arguments.doesKeyExist("SpecColumn"))
+  	        {
+	            String spec = (String)arguments.getArgument("SpecColumn");
+                if (!checkString(spec))
+                    throw new Exception("Possible SQL attack!");
+  	        
+	            sqlStr += "where `" + spec + "` = ? ";
+	        }
+	        
+	        if (arguments.doesKeyExist("OrderColumn"))
+  	        {
+	            String order = (String)arguments.getArgument("OrderColumn");
+                if (!checkString(order))
+                    throw new Exception("Possible SQL attack!");
+  	        
+	            sqlStr += "order by `" + order + "` ";
+	        }
+	        
+	        if (arguments.doesKeyExist("SkipCount"))
+  	        {  	        
+	            sqlStr = sqlStr + "limit " + java.lang.Integer.valueOf((String)arguments.getArgument("SkipCount")) + ", " + java.lang.Integer.valueOf((String)arguments.getArgument("GetCount"));
+	        }
+	        
+	        sqlStr += ";";
+            
+            
             Connection conn = DriverManager.getConnection(URL, user, pass);
             
-            st = conn.prepareStatement("SELECT * FROM `" + name + "`;");
+            st = conn.prepareStatement(sqlStr);
+            
+            if (arguments.doesKeyExist("SpecValue"))
+                st.setString(1, (String)arguments.getArgument("SpecValue"));
+            
+            logger.info("sql statement: " + st);
+            
 	        rs = st.executeQuery();
             int rowSize = 0;
 			int colSize = rs.getMetaData().getColumnCount();
@@ -250,12 +285,12 @@ public class EndpointAPI
                 e.addProperty(java.lang.String.valueOf(rowSize++), m.toString());
 			}
 
-            logger.info("Selected whole table: " + name);
+            logger.info("Selected limited sorted table: " + name);
             return e.toString();
         }
         catch (SQLException ex)
         {
-	        logger.error("SQL Exception while selecting whole table: " + (String)arguments.getArgument("TableName"));
+	        logger.error("SQL Exception while selecting limited sorted table: " + (String)arguments.getArgument("TableName"));
 	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
@@ -263,13 +298,15 @@ public class EndpointAPI
         }
         catch (Exception ex)
         {
-	        logger.error("Java Exception while selecting whole table: " + (String)arguments.getArgument("TableName"));
+	        logger.error("Java Exception while selecting limited sorted table: " + (String)arguments.getArgument("TableName"));
 	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
             return e.toString();
         }
 	}
+
+
 	
 	//Get table count by name
 	public String getTableCountByName(CommandArguments arguments)
@@ -353,6 +390,8 @@ public class EndpointAPI
             return e.toString();
         }
 	}
+	
+	
 
 
     //Getters and setters for USER: createUser, getUserID
@@ -413,7 +452,7 @@ public class EndpointAPI
             logger.info("Selected uid from user: " + arguments.getArgument("UserName"));
 
             JsonObject e = new JsonObject();
-            e.addProperty("id", id);
+            e.addProperty("result", id);
             return e.toString();
         }
         catch (SQLException ex)
@@ -511,7 +550,7 @@ public class EndpointAPI
             logger.info("Selected pid from Person: " + arguments.getArgument("PersonEmail"));
 
             JsonObject e = new JsonObject();
-            e.addProperty("id", id);
+            e.addProperty("result", id);
             return e.toString();
         }
         catch (SQLException ex)
@@ -589,7 +628,7 @@ public class EndpointAPI
             logger.info("Selected cid from Court: " + arguments.getArgument("CourtName"));
 
             JsonObject e = new JsonObject();
-            e.addProperty("id", id);
+            e.addProperty("result", id);
             return e.toString();
         }
         catch (SQLException ex)
@@ -717,7 +756,7 @@ public class EndpointAPI
             logger.info("Selected lid from Location: " + arguments.getArgument("LocationName"));
 
             JsonObject e = new JsonObject();
-            e.addProperty("id", id);
+            e.addProperty("result", id);
             return e.toString();
         }
         catch (SQLException ex)
@@ -847,7 +886,7 @@ public class EndpointAPI
             logger.info("Selected tid from tournament: " + arguments.getArgument("TournamentName"));
 
             JsonObject e = new JsonObject();
-            e.addProperty("id", id);
+            e.addProperty("result", id);
             return e.toString();
         }
         catch (SQLException ex)
@@ -975,7 +1014,7 @@ public class EndpointAPI
             logger.info("Selected did from division: " + arguments.getArgument("DivisionName"));
 
             JsonObject e = new JsonObject();
-            e.addProperty("id", id);
+            e.addProperty("result", id);
             return e.toString();
         }
         catch (SQLException ex)
@@ -989,6 +1028,140 @@ public class EndpointAPI
         catch (Exception ex)
         {
 	        logger.error("Java Exception while selecting did: " + arguments.getArgument("DivisionName"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+	}
+
+	public String getDivisionListForPlayerTourn(CommandArguments arguments)
+	{
+	    try {
+            Connection conn = DriverManager.getConnection(URL, user, pass);
+            
+            st = conn.prepareStatement("select d.*, p.players, pl.plid from division d left join (select count(*) as players, id_division as did from player where id_division in (select id from division where id_tournament = ?) group by did) as p on p.did = d.id left join (select id as plid, id_division as did from player where (id_player1 = ? or id_player2 = ?)) pl on d.id = pl.did where d.id_tournament = ? order by d.id desc limit " +
+            java.lang.Integer.valueOf((String)arguments.getArgument("SkipCount")) + ", "+
+            java.lang.Integer.valueOf((String)arguments.getArgument("GetCount")) +" ;");
+            
+            st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
+            st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("PersonID")));
+            st.setInt(3, java.lang.Integer.valueOf((String)arguments.getArgument("PersonID")));
+            st.setInt(4, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
+            
+            rs = st.executeQuery();
+            int rowSize = 0;
+			int colSize = rs.getMetaData().getColumnCount();
+			JsonObject e = new JsonObject();
+			while(rs.next())
+			{
+			    JsonObject m = new JsonObject();
+			    for (int i = 1; i < colSize+1; i++)
+                {
+                    m.addProperty(rs.getMetaData().getColumnName(i), rs.getString(i));
+                }
+                e.addProperty(java.lang.String.valueOf(rowSize++), m.toString());
+			}
+
+            logger.info("Selected divisions for tourn: " + (String)arguments.getArgument("TournamentID"));
+            return e.toString();
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception while selecting divisions for tourn: " + (String)arguments.getArgument("TournamentID"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception while selecting divisions for tourn: " + (String)arguments.getArgument("TournamentID"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+	}
+	
+	
+	public String getDivisionDataForPlayer(CommandArguments arguments)
+	{
+	    try {
+            Connection conn = DriverManager.getConnection(URL, user, pass);
+            
+            st = conn.prepareStatement("select d.*, p.id_player1 as pid1, p.id_player2 as pid2 from division d left join (select * from player where id_division = ? and (id_player1 = ? or id_player2 = ?)) as p on p.id_division = d.id where d.id = ?;");
+            
+            st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("DivisionID")));
+            st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("PersonID")));
+            st.setInt(3, java.lang.Integer.valueOf((String)arguments.getArgument("PersonID")));
+            st.setInt(4, java.lang.Integer.valueOf((String)arguments.getArgument("DivisionID")));
+            
+            rs = st.executeQuery();
+	        rs.next();
+	        int size = rs.getMetaData().getColumnCount();
+
+            JsonObject e = new JsonObject();
+
+	        for (int i = 1; i < size+1; i++)
+	        {
+	            if (!(rs.getMetaData().getColumnName(i).equalsIgnoreCase("password")))
+                    e.addProperty(rs.getMetaData().getColumnName(i), rs.getString(i));
+            }
+
+            logger.info("Selected divisions data for player: " + (String)arguments.getArgument("PersonID"));
+            return e.toString();
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception while selecting divisions data for player: " + (String)arguments.getArgument("PersonID"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception while selecting divisions data for player: " + (String)arguments.getArgument("PersonID"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+	}
+	
+	//Get table count by name
+	public String getDivisionCountForPlayer(CommandArguments arguments)
+	{
+	    try {
+	        Connection conn = DriverManager.getConnection(URL, user, pass);
+            
+            st = conn.prepareStatement("select count(*) from player where division_id in (select id from divison where id_tournament = ?) and (id_player1 = ? or id_player2 = ?);");
+	        st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
+            st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("PersonID")));
+            st.setInt(3, java.lang.Integer.valueOf((String)arguments.getArgument("PersonID")));
+           
+	        rs = st.executeQuery();
+	        rs.next();
+	        int count = Integer.parseInt(rs.getString(1));
+	        
+			JsonObject e = new JsonObject();
+            e.addProperty("result", count);
+            logger.info("Selected count on divisions for player: " + (String)arguments.getArgument("PersonID"));
+            return e.toString();
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception while selecting count on divisions for player: " + (String)arguments.getArgument("PersonID"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+
+            return e.toString();
+        }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception while selecting count on divisions for player: " + (String)arguments.getArgument("PersonID"));
 	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
@@ -1068,7 +1241,7 @@ public class EndpointAPI
             logger.info("Selected pid from player with player1 pid: " + arguments.getArgument("Player1ID"));
 
             JsonObject e = new JsonObject();
-            e.addProperty("id", id);
+            e.addProperty("result", id);
             return e.toString();
         }
         catch (SQLException ex)
@@ -1153,7 +1326,7 @@ public class EndpointAPI
             logger.info("Selected mid from match num: " + arguments.getArgument("MatchNumber"));
 
             JsonObject e = new JsonObject();
-            e.addProperty("id", id);
+            e.addProperty("result", id);
             return e.toString();
         }
         catch (SQLException ex)
@@ -1234,7 +1407,7 @@ public class EndpointAPI
             logger.info("Selected gid from game: " + arguments.getArgument("GameNumber"));
 
             JsonObject e = new JsonObject();
-            e.addProperty("id", id);
+            e.addProperty("result", id);
             return e.toString();
         }
         catch (SQLException ex)
