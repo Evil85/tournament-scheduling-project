@@ -10,14 +10,22 @@ class DB_Court {
 	private static $courtData = array();
 	public static function getCourtData($id){
 		if(!isset(self::$courtData[$id])){
+			/*
 			$db = DB::get();
 			$sql = "
 				select * from
 				court
 				where
-				cid = {$id}
+				id = {$id}
 			";
 			self::$courtData[$id] = $db->fetch_row($sql);
+			*/
+			$data = array(
+				'Command'  => 'getTupleByID',
+				'TableName' => 'court',
+				'ID' => "{$id}"
+			);
+			self::$courtData[$id] = Socket::request($data);
 		}
 		return self::$courtData[$id];
 	}
@@ -31,7 +39,7 @@ class DB_Court {
 				select * from
 				court
 				where
-				lid_location = {$id}
+				id_location = {$id}
 				order by courtName
 			";
 			self::$courtList = $db->fetch_all($sql);
@@ -43,14 +51,24 @@ class DB_Court {
 	private static $courtCount = false;
 	public static function getCourtCount($id){
 		if(self::$courtCount === false){
+			/*
 			$db = DB::get();
 			$sql = "
 				select count(*) as count from
 				court
 				where
-				lid_location = {$id}
+				id_location = {$id}
 			";
 			self::$courtCount = $db->fetch_row($sql);
+			*/
+			$data = array(
+				'Command'  => 'getCountByValue',
+				'TableName' => 'court',
+				'ColumnName' => 'id_location',
+				'ColumnValue' => "{$id}",
+			);
+			$result = Socket::request($data);
+			self::$courtCount = $result['result'];
 		}
 		return self::$courtCount;
 	}

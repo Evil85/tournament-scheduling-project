@@ -6,18 +6,32 @@ class DB_Tournament {
 		return $db->insert('tournament',$data);
 	}
 	
+	// function returns the possible tournament types
+	public static function getTypes(){
+		return array('round robin' => 'round robin');
+	}
+	
 	// function gets info for tournament
 	private static $tournamentData = array();
 	public static function getTournamentData($id){
 		if(!isset(self::$tournamentData[$id])){
+			/*
 			$db = DB::get();
 			$sql = "
 				select * from
 				tournament
 				where
-				tid = {$id}
+				id = {$id}
 			";
 			self::$tournamentData[$id] = $db->fetch_row($sql);
+			*/
+			$data = array(
+				'Command'  => 'getTupleByID',
+				'TableName' => 'tournament',
+				'ID' => "{$id}"
+			);
+			self::$tournamentData[$id] = Socket::request($data);
+			
 		}
 		return self::$tournamentData[$id];
 	}
@@ -32,7 +46,7 @@ class DB_Tournament {
 				tournament
 				where
 				isGuestViewable = 1
-				order by tid desc
+				order by id desc
 				limit {$skip},{$get}
 			";
 			self::$tournamentList = $db->fetch_all($sql);
@@ -44,6 +58,7 @@ class DB_Tournament {
 	private static $tournamentCount = false;
 	public static function getTournamentCount(){
 		if(self::$tournamentCount === false){
+			/*
 			$db = DB::get();
 			$sql = "
 				select count(*) as count from
@@ -53,6 +68,15 @@ class DB_Tournament {
 			";
 			$result = $db->fetch_row($sql);
 			self::$tournamentCount = $result['count'];
+			*/
+			$data = array(
+				'Command'  => 'getCountByValue',
+				'TableName' => 'tournament',
+				'ColumnName' => 'isGuestViewable',
+				'ColumnValue' => "1",
+			);
+			$result = Socket::request($data);
+			self::$tournamentCount = $result['result'];
 		}
 		return self::$tournamentCount;
 	}
@@ -61,7 +85,9 @@ class DB_Tournament {
 	public static function isAdmin($tid){
 		$user       = DB_User::getUserData();
 		$tournament = self::getTournamentData($tid);
-		return ($user['uid'] == $tournament['uid_owner']);
+		Debug::add('test',$user);
+		Debug::add('test',$tournament);
+		return ($user['id'] == $tournament['id_owner']);
 	}
 }
 ?>

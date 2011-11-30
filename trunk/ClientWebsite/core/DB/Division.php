@@ -11,11 +11,21 @@ class DB_Division {
 	public static function getDivisionData($id){
 		if(!isset(self::$divisionData[$id])){
 			$db = DB::get();
+			$user = DB_User::getUserData();
+			$pid  = $user['id_person'];
 			$sql = "
-				select * from
-				division
+				select d.*, p.id_player1 as pid1, p.id_player2 as pid2  from 
+				division d 
+				left join (
+					select * from
+					player
+					where 
+					id_division = {$id} and
+					(id_player1 = {$pid} or id_player2 = {$pid})
+				) as p
+				on p.id_division = d.id
 				where
-				did = {$id}
+				d.id = {$id}
 			";
 			self::$divisionData[$id] = $db->fetch_row($sql);
 		}
@@ -26,33 +36,47 @@ class DB_Division {
 	private static $divisionList = false;
 	public static function getDivisionList($skip,$get,$tid){
 		if(self::$divisionList === false){
-			$db = DB::get();
 			$user = DB_User::getUserData();
-			$pid  = $user['pid_person'];
+			$pid  = $user['id_person'];
+			/*
+			$db = DB::get();
 			$sql = "
 				select d.*, p.players, pl.plid from
-				division d 
+				division d
 				left join (
-					select count(*) as players, did_division as did from
+					select count(*) as players, id_division as did from
 					player
-					where did_division = {$tid}
-					group by did_division
+					where 
+					id_division in (
+						select id from
+						division 
+						where
+						id_tournament = {$tid}
+					)
+					group by did
 				) as p
-				on d.did = p.did
-				left join (
-					select plid, did_division as did from
-					player
-					where
-					(pid_player1 = {$pid} or pid_player2 = {$pid})
-					limit 1
-				) pl
-				on d.did = pl.did
-				where
-				tid_tournament = {$tid}
-				order by did desc
+				on p.did = d.id
+				left join ( 
+					select id as plid, id_division as did from 
+					player where 
+					(id_player1 = {$pid} or id_player2 = {$pid}) 
+				) pl on d.id = pl.did 
+				where 
+				d.id_tournament = {$tid}
+				order by d.id desc
 				limit {$skip},{$get}
 			";
+			Debug::add('sql',$sql);
 			self::$divisionList = $db->fetch_all($sql);
+			*/
+			$data = array(
+				'Command'  => 'getDivisionListForTourn',
+				'TournamentID' => "{$tid}",
+				'PlayerID' => "{$pid}",
+				'SkipCount' => "{$skip}",
+				'GetCount' => "{$get}"
+			);
+			self::$divisionList = Socket::request($data);
 		}
 		return self::$divisionList;
 	}
@@ -61,15 +85,25 @@ class DB_Division {
 	private static $divisionCount = false;
 	public static function getDivisionCount($tid){
 		if(self::$divisionCount === false){
+			/*
 			$db = DB::get();
 			$sql = "
 				select count(*) as count from
 				division
 				where
-				tid_tournament = {$tid}
+				id_tournament = {$tid}
 			";
 			$result = $db->fetch_row($sql);
 			self::$divisionCount = $result['count'];
+			*/
+			$data = array(
+				'Command'  => 'getCountByValue',
+				'TableName' => 'division',
+				'ColumnName' => 'id_tournament',
+				'ColumnValue' => "{$tid}",
+			);
+			$result = Socket::request($data);
+			self::$divisionCount = $result['result'];
 		}
 		return self::$divisionCount;
 	}
@@ -85,8 +119,8 @@ class DB_Division {
 				select count(*) as count from
 				player
 				where 
-				did_division = {$tid} and
-				(pid_player1 = {$player_id} or pid_player2 = {$player_id}) 
+				id_division = {$tid} and
+				(id_player1 = {$player_id} or id_player2 = {$player_id}) 
 			";
 			$result = $db->fetch_row($sql);
 			self::$signed_up = $result['count'];
