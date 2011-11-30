@@ -9,7 +9,7 @@ USE `tourn_201140`;
 -- Notes about the int "phase" in several tables:
 -- 
 -- tournament: 0=raw/created, 1=created/viewable, 2=signup open, 3=signup closed, 
---             4=scheduled, 5=active, 6=final
+--             4=scheduling, 5=scheduled, 6=active, 7=final
 --
 -- division: 0=unscheduled, 1=schechuled, 2=active, 3=final
 --
