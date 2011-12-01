@@ -14,7 +14,6 @@ import com.Division;
 import com.Match;
 import com.Player;
 import com.RoundRobin;
-import com.SchedulingUtil;
 import com.Team;
 import com.TimeSpan;
 
@@ -80,31 +79,31 @@ public class MatchTest {
 		Match m4 = new Match("M4", dummy, g4a, g4b);
 		Vector<Match> schedule = new Vector<Match>();
 
-		assertThat(SchedulingUtil.MatchAvailability(m1, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 6:00 AM - 11:00 AM]"));
-		assertThat(SchedulingUtil.MatchAvailability(m2, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 10:00 AM - 4:00 PM]"));
-		assertThat(SchedulingUtil.MatchAvailability(m3, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 3:00 PM - 5:00 PM]"));
-		assertThat(SchedulingUtil.MatchAvailability(m4, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 6:00 AM - 5:00 PM]"));
+		assertThat(m1.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 6:00 AM - 11:00 AM]"));
+		assertThat(m2.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 10:00 AM - 4:00 PM]"));
+		assertThat(m3.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 3:00 PM - 5:00 PM]"));
+		assertThat(m4.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 6:00 AM - 5:00 PM]"));
 
 		m1.Schedule(new CourtTime(c1, sixToEleven));
 		schedule.add(m1);
-		assertThat(SchedulingUtil.MatchAvailability(m1, c1, schedule, AvailabilityType.All).toString(), equalTo("[]"));
-		assertThat(SchedulingUtil.MatchAvailability(m2, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 11:00 AM - 4:00 PM]"));
-		assertThat(SchedulingUtil.MatchAvailability(m3, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 3:00 PM - 5:00 PM]"));
-		assertThat(SchedulingUtil.MatchAvailability(m4, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 11:00 AM - 5:00 PM]"));
+		assertThat(m1.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[]"));
+		assertThat(m2.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 11:00 AM - 4:00 PM]"));
+		assertThat(m3.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 3:00 PM - 5:00 PM]"));
+		assertThat(m4.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 11:00 AM - 5:00 PM]"));
 
 		m3.Schedule(new CourtTime(c1, threeToFour));
 		schedule.add(m3);
-		assertThat(SchedulingUtil.MatchAvailability(m1, c1, schedule, AvailabilityType.All).toString(), equalTo("[]"));
-		assertThat(SchedulingUtil.MatchAvailability(m2, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 11:00 AM - 3:00 PM]"));
-		assertThat(SchedulingUtil.MatchAvailability(m3, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 4:00 PM - 5:00 PM]"));
-		assertThat(SchedulingUtil.MatchAvailability(m4, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 11:00 AM - 3:00 PM, 10/21/11 4:00 PM - 5:00 PM]"));
+		assertThat(m1.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[]"));
+		assertThat(m2.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 11:00 AM - 3:00 PM]"));
+		assertThat(m3.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 4:00 PM - 5:00 PM]"));
+		assertThat(m4.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 11:00 AM - 3:00 PM, 10/21/11 4:00 PM - 5:00 PM]"));
 
 		m4.Schedule(new CourtTime(c1, elevenToThree));
 		schedule.add(m4);
-		assertThat(SchedulingUtil.MatchAvailability(m1, c1, schedule, AvailabilityType.All).toString(), equalTo("[]"));
-		assertThat(SchedulingUtil.MatchAvailability(m2, c1, schedule, AvailabilityType.All).toString(), equalTo("[]"));
-		assertThat(SchedulingUtil.MatchAvailability(m3, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 4:00 PM - 5:00 PM]"));
-		assertThat(SchedulingUtil.MatchAvailability(m4, c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 4:00 PM - 5:00 PM]"));
+		assertThat(m1.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[]"));
+		assertThat(m2.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[]"));
+		assertThat(m3.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 4:00 PM - 5:00 PM]"));
+		assertThat(m4.Availability(c1, schedule, AvailabilityType.All).toString(), equalTo("[10/21/11 4:00 PM - 5:00 PM]"));
 	}
 
 }

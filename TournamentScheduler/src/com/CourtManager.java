@@ -44,7 +44,7 @@ public class CourtManager {
 		List<CourtTime> times = new LinkedList<CourtTime>();
 		for (Court c : m_courts)
 		{
-			for (TimeSpan span : SchedulingUtil.MatchAvailability(m, c, schedule, type))
+			for (TimeSpan span : m.Availability(c, schedule, type))
 			{
 				Timestamp startTime = span.getStart();
 				Timestamp endTime = new Timestamp(startTime.getTime() + matchMs);
