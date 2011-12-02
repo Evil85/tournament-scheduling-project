@@ -93,7 +93,8 @@ public class EndpointAPI
             SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
 
             cal.setTime(dateFormat.parse(tStart));
-            while (!cal.after(dateFormat.parse(tEnd)))
+            Date endDate = dateFormat.parse(tEnd);
+            while (!cal.getTime.after(endDate))
             {
                 String startTimes[];
                 String endTimes[];
@@ -121,6 +122,8 @@ public class EndpointAPI
                 tournTimes.add(new TimeSpan(start, end));
 
                 cal.add(Calendar.DATE, 1);
+	            cal.set(Calendar.HOUR_OF_DAY, 0);
+	            cal.set(Calendar.MINUTE, 0);
             }
 
             st = conn.prepareStatement("SELECT DISTINCT `person`.`id`, `person`.`name`, `person`.`unavailTimeStart1`, `person`.`unavailTimeEnd1`, `person`.`unavailTimeStart2`, `person`.`unavailTimeEnd2` FROM `person`, `player`, `division` WHERE (`person`.`id` = `player`.`id_player1` OR `person`.`id` = `player`.`id_player2`) AND `player`.`id_division` = `division`.`id` AND `division`.`id_tournament` = ?;");
