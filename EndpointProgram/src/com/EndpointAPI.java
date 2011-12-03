@@ -78,10 +78,6 @@ public class EndpointAPI
             rs = st.executeQuery();
             rs.next();
 
-    
-            SortedSet<TimeSpan> tournTimes = new ConcurrentSkipListSet<TimeSpan>();
-            Calendar cal = Calendar.getInstance();
-
             String tStart = rs.getString("start_date");
             String tEnd = rs.getString("end_date");
             
@@ -90,48 +86,14 @@ public class EndpointAPI
             String ste = rs.getString("start_time_weekends");
             String ete = rs.getString("end_time_weekends");
             
-            SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
-
-            cal.setTime(dateFormat.parse(tStart));
-            Date endDate = dateFormat.parse(tEnd);
-            while (!cal.getTime.after(endDate))
-            {
-                String startTimes[];
-                String endTimes[];
-
-                if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) || (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))
-                {
-                    startTimes = ste.split(":", 3);
-                    endTimes = ete.split(":", 3);
-                }
-                else
-                {
-                    startTimes = std.split(":", 3);
-                    endTimes = etd.split(":", 3);
-                }
-
-
-                cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(startTimes[0]));
-                cal.set(Calendar.MINUTE, Integer.parseInt(startTimes[1]));
-                Timestamp start = new Timestamp(cal.getTime().getTime());
-                
-                cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(endTimes[0]));
-                cal.set(Calendar.MINUTE, Integer.parseInt(endTimes[1]));
-                Timestamp end = new Timestamp(cal.getTime().getTime());
-                
-                tournTimes.add(new TimeSpan(start, end));
-
-                cal.add(Calendar.DATE, 1);
-	            cal.set(Calendar.HOUR_OF_DAY, 0);
-	            cal.set(Calendar.MINUTE, 0);
-            }
+            SortedSet<TimeSpan> tournTimes = buildAvailability(tStart, tEnd, std, etd, ste, ete);
 
             st = conn.prepareStatement("SELECT DISTINCT `person`.`id`, `person`.`name`, `person`.`unavailTimeStart1`, `person`.`unavailTimeEnd1`, `person`.`unavailTimeStart2`, `person`.`unavailTimeEnd2` FROM `person`, `player`, `division` WHERE (`person`.`id` = `player`.`id_player1` OR `person`.`id` = `player`.`id_player2`) AND `player`.`id_division` = `division`.`id` AND `division`.`id_tournament` = ?;");
             
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
 	        rs = st.executeQuery();
 
-
+	        
 
             Map<String, Player> map = new HashMap<String, Player>();
             while (rs.next())
@@ -179,6 +141,49 @@ public class EndpointAPI
             e.addProperty("result", "false");
             return e.toString();
         }
+	}
+	
+	private static SortedSet<TimeSpan> buildAvailability(String tStart, String tEnd, String std, String etd, String ste, String ete)
+	{
+		SortedSet<TimeSpan> times = new TreeSet<TimeSpan>();
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
+		
+        cal.setTime(dateFormat.parse(tStart));
+        Date endDate = dateFormat.parse(tEnd);
+        while (!cal.getTime().after(endDate))
+        {
+            String startTimes[];
+            String endTimes[];
+
+            if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) || (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))
+            {
+                startTimes = ste.split(":", 3);
+                endTimes = ete.split(":", 3);
+            }
+            else
+            {
+                startTimes = std.split(":", 3);
+                endTimes = etd.split(":", 3);
+            }
+
+
+            cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(startTimes[0]));
+            cal.set(Calendar.MINUTE, Integer.parseInt(startTimes[1]));
+            Timestamp start = new Timestamp(cal.getTime().getTime());
+            
+            cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(endTimes[0]));
+            cal.set(Calendar.MINUTE, Integer.parseInt(endTimes[1]));
+            Timestamp end = new Timestamp(cal.getTime().getTime());
+            
+            times.add(new TimeSpan(start, end));
+
+            cal.add(Calendar.DATE, 1);
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+        }
+		
+		return times;
 	}
 	
 	//Get whole tuple by id for table type (user table will NOT send back passwords)
