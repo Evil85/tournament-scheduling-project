@@ -7,9 +7,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
+import java.util.TreeSet;
 import java.util.Map;
 import java.util.SortedSet;
-import java.util.concurrent.ConcurrentSkipListSet;
+//import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.Calendar;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -93,8 +94,8 @@ public class EndpointAPI
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
 	        rs = st.executeQuery();
 
-	        
 
+/*			    JsonObject m = new JsonObject();
             Map<String, Player> map = new HashMap<String, Player>();
             while (rs.next())
             {
@@ -107,21 +108,20 @@ public class EndpointAPI
             
             int rowSize = 0;
             int colSize = rs.getMetaData().getColumnCount();
+*/
+            int rowSize = 0;
+			int colSize = rs.getMetaData().getColumnCount();
+            JsonObject e = new JsonObject();
+
 	        while(rs.next())
 			{
-/*			    JsonObject m = new JsonObject();
-			    for (int i = 1; i < colSize+1; i++)
+			    JsonObject m = new JsonObject();
+			    for (TimeSpan t : tournTimes)
                 {
-                    if (!(rs.getMetaData().getColumnName(i).equalsIgnoreCase("password")))
-                        m.addProperty(rs.getMetaData().getColumnName(i), rs.getString(i));
+                    m.addProperty(java.lang.String.valueOf(rowSize), t.toString());
                 }
                 e.addProperty(java.lang.String.valueOf(rowSize++), m.toString());
-*/
 			}
-
-            JsonObject e = new JsonObject();
-            e.addProperty("result", "tournament scheduled");
-
             logger.info("Scheduled tournament: " + (String)arguments.getArgument("TournamentID"));
             return e.toString();
         }
@@ -142,15 +142,16 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
-	private static SortedSet<TimeSpan> buildAvailability(String tStart, String tEnd, String std, String etd, String ste, String ete)
+
+
+	private static SortedSet<TimeSpan> buildAvailability(String tStart, String tEnd, String std, String etd, String ste, String ete) throws java.text.ParseException
 	{
-		SortedSet<TimeSpan> times = new TreeSet<TimeSpan>();
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
-		
+	    SortedSet<TimeSpan> times = new TreeSet<TimeSpan>();
+	    Calendar cal = Calendar.getInstance();
+	    SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
+	
         cal.setTime(dateFormat.parse(tStart));
-        Date endDate = dateFormat.parse(tEnd);
+        java.util.Date endDate = dateFormat.parse(tEnd);
         while (!cal.getTime().after(endDate))
         {
             String startTimes[];
@@ -182,8 +183,8 @@ public class EndpointAPI
             cal.set(Calendar.HOUR_OF_DAY, 0);
             cal.set(Calendar.MINUTE, 0);
         }
-		
-		return times;
+	
+	    return times;
 	}
 	
 	//Get whole tuple by id for table type (user table will NOT send back passwords)
@@ -239,7 +240,6 @@ public class EndpointAPI
 	        String name = (String)arguments.getArgument("TableName");
             if (!checkString(name))
                 throw new Exception("Possible SQL attack!");
-
 
             String sqlStr = "select * from `" + name + "` ";
 
@@ -537,6 +537,68 @@ public class EndpointAPI
         catch (Exception ex)
         {
 	        logger.error("Java Exception during createPerson:\n" + ex);
+
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+	}
+	
+	public String updatePersonAvailability(CommandArguments arguments)
+	{
+	try {
+            Connection conn = DriverManager.getConnection(URL, user, pass);
+
+            st = conn.prepareStatement ("UPDATE `person` SET `unavailTimeStart1` = ?, SET `unavailTimeEnd1` = ?, `unavailTimeStart2` = ?, `unavailTimeEnd2` = ? WHERE `id` = ?;");
+
+	        if (arguments.doesKeyExist("UnavailStart1"))
+                st.setDate(1, java.sql.Date.valueOf((String)arguments.getArgument("UnavailStart1")));
+            else
+                st.setNull(1, java.sql.Types.DATE);
+
+	        if (arguments.doesKeyExist("UnavailEnd1"))
+                st.setDate(2, java.sql.Date.valueOf((String)arguments.getArgument("UnavailEnd1")));
+            else
+                st.setNull(2, java.sql.Types.DATE);
+
+	        if (arguments.doesKeyExist("UnavailStart2"))
+                st.setDate(3, java.sql.Date.valueOf((String)arguments.getArgument("UnavailStart2")));
+            else
+                st.setNull(3, java.sql.Types.DATE);
+
+	        if (arguments.doesKeyExist("UnavailEnd2"))
+                st.setDate(4, java.sql.Date.valueOf((String)arguments.getArgument("UnavailEnd2")));
+            else
+                st.setNull(4, java.sql.Types.DATE);
+
+            st.setInt(5, java.lang.Integer.valueOf((String)arguments.getArgument("PersonID")));
+            
+            st.executeUpdate();
+
+	        long key = -1;
+	        ResultSet genKey = st.getGeneratedKeys();
+	        if (genKey.next())
+	            key = genKey.getLong(1);
+
+	        conn.close();
+	        
+    		logger.info("Person: " + arguments.getArgument("PersonID") + " unavailTimes updated");
+
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", key);
+            return e.toString();
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception during updatePersonAvail:\n" + ex);
+
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+	    }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception during updatePersonAvail:\n" + ex);
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", "false");
@@ -969,9 +1031,23 @@ public class EndpointAPI
 	        st.setString(1, (String)arguments.getArgument("Name"));
             st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("IsDouble")));
             st.setInt(3, java.lang.Integer.valueOf((String)arguments.getArgument("EstTime")));
-            st.setString(4, (String)arguments.getArgument("GenderConstraint"));
-            st.setInt(5, java.lang.Integer.valueOf((String)arguments.getArgument("MinAge")));
-            st.setInt(6, java.lang.Integer.valueOf((String)arguments.getArgument("MaxAge")));
+            
+            if (arguments.doesKeyExist("GenderConstraint"))
+                st.setString(4, (String)arguments.getArgument("GenderConstraint"));
+            else
+                st.setNull(4, java.sql.Types.VARCHAR);
+                
+
+            if (arguments.doesKeyExist("MinAge"))
+                st.setInt(5, java.lang.Integer.valueOf((String)arguments.getArgument("MinAge")));
+            else
+                st.setNull(5, java.sql.Types.INTEGER);
+
+            if (arguments.doesKeyExist("MaxAge"))
+                st.setInt(6, java.lang.Integer.valueOf((String)arguments.getArgument("MaxAge")));
+            else
+                st.setNull(6, java.sql.Types.VARCHAR);
+
             st.setString(7, (String)arguments.getArgument("TournamentType"));
             st.setInt(8, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
             
@@ -1176,14 +1252,13 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
-    //Getters and setters for PLAYER: addPlayer, getPlayerID
 
+
+    //Getters and setters for PLAYER: addPlayer, getPlayerID
     public String addPlayer(CommandArguments arguments)
 	{
         try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
-            logger.info("starting addPlayer");
             st = conn.prepareStatement("SELECT `isDouble` FROM `division` WHERE `id` = ?;");
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("DivisionID")));
 	        rs = st.executeQuery();
@@ -1193,10 +1268,10 @@ public class EndpointAPI
             
             st = conn.prepareStatement ("INSERT INTO `player` (`id_player1`, `id_player2`, `id_division`) VALUES (?, ?, ?);");
      
-            st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("Player1ID")));
+            st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("Person1ID")));
 
             if (isDouble == 1)
-                st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("Player2ID")));
+                st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("Persor2ID")));
             else
                 st.setNull(2, java.sql.Types.INTEGER);
 
@@ -1276,7 +1351,6 @@ public class EndpointAPI
 	{
         try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
-
             st = conn.prepareStatement ("INSERT INTO `match` (`startTime`, `matchNumber`, `id_division`, `id_player1`, `id_player2`, `id_court`) VALUES (?, ?, ?, ?, ?, ?);");
             
             st.setTimestamp(1, java.sql.Timestamp.valueOf((String)arguments.getArgument("StartTime")));
@@ -1357,7 +1431,6 @@ public class EndpointAPI
 
 	
     //Getters and setters for GAME: createGame, getGameID
-	
 	public String createGame(CommandArguments arguments)
 	{
         try {
@@ -1435,6 +1508,80 @@ public class EndpointAPI
             return e.toString();
         }
 	}
+
+	public String updateGameScore(CommandArguments arguments)
+	{
+	try {
+            Connection conn = DriverManager.getConnection(URL, user, pass);
+
+            int indexOfID = 1;
+            boolean p1 = false;
+            boolean p2 = false;
+            
+            String sql = "UPDATE `game` ";
+            
+	        if (arguments.doesKeyExist("Player1Score"))
+	        {
+                p1 = true;
+                sql += " SET `team1Score` = ? ";
+            }
+
+            if (arguments.doesKeyExist("Player1Score"))
+	        {
+                if (p1) sql += ", ";
+                p2 = true;
+                sql += " SET `team2Score` = ? ";
+            }
+
+
+            st = conn.prepareStatement ("UPDATE `game` SET `team1Score` = ?, SET `team2Score` = ? WHERE `id` = ?;");
+
+
+            st.setDate(2, java.sql.Date.valueOf((String)arguments.getArgument("Player1Score")));
+
+
+            st.setInt(indexOfID, java.lang.Integer.valueOf((String)arguments.getArgument("GameID")));
+            
+            st.executeUpdate();
+
+
+	        long key = -1;
+	        ResultSet genKey = st.getGeneratedKeys();
+	        if (genKey.next())
+	            key = genKey.getLong(1);
+
+	        conn.close();
+	        
+    		logger.info("Person: " + arguments.getArgument("PersonID") + " unavailTimes updated");
+
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", key);
+            return e.toString();
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception during updatePersonAvail:\n" + ex);
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+	    }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception during updatePersonAvail:\n" + ex);
+
+	        JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+	}
+	
+
+
+
+
+
+
+
 	
     //Getters and setters for FOUL: createFoul
 	
