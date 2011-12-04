@@ -19,6 +19,15 @@ public class Player implements TimeConstraint {
 		UpdateAvailabilityMinutes();
 	}
 
+	public Player(int id, String name, SortedSet<TimeSpan> availability)
+	{
+		m_nId = id;
+		m_strName = name;
+		m_teams = new Vector<Team>();
+		m_availability = availability;
+		UpdateAvailabilityMinutes();
+	}
+
 	public SortedSet<TimeSpan> Availability()
 	{
 		return m_availability;
