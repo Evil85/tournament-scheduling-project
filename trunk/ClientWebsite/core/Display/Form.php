@@ -120,32 +120,30 @@ class Display_Form{
 		?><form <?php echo $this->getParams($this->form_data); ?>><?php
 		$t->newTable(array('width' => '100%'));
 		foreach($this->inputs as $input){
-			$t->newRow();
-			$t->newCol();
-			?><span class="form_label"><?php
-			echo $input['label'];
-			if($input['require']){
-				?><span class="form_require">*</span><?php
-			}
-			?></span><?php
-			if(isset($input['subtext'])){
-				?><br/><span class="form_subtext"><?php
-				echo $input['subtext'];
-				?></span><?php
-			}
-			if(User::get_platform() == 'mobile'){
+			if($input['type'] != 'hidden'){
 				$t->newRow();
+				$t->newCol();
+				?><span class="form_label"><?php
+				echo $input['label'];
+				if($input['require']){
+					?><span class="form_require">*</span><?php
+				}
+				?></span><?php
+				if(isset($input['subtext'])){
+					?><br/><span class="form_subtext"><?php
+					echo $input['subtext'];
+					?></span><?php
+				}
+				if(User::get_platform() == 'mobile'){
+					$t->newRow();
+				}
+				$t->newCol(array('align' => 'right'));
 			}
-			$t->newCol(array('align' => 'right'));
 			$this->$input['render']($input); 
 		}
+		$t->newRow();
+		$t->newCol(array('colspan' => 2, 'align' => 'right'));
 		foreach($this->controls as $control){
-			$t->newRow();
-			if(User::get_platform() == 'mobile') {
-				$t->newCol(array('align'=>'right'));
-			} else {
-				$t->newCol(array('colspan' => 2, 'align' => 'right'));
-			}
 			?><button <?php echo $this->getParams($control);?>><?php
 			echo $control['label']; 
 			?></button><?php

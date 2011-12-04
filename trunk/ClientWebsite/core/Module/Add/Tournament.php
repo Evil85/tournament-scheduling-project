@@ -87,14 +87,14 @@ class Module_Add_Tournament implements Module_Interface{
 				'maxDivPerPlayer','isGuestViewable'
 			);
 			$data = $this->form->getData($allow);
-			$user_info = User::get_user_info();
-			$data['uid_owner'] = $user_info['uid'];
+			$user_info = DB_User::getUserData();
+			$data['id_owner'] = $user_info['id'];
 			$data['start_time_weekdays'] .= ':00:00';
 			$data['end_time_weekdays']   .= ':00:00';
 			$data['start_time_weekends'] .= ':00:00';
 			$data['end_time_weekends']   .= ':00:00';
 			
-			$result = Tournament::add($data);
+			$result = DB_Tournament::add($data);
 			if($result === false){
 				// if form was not filled out correctly
 				$this->form->failed();

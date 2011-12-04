@@ -11,8 +11,8 @@ class Page_Profile implements Page_Interface{
 			$pid = 0;
 		}
 		$this->person = DB_Person::getPersonData($pid);
-		if($this->person['lid_homeClub'] != null){
-			$this->club = DB_Location::getLocationData($this->person['lid_homeClub']);
+		if($this->person['id_homeClub'] != null){
+			$this->club = DB_Location::getLocationData($this->person['id_homeClub']);
 		} else {
 			$this->club = false;
 		}

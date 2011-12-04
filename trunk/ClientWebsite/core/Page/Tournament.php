@@ -10,10 +10,11 @@ class Page_Tournament implements Page_Interface {
 	private $count;
 	public function __construct() {
 		if(isset($_GET['id']) && is_numeric($_GET['id'])){
-			//$this->add_division = new Module_Add_Division(array('tid' => $this->info['tid']));
 			$this->info = DB_Tournament::getTournamentData($_GET['id']);
+			$this->add_division = new Module_Add_Division(array('tid' => $this->info['id']));
 			$perpage = 5;
 			$count   = DB_Division::getDivisionCount($_GET['id']);
+			$this->count = $count;
 			$this->p = new Display_Pager($perpage,$count);
 			$this->divisions = DB_Division::getDivisionList($this->p->skip,$perpage,$_GET['id']);
 			$user = DB_User::getUserData();
@@ -138,7 +139,7 @@ class Page_Tournament implements Page_Interface {
 			$t->newCol(array('colspan'=>3));
 			echo 'Division Info';
 		}
-		
+		Debug::add('div',$this->divisions);
 		foreach($this->divisions as $div){
 			if(User::get_platform() == 'mobile'){
 				$t->newTable(array('width'=>'100%'));
@@ -178,8 +179,8 @@ class Page_Tournament implements Page_Interface {
 				} else if(is_numeric($div['plid'])){
 					?><span class="joined">Entered</span><?php
 				} else {
-					?><a class="join" href="join_division.php?did=<?php 
-					echo $division['id'];
+					?><a class="join" href="join.php?did=<?php 
+					echo $div['id'];
 					?>" title="click to join division">Join</a><?php
 				}
 			}
@@ -202,7 +203,11 @@ class Page_Tournament implements Page_Interface {
 			$t->newCol();
 			echo 'Signed Up:';
 			$t->newCol();
+			?><a href="division.php?did=<?php
+			echo $div['id'];
+			?>" title="View Players"><?php
 			echo (is_numeric($div['players']) ? $div['players'] : 0);
+			?></a><?php
 			if(User::isMobile()){
 				$t->newRow();
 				$t->newCol();
@@ -221,10 +226,10 @@ class Page_Tournament implements Page_Interface {
 		$t->end();
 		$this->p->generate();
 		?></div><?php
-		if(DB_Tournament::isAdmin($this->info['tid'])){
+		if(DB_Tournament::isAdmin($this->info['id'])){
 			?><h2>Admin Controls</h2><?php
 			?><div style="margin:5px;"><?php
-			//$this->add_division->generate();
+			$this->add_division->generate();
 			?></div><?php
 		}
 	}

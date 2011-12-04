@@ -70,7 +70,6 @@ class DBO {
 		$row = mysql_fetch_assoc($resource);
 		if($row === false){
 			Error::add('DB',"ERROR: No row exists.");
-			$this->sql_error = '';
 			return false;
 		}
 		return $row;
@@ -83,7 +82,7 @@ class DBO {
 		$col = '';
 		$val = '';
 		foreach($data as $key => $value){
-			if($value != NULL){
+			if($value !== NULL){
 				$col .= " ,$key";
 				$val .= " ,'$value'";
 			}
@@ -95,7 +94,7 @@ class DBO {
 		$resource = mysql_query($sql,$this->con);
 		if($resource === false){
 			$this->error = 'ERROR: Could not insert into $table.';
-			$this->sql_error = "SQL-ERROR: ".mysql_error($this->con);
+			Debug::add('SQLE',"SQL-ERROR: ".mysql_error($this->con));
 			return false;
 		}
 		return mysql_insert_id($this->con);
@@ -107,7 +106,7 @@ class DBO {
 			WHERE id=$id";
 		$actions = '';
 		foreach($data as $key => $value){
-			if($value != NULL){
+			if($value !== NULL){
 				$actions .= " ,$key='$value'";
 			}
 		}
