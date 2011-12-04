@@ -26,7 +26,7 @@
 		<appender-ref ref="DebugFileAppender" />
 	</logger>
 	<logger name="com.EndpointAPI">
-	    <level value="info"/>
+	    <level value="trace"/>
 	    <appender-ref ref="EndpointAPIAppender"/>
 	</logger>
 	<root>

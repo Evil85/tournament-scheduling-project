@@ -15,6 +15,13 @@ public class CourtManager {
 		m_courts = courts;
 	}
 
+	public CourtManager(List<Court> courts)
+	{
+		m_courts = new Court[courts.size()];
+		for (int i = 0; i < courts.size(); i++)
+			m_courts[i] = courts.get(i);
+	}
+
 	public List<CourtTime> CourtTimesByLatest(Match m, int matchMinutes, Vector<Match> schedule)
 	{
 		int matchMs = matchMinutes * c_nMsPerMinute;

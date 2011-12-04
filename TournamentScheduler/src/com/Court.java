@@ -18,6 +18,15 @@ public class Court implements TimeConstraint {
 		UpdateAvailabilityMinutes();
 	}
 
+	public Court(int id, String name, String venue, SortedSet<TimeSpan> availability)
+	{
+		m_nId = id;
+		m_strName = String.format("%s (%s)", name, venue);
+		m_strVenue = venue;
+		m_availability = availability;
+		UpdateAvailabilityMinutes();
+	}
+
 	public String Venue() {
 		return m_strVenue;
 	}

@@ -5,19 +5,22 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
-import java.util.HashMap;
-import java.util.TreeSet;
-import java.util.Map;
-import java.util.SortedSet;
-//import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.Calendar;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import org.apache.log4j.Logger;
 
 import com.Utilities.CommandArguments;
 import com.google.gson.JsonObject;
+
+//import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * User: Chris
@@ -55,19 +58,19 @@ public class EndpointAPI
 			logger.error(e);
 		}
 	}
-	
+
 	public boolean checkString(String s)
 	{
 	    int length = s.length();
-        for (int i = 0; i < length; i++) 
+        for (int i = 0; i < length; i++)
         {
             char c = s.charAt(i);
             if (!Character.isLetter(c) && (!Character.isDigit(c)) && (c != '_'))
                 return false;
-        } 
+        }
         return true;
 	}
-	
+
 	//Schedule tournament
 	public String scheduleTournament(CommandArguments arguments)
 	{
@@ -81,53 +84,87 @@ public class EndpointAPI
 
             String tStart = rs.getString("start_date");
             String tEnd = rs.getString("end_date");
-            
+
             String std = rs.getString("start_time_weekdays");
             String etd = rs.getString("end_time_weekdays");
             String ste = rs.getString("start_time_weekends");
             String ete = rs.getString("end_time_weekends");
-            
+
             SortedSet<TimeSpan> tournTimes = buildAvailability(tStart, tEnd, std, etd, ste, ete);
 
             st = conn.prepareStatement("SELECT DISTINCT `person`.`id`, `person`.`name`, `person`.`unavailTimeStart1`, `person`.`unavailTimeEnd1`, `person`.`unavailTimeStart2`, `person`.`unavailTimeEnd2` FROM `person`, `player`, `division` WHERE (`person`.`id` = `player`.`id_player1` OR `person`.`id` = `player`.`id_player2`) AND `player`.`id_division` = `division`.`id` AND `division`.`id_tournament` = ?;");
-            
-            st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
-	        rs = st.executeQuery();
+		    st.setInt(1, java.lang.Integer.valueOf((String) arguments.getArgument("TournamentID")));
+		    rs = st.executeQuery();
 
 
-/*			    JsonObject m = new JsonObject();
-            Map<String, Player> map = new HashMap<String, Player>();
-            while (rs.next())
-            {
+		    Map<Integer, Player> players = new HashMap<Integer, Player>();
 
-//                map.put(new Player(rs.getInt("id"), rs.getString("name"),
-            }            
+		    while (rs.next())
+		    {
+			    Integer id = rs.getInt("id");
+
+			    SortedSet<TimeSpan> playerTimes = new TreeSet<TimeSpan>(tournTimes);
+
+			    Calendar cal = Calendar.getInstance();
+			    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+			    if (rs.getString("unavailTimeStart1") != null)
+			    {
+					cal.setTime(dateFormat.parse(rs.getString("unavailTimeStart1")));
+					Timestamp start1 = new Timestamp(cal.getTime().getTime());
+					cal.setTime(dateFormat.parse(rs.getString("unavailTimeEnd1")));
+					Timestamp end1 = new Timestamp(cal.getTime().getTime());
+					SchedulingUtil.RemoveAvailability(playerTimes, new TimeSpan(start1, end1));
+			    }
+
+			    if (rs.getString("unavailTimeStart2") != null)
+			    {
+					cal.setTime(dateFormat.parse(rs.getString("unavailTimeStart2")));
+					Timestamp start2 = new Timestamp(cal.getTime().getTime());
+					cal.setTime(dateFormat.parse(rs.getString("unavailTimeEnd2")));
+					Timestamp end2 = new Timestamp(cal.getTime().getTime());
+					SchedulingUtil.RemoveAvailability(playerTimes, new TimeSpan(start2, end2));
+			    }
 
 
-//            JsonObject e = new JsonObject();
-            
+			    players.put(id, new Player(id, rs.getString("name"), playerTimes));
+		    }
+
+		    st = conn.prepareStatement("SELECT DISTINCT `court`.`id` courtID, `location`.`weekdayOpenTime`, `location`.`weekdayCloseTime`, `location`.`weekendOpenTime`, `location`.`weekendCloseTime`, `location`.`id` locationID FROM `court`, `location`, `venues` WHERE `venues`.`id_tournament` = ? AND `venues`.`id_location` = `court`.`id_location` AND `venues`.`id_location` = `location`.`id`;");
+
+		    st.setInt(1, java.lang.Integer.valueOf((String) arguments.getArgument("TournamentID")));
+		    rs = st.executeQuery();
+
+		    List<Court> courts = new ArrayList<Court>();
+
+		    // Set up the courts from the sql query.
+		    while(rs.next())
+		    {
+			    String weekdayOpenTime = rs.getString("weekdayOpenTime");
+			    String weekdayCloseTime = rs.getString("weekdayCloseTime");
+			    String weekendOpenTime = rs.getString("weekendOpenTime");
+			    String weekendCloseTime = rs.getString("weekendCloseTime");
+
+			    SortedSet<TimeSpan> courtTimes = buildAvailability(tStart, tEnd, weekdayOpenTime, weekdayCloseTime, weekendOpenTime, weekendCloseTime);
+			    Court court = new Court(rs.getInt("courtID"), "TestCourt", rs.getString("locationID"), SchedulingUtil.IntersectAvailability(tournTimes, courtTimes));
+			    courts.add(court);
+		    }
+
             int rowSize = 0;
-            int colSize = rs.getMetaData().getColumnCount();
-*/
-            int rowSize = 0;
-			int colSize = rs.getMetaData().getColumnCount();
             JsonObject e = new JsonObject();
 
-	        while(rs.next())
+	        for (Player p : players.values())
 			{
 			    JsonObject m = new JsonObject();
-			    for (TimeSpan t : tournTimes)
-                {
-                    m.addProperty(java.lang.String.valueOf(rowSize), t.toString());
-                }
-                e.addProperty(java.lang.String.valueOf(rowSize++), m.toString());
+				e.addProperty("Player " + rowSize++, p.toString());
 			}
+
             logger.info("Scheduled tournament: " + (String)arguments.getArgument("TournamentID"));
             return e.toString();
         }
         catch (SQLException ex)
         {
-	        logger.error("SQL Exception while scheduling tournament: " + (String)arguments.getArgument("TournamentID"));
+	        logger.error("SQL Exception while scheduling tournament: " + arguments.getArgument("TournamentID"));
 	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
@@ -135,7 +172,7 @@ public class EndpointAPI
         }
         catch (Exception ex)
         {
-	        logger.error("Java Exception while scheduling tournament: " + (String)arguments.getArgument("TournamentID"));
+	        logger.error("Java Exception while scheduling tournament: " + arguments.getArgument("TournamentID"));
 	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
@@ -143,13 +180,12 @@ public class EndpointAPI
         }
 	}
 
-
 	private static SortedSet<TimeSpan> buildAvailability(String tStart, String tEnd, String std, String etd, String ste, String ete) throws java.text.ParseException
 	{
 	    SortedSet<TimeSpan> times = new TreeSet<TimeSpan>();
 	    Calendar cal = Calendar.getInstance();
 	    SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
-	
+
         cal.setTime(dateFormat.parse(tStart));
         java.util.Date endDate = dateFormat.parse(tEnd);
         while (!cal.getTime().after(endDate))
@@ -172,21 +208,21 @@ public class EndpointAPI
             cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(startTimes[0]));
             cal.set(Calendar.MINUTE, Integer.parseInt(startTimes[1]));
             Timestamp start = new Timestamp(cal.getTime().getTime());
-            
+
             cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(endTimes[0]));
             cal.set(Calendar.MINUTE, Integer.parseInt(endTimes[1]));
             Timestamp end = new Timestamp(cal.getTime().getTime());
-            
+
             times.add(new TimeSpan(start, end));
 
             cal.add(Calendar.DATE, 1);
             cal.set(Calendar.HOUR_OF_DAY, 0);
             cal.set(Calendar.MINUTE, 0);
         }
-	
+
 	    return times;
 	}
-	
+
 	//Get whole tuple by id for table type (user table will NOT send back passwords)
 	public String getTupleByID(CommandArguments arguments)
 	{
@@ -194,7 +230,7 @@ public class EndpointAPI
             String name = (String)arguments.getArgument("TableName");
             if (!checkString(name))
                 throw new Exception("Possible SQL attack!");
-                
+
             Connection conn = DriverManager.getConnection(URL, user, pass);
 
             st = conn.prepareStatement("SELECT * FROM `" + name + "` WHERE `id` = ?;");
@@ -232,7 +268,7 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 	//Get limited sorted table by name (user table will NOT send back passwords)
 	public String getTableOrderLimitSpecify(CommandArguments arguments)
 	{
@@ -248,36 +284,36 @@ public class EndpointAPI
 	            String spec = (String)arguments.getArgument("SpecColumn");
                 if (!checkString(spec))
                     throw new Exception("Possible SQL attack!");
-  	        
+
 	            sqlStr += "where `" + spec + "` = ? ";
 	        }
-	        
+
 	        if (arguments.doesKeyExist("OrderColumn"))
   	        {
 	            String order = (String)arguments.getArgument("OrderColumn");
                 if (!checkString(order))
                     throw new Exception("Possible SQL attack!");
-  	        
+
 	            sqlStr += "order by `" + order + "` ";
 	        }
-	        
+
 	        if (arguments.doesKeyExist("SkipCount"))
-  	        {  	        
+  	        {
 	            sqlStr = sqlStr + "limit " + java.lang.Integer.valueOf((String)arguments.getArgument("SkipCount")) + ", " + java.lang.Integer.valueOf((String)arguments.getArgument("GetCount"));
 	        }
-	        
+
 	        sqlStr += ";";
-            
-            
+
+
             Connection conn = DriverManager.getConnection(URL, user, pass);
-            
+
             st = conn.prepareStatement(sqlStr);
-            
+
             if (arguments.doesKeyExist("SpecValue"))
                 st.setString(1, (String)arguments.getArgument("SpecValue"));
-            
+
             logger.info("sql statement: " + st);
-            
+
 	        rs = st.executeQuery();
             int rowSize = 0;
 			int colSize = rs.getMetaData().getColumnCount();
@@ -315,7 +351,7 @@ public class EndpointAPI
 	}
 
 
-	
+
 	//Get table count by name
 	public String getTableCountByName(CommandArguments arguments)
 	{
@@ -323,14 +359,14 @@ public class EndpointAPI
 	        String name = (String)arguments.getArgument("TableName");
             if (!checkString(name))
                 throw new Exception("Possible SQL attack!");
-	    
+
             Connection conn = DriverManager.getConnection(URL, user, pass);
-            
+
             st = conn.prepareStatement("SELECT count(`id`) FROM `" + name + "`;");
 	        rs = st.executeQuery();
 	        rs.next();
 	        int count = Integer.parseInt(rs.getString(1));
-	        
+
 			JsonObject e = new JsonObject();
             e.addProperty("result", count);
             logger.info("Selected count on table: " + name);
@@ -353,7 +389,7 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 	//Get count by from any table with one column also specified
 	public String getCountByValue(CommandArguments arguments)
 	{
@@ -361,20 +397,20 @@ public class EndpointAPI
 	        String name = (String)arguments.getArgument("TableName");
             if (!checkString(name))
                 throw new Exception("Possible SQL attack!");
-	    
+
 	        String column = (String)arguments.getArgument("ColumnName");
             if (!checkString(column))
                 throw new Exception("Possible SQL attack!");
-                
+
             Connection conn = DriverManager.getConnection(URL, user, pass);
-            
+
             st = conn.prepareStatement("select count(*) as count from `" + name +"` where `" + column +"` = ?;");
             st.setString(1, (String)arguments.getArgument("ColumnValue"));
 
             rs = st.executeQuery();
 	        rs.next();
 	        int count = Integer.parseInt(rs.getString(1));
-	        
+
 			JsonObject e = new JsonObject();
             e.addProperty("result", count);
             logger.info("Selected count on table: " + name);
@@ -398,8 +434,8 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
-	
+
+
 
 
     //Getters and setters for USER: createUser, getUserID
@@ -415,14 +451,14 @@ public class EndpointAPI
             st.setString(3, (String)arguments.getArgument("Permissions"));
             st.setInt(4, java.lang.Integer.valueOf((String)arguments.getArgument("PersonID")));
             st.executeUpdate();
-	        
+
 	        long key = -1;
 	        ResultSet genKey = st.getGeneratedKeys();
 	        if (genKey.next())
 	            key = genKey.getLong(1);
-	        
+
 	        conn.close();
-	        
+
     		logger.info("User Created: " + arguments.getArgument("Username"));
 
 	        JsonObject e = new JsonObject();
@@ -445,7 +481,7 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 	public String getUserID(CommandArguments arguments)
 	{
 	    try {
@@ -491,7 +527,7 @@ public class EndpointAPI
 	        st = conn.prepareStatement ("INSERT INTO `person` (`name`, `email`, `city`, `state`, `phone`, `gender`, `birthdate`, `unavailTimeStart1`, `unavailTimeEnd1`, `unavailTimeStart2`, `unavailTimeEnd2`, `id_homeClub`) VALUES (?, ?, ?, ?, ?, ?, ?, null, null, null, null, ?);");
 	        st.setString(1, (String)arguments.getArgument("PersonName"));
 	        st.setString(2, (String)arguments.getArgument("Email"));
-	        
+
 	        if (arguments.doesKeyExist("City"))
 	            st.setString(3, (String)arguments.getArgument("City"));
             else
@@ -502,16 +538,16 @@ public class EndpointAPI
             else
                 st.setNull(4, java.sql.Types.VARCHAR);
 
-	            
+
             st.setString(5, (String)arguments.getArgument("Phone"));
             st.setString(6, (String)arguments.getArgument("Gender"));
             st.setDate(7, java.sql.Date.valueOf((String)arguments.getArgument("Birthdate")));
-            
+
 	        if (arguments.doesKeyExist("HomeClubID"))
 	            st.setInt(8, java.lang.Integer.valueOf((String)arguments.getArgument("HomeClubID")));
             else
                 st.setNull(8, java.sql.Types.INTEGER);
-            
+
             st.executeUpdate();
 
 	        long key = -1;
@@ -520,7 +556,7 @@ public class EndpointAPI
 	            key = genKey.getLong(1);
 
 	        conn.close();
-	        
+
     		logger.info("Person Created: " + arguments.getArgument("PersonName"));
 
 	        JsonObject e = new JsonObject();
@@ -543,7 +579,7 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 	public String updatePersonAvailability(CommandArguments arguments)
 	{
 	try {
@@ -571,8 +607,8 @@ public class EndpointAPI
             else
                 st.setNull(4, java.sql.Types.DATE);
 
-            st.setInt(5, java.lang.Integer.valueOf((String)arguments.getArgument("PersonID")));
-            
+            st.setInt(5, java.lang.Integer.valueOf((String) arguments.getArgument("PersonID")));
+
             st.executeUpdate();
 
 	        long key = -1;
@@ -581,7 +617,7 @@ public class EndpointAPI
 	            key = genKey.getLong(1);
 
 	        conn.close();
-	        
+
     		logger.info("Person: " + arguments.getArgument("PersonID") + " unavailTimes updated");
 
 	        JsonObject e = new JsonObject();
@@ -605,7 +641,7 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 	public String getPersonID(CommandArguments arguments)
 	{
 	    try {
@@ -640,7 +676,7 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
     //Getters and setters for COURT: createCourt, getCourtID
 
 	public String createCourt(CommandArguments arguments)
@@ -652,14 +688,14 @@ public class EndpointAPI
 	        st.setString(1, (String)arguments.getArgument("CourtName"));
 	        st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("LocationID")));
             st.executeUpdate();
-            
+
             long key = -1;
 	        ResultSet genKey = st.getGeneratedKeys();
 	        if (genKey.next())
 	            key = genKey.getLong(1);
-            
+
 	        conn.close();
-	        
+
     		logger.info("Court Created: " + arguments.getArgument("CourtName"));
 
 	        JsonObject e = new JsonObject();
@@ -682,14 +718,14 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 	public String getCourtID(CommandArguments arguments)
 	{
 	    try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
 
             st = conn.prepareStatement("SELECT `id` FROM `court` WHERE `courtName` = ? AND `id_location` = ? ;");
-            st.setString(1, (String)arguments.getArgument("CourtName"));
+            st.setString(1, (String) arguments.getArgument("CourtName"));
             st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("LocationID")));
 	        rs = st.executeQuery();
 	        rs.next();
@@ -718,7 +754,7 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 	public String getCourtsByLocationID(CommandArguments arguments)
 	{
 	    try {
@@ -761,9 +797,9 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
    //Getters and setters for LOCATION: createLocation, getLocationID
-	
+
 	public String createLocation(CommandArguments arguments)
 	{
         try {
@@ -781,14 +817,14 @@ public class EndpointAPI
             st.setTime(9, java.sql.Time.valueOf((String)arguments.getArgument("WeekendOpenTime")));
             st.setTime(10, java.sql.Time.valueOf((String)arguments.getArgument("WeekendCloseTime")));
             st.executeUpdate();
-	        
+
 	        long key = -1;
 	        ResultSet genKey = st.getGeneratedKeys();
 	        if (genKey.next())
 	            key = genKey.getLong(1);
 
 	        conn.close();
-	        
+
     		logger.info("Location Created: " + arguments.getArgument("LocationName"));
 
 	        JsonObject e = new JsonObject();
@@ -811,14 +847,14 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 	public String getLocationID(CommandArguments arguments)
 	{
 	    try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
 
             st = conn.prepareStatement("SELECT `id` FROM `location` WHERE `name` = ?;");
-            st.setString(1, (String)arguments.getArgument("LocationName"));
+            st.setString(1, (String) arguments.getArgument("LocationName"));
 	        rs = st.executeQuery();
 	        rs.next();
 	        int id = Integer.parseInt(rs.getString(1));
@@ -846,7 +882,7 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 	public String getLocationsByTournamentID(CommandArguments arguments)
 	{
 	    try {
@@ -889,7 +925,7 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 
     //Getters and setters for TOURNAMENT: createTournament, getTournamentID
 
@@ -911,14 +947,14 @@ public class EndpointAPI
             st.setInt(10, java.lang.Integer.valueOf((String)arguments.getArgument("MaxDivPerPlayer")));
             st.setInt(11, java.lang.Integer.valueOf((String)arguments.getArgument("OwnerUserID")));
             st.executeUpdate();
-	        
+
 	        long key = -1;
 	        ResultSet genKey = st.getGeneratedKeys();
 	        if (genKey.next())
 	            key = genKey.getLong(1);
 
 	        conn.close();
-	        
+
     		logger.info("Tournament Created: " + arguments.getArgument("TournamentName"));
 
 	        JsonObject e = new JsonObject();
@@ -941,7 +977,7 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 	public String getTournamentID(CommandArguments arguments)
 	{
 	    try {
@@ -976,9 +1012,9 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
     //Getters and setters for VENUE: addVenue
-	
+
 	public String addVenue(CommandArguments arguments)
 	{
         try {
@@ -989,14 +1025,14 @@ public class EndpointAPI
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("LocationID")));
             st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
             st.executeUpdate();
-	        
+
 	        long key = -1;
 	        ResultSet genKey = st.getGeneratedKeys();
 	        if (genKey.next())
 	            key = genKey.getLong(1);
 
 	        conn.close();
-	        
+
     		logger.info("Venue Added to location lid: " + arguments.getArgument("LocationID"));
 
 	        JsonObject e = new JsonObject();
@@ -1019,9 +1055,9 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
     //Getters and setters for DIVISION: createDivision, getDivisionID
-	
+
     public String createDivision(CommandArguments arguments)
 	{
         try {
@@ -1031,12 +1067,12 @@ public class EndpointAPI
 	        st.setString(1, (String)arguments.getArgument("Name"));
             st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("IsDouble")));
             st.setInt(3, java.lang.Integer.valueOf((String)arguments.getArgument("EstTime")));
-            
+
             if (arguments.doesKeyExist("GenderConstraint"))
                 st.setString(4, (String)arguments.getArgument("GenderConstraint"));
             else
                 st.setNull(4, java.sql.Types.VARCHAR);
-                
+
 
             if (arguments.doesKeyExist("MinAge"))
                 st.setInt(5, java.lang.Integer.valueOf((String)arguments.getArgument("MinAge")));
@@ -1050,16 +1086,16 @@ public class EndpointAPI
 
             st.setString(7, (String)arguments.getArgument("TournamentType"));
             st.setInt(8, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
-            
+
             st.executeUpdate();
-            
+
             long key = -1;
 	        ResultSet genKey = st.getGeneratedKeys();
 	        if (genKey.next())
 	            key = genKey.getLong(1);
 
 	        conn.close();
-	        
+
     		logger.info("Division Created: " + arguments.getArgument("Name"));
 
 	        JsonObject e = new JsonObject();
@@ -1082,14 +1118,14 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 	public String getDivisionID(CommandArguments arguments)
 	{
 	    try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
 
             st = conn.prepareStatement("SELECT `id` FROM `division` WHERE `name` = ? AND `id_tournament` = ? ;");
-            st.setString(1, (String)arguments.getArgument("DivisionName"));
+            st.setString(1, (String) arguments.getArgument("DivisionName"));
             st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
 	        rs = st.executeQuery();
 	        rs.next();
@@ -1123,16 +1159,16 @@ public class EndpointAPI
 	{
 	    try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
-            
+
             st = conn.prepareStatement("select d.*, p.players, pl.plid from division d left join (select count(*) as players, id_division as did from player where id_division in (select id from division where id_tournament = ?) group by did) as p on p.did = d.id left join (select id as plid, id_division as did from player where (id_player1 = ? or id_player2 = ?)) pl on d.id = pl.did where d.id_tournament = ? order by d.id desc limit " +
             java.lang.Integer.valueOf((String)arguments.getArgument("SkipCount")) + ", "+
             java.lang.Integer.valueOf((String)arguments.getArgument("GetCount")) +" ;");
-            
+
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
             st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("PersonID")));
             st.setInt(3, java.lang.Integer.valueOf((String)arguments.getArgument("PersonID")));
             st.setInt(4, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
-            
+
             rs = st.executeQuery();
             int rowSize = 0;
 			int colSize = rs.getMetaData().getColumnCount();
@@ -1167,20 +1203,20 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
-	
+
+
 	public String getDivisionDataForPlayer(CommandArguments arguments)
 	{
 	    try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
-            
+
             st = conn.prepareStatement("select d.*, p.id_player1 as pid1, p.id_player2 as pid2 from division d left join (select * from player where id_division = ? and (id_player1 = ? or id_player2 = ?)) as p on p.id_division = d.id where d.id = ?;");
-            
+
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("DivisionID")));
             st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("PersonID")));
             st.setInt(3, java.lang.Integer.valueOf((String)arguments.getArgument("PersonID")));
             st.setInt(4, java.lang.Integer.valueOf((String)arguments.getArgument("DivisionID")));
-            
+
             rs = st.executeQuery();
 	        rs.next();
 	        int size = rs.getMetaData().getColumnCount();
@@ -1213,22 +1249,22 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 	//Get table count by name
 	public String getDivisionCountForPlayer(CommandArguments arguments)
 	{
 	    try {
 	        Connection conn = DriverManager.getConnection(URL, user, pass);
-            
+
             st = conn.prepareStatement("select count(*) from player where division_id in (select id from divison where id_tournament = ?) and (id_player1 = ? or id_player2 = ?);");
 	        st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
             st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("PersonID")));
             st.setInt(3, java.lang.Integer.valueOf((String)arguments.getArgument("PersonID")));
-           
+
 	        rs = st.executeQuery();
 	        rs.next();
 	        int count = Integer.parseInt(rs.getString(1));
-	        
+
 			JsonObject e = new JsonObject();
             e.addProperty("result", count);
             logger.info("Selected count on divisions for player: " + (String)arguments.getArgument("PersonID"));
@@ -1265,9 +1301,9 @@ public class EndpointAPI
 	        rs.next();
 	        int isDouble = Integer.parseInt(rs.getString(1));
 	        logger.info("isDouble? " + isDouble);
-            
+
             st = conn.prepareStatement ("INSERT INTO `player` (`id_player1`, `id_player2`, `id_division`) VALUES (?, ?, ?);");
-     
+
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("Person1ID")));
 
             if (isDouble == 1)
@@ -1278,14 +1314,14 @@ public class EndpointAPI
             st.setInt(3, java.lang.Integer.valueOf((String)arguments.getArgument("DivisionID")));
 
             st.executeUpdate();
-            
+
             long key = -1;
 	        ResultSet genKey = st.getGeneratedKeys();
 	        if (genKey.next())
 	            key = genKey.getLong(1);
 
             conn.close();
-	        	        
+
 	        logger.info("Player added (p1)pid: " + arguments.getArgument("Player1ID"));
 
 	        JsonObject e = new JsonObject();
@@ -1308,7 +1344,7 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 	public String getPlayerID(CommandArguments arguments)
 	{
 	    try {
@@ -1344,31 +1380,31 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
     //Getters and setters for MATCH: createMatch, getMatchID
-	
+
 	public String createMatch(CommandArguments arguments)
 	{
         try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
             st = conn.prepareStatement ("INSERT INTO `match` (`startTime`, `matchNumber`, `id_division`, `id_player1`, `id_player2`, `id_court`) VALUES (?, ?, ?, ?, ?, ?);");
-            
+
             st.setTimestamp(1, java.sql.Timestamp.valueOf((String)arguments.getArgument("StartTime")));
             st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("MatchNumber")));
             st.setInt(3, java.lang.Integer.valueOf((String)arguments.getArgument("DivisionID")));
             st.setInt(4, java.lang.Integer.valueOf((String)arguments.getArgument("Player1ID")));
             st.setInt(5, java.lang.Integer.valueOf((String)arguments.getArgument("Player2ID")));
             st.setInt(6, java.lang.Integer.valueOf((String)arguments.getArgument("CourtID")));
-            
+
             st.executeUpdate();
-            
+
             long key = -1;
 	        ResultSet genKey = st.getGeneratedKeys();
 	        if (genKey.next())
 	            key = genKey.getLong(1);
 
 	        conn.close();
-	        
+
     		logger.info("Match created matchno: " + arguments.getArgument("MatchNumber"));
 
 	        JsonObject e = new JsonObject();
@@ -1392,7 +1428,7 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 	public String getMatchID(CommandArguments arguments)
 	{
 	    try {
@@ -1429,7 +1465,7 @@ public class EndpointAPI
         }
 	}
 
-	
+
     //Getters and setters for GAME: createGame, getGameID
 	public String createGame(CommandArguments arguments)
 	{
@@ -1437,19 +1473,19 @@ public class EndpointAPI
             Connection conn = DriverManager.getConnection(URL, user, pass);
 
             st = conn.prepareStatement ("INSERT INTO `game` (`gameNumber`, `team1Score`, `team2Score`, `id_match`) VALUES (?, 0, 0, ?);");
-            
+
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("GameNumber")));
             st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("MatchID")));
-                        
+
             st.executeUpdate();
-            
+
             long key = -1;
 	        ResultSet genKey = st.getGeneratedKeys();
 	        if (genKey.next())
 	            key = genKey.getLong(1);
 
 	        conn.close();
-	        
+
     		logger.info("Game created for matchID: " + arguments.getArgument("MatchID"));
 
 	        JsonObject e = new JsonObject();
@@ -1472,7 +1508,7 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
+
 	public String getGameID(CommandArguments arguments)
 	{
 	    try {
@@ -1517,9 +1553,9 @@ public class EndpointAPI
             int indexOfID = 1;
             boolean p1 = false;
             boolean p2 = false;
-            
+
             String sql = "UPDATE `game` ";
-            
+
 	        if (arguments.doesKeyExist("Player1Score"))
 	        {
                 p1 = true;
@@ -1541,7 +1577,7 @@ public class EndpointAPI
 
 
             st.setInt(indexOfID, java.lang.Integer.valueOf((String)arguments.getArgument("GameID")));
-            
+
             st.executeUpdate();
 
 
@@ -1551,7 +1587,7 @@ public class EndpointAPI
 	            key = genKey.getLong(1);
 
 	        conn.close();
-	        
+
     		logger.info("Person: " + arguments.getArgument("PersonID") + " unavailTimes updated");
 
 	        JsonObject e = new JsonObject();
@@ -1574,7 +1610,6 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-	
 
 
 
@@ -1582,9 +1617,10 @@ public class EndpointAPI
 
 
 
-	
+
+
     //Getters and setters for FOUL: createFoul
-	
+
 	public String createFoul(CommandArguments arguments)
 	{
         try {
@@ -1596,16 +1632,16 @@ public class EndpointAPI
             st.setInt(3, java.lang.Integer.valueOf((String)arguments.getArgument("FoulTime")));
             st.setInt(4, java.lang.Integer.valueOf((String)arguments.getArgument("GameID")));
             st.setInt(5, java.lang.Integer.valueOf((String)arguments.getArgument("CommitterPlayerID")));
-            
+
             st.executeUpdate();
-            
+
             long key = -1;
 	        ResultSet genKey = st.getGeneratedKeys();
 	        if (genKey.next())
 	            key = genKey.getLong(1);
 
 	        conn.close();
-	        
+
     		logger.info("Foul Created: " + arguments.getArgument("FoulName"));
 
 	        JsonObject e = new JsonObject();
