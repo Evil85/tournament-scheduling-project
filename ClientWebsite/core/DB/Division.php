@@ -10,9 +10,10 @@ class DB_Division {
 	private static $divisionData = array();
 	public static function getDivisionData($id){
 		if(!isset(self::$divisionData[$id])){
-			$db = DB::get();
+			//$db = DB::get();
 			$user = DB_User::getUserData();
 			$pid  = $user['id_person'];
+			/*
 			$sql = "
 				select d.*, p.id_player1 as pid1, p.id_player2 as pid2  from 
 				division d 
@@ -28,6 +29,14 @@ class DB_Division {
 				d.id = {$id}
 			";
 			self::$divisionData[$id] = $db->fetch_row($sql);
+			*/
+			$data = array(
+				'Command'  => 'getDivisionDataForPlayer',
+				'DivisionID' => "{$id}",
+				'PersonID' => "{$pid}"
+			);
+			self::$divisionData[$id] = Socket::request($data);
+			Debug::add('return',self::$divisionData[$id]);
 		}
 		return self::$divisionData[$id];
 	}
@@ -70,9 +79,9 @@ class DB_Division {
 			self::$divisionList = $db->fetch_all($sql);
 			*/
 			$data = array(
-				'Command'  => 'getDivisionListForTourn',
+				'Command'  => 'getDivisionListForPlayerTourn',
 				'TournamentID' => "{$tid}",
-				'PlayerID' => "{$pid}",
+				'PersonID' => "{$pid}",
 				'SkipCount' => "{$skip}",
 				'GetCount' => "{$get}"
 			);
@@ -100,7 +109,7 @@ class DB_Division {
 				'Command'  => 'getCountByValue',
 				'TableName' => 'division',
 				'ColumnName' => 'id_tournament',
-				'ColumnValue' => "{$tid}",
+				'ColumnValue' => "{$tid}"
 			);
 			$result = Socket::request($data);
 			self::$divisionCount = $result['result'];
@@ -110,22 +119,21 @@ class DB_Division {
 	
 	// function gets the number of divisions he has signed up for in tournament
 	private static $signed_up = false;
-	public static function signedUpFor($tid){
+	public static function allowAnotherSignup($tid){
 		if(self::$signed_up === false){
-			$db = DB::get();
 			$user = DB_User::getUserData();
-			$player_id = $user['pid_person'];
-			$sql = "
-				select count(*) as count from
-				player
-				where 
-				id_division = {$tid} and
-				(id_player1 = {$player_id} or id_player2 = {$player_id}) 
-			";
-			$result = $db->fetch_row($sql);
-			self::$signed_up = $result['count'];
+			$pid = $user['id_person'];
+			$data = array(
+				'Command' => 'getDivisionCountForPlayer',
+				'TournamentID' => "{$tid}",
+				'PersonID' => "{$pid}"
+			);
+			$result = Socket::request($data);
+			self::$signed_up = $result['result'];
+			Debug::add('result',self::$signed_up);
 		}
-		return self::$signed_up;
+		$tourn = DB_Tournament::getTournamentData($tid);
+		return !(self::$signed_up == $tourn['maxDivPerPlayer']);
 	}
 }
 ?>

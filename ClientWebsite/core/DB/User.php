@@ -50,6 +50,7 @@ class DB_User {
 			$id = $_SESSION['uid'];
 		}
 		if(!isset(self::$userData[$id])){
+			/*
 			$db = DB::get();
 			$sql = "
 				select * from
@@ -58,12 +59,23 @@ class DB_User {
 				where u.id = {$id}
 			";
 			self::$userData[$id] = $db->fetch_row($sql);
+			*/
+			$data = array(
+				'Command'  => 'getTupleByID',
+				'TableName' => 'user',
+				'ID' => "{$id}"
+			);
+			$user = Socket::request($data);
+			$person = DB_Person::getPersonData($user['id_person']);
+			unset($person['id']);
+			self::$userData[$id] = array_merge($user,$person);
 		}
 		return self::$userData[$id];
 	}
 	
 	// function for checking if user exists
 	public static function userExists($username){
+		/*
 		$db = DB::get();
 		$sql = "
 			select * from
@@ -72,7 +84,15 @@ class DB_User {
 			username = '{$username}'
 		";
 		$check = $db->fetch_row($sql);
-		if($check === false){
+		*/
+		$data = array(
+			'Command'  => 'getTableOrderLimitSpecify',
+			'TableName' => 'user',
+			'SpecColumn' => 'username',
+			'SpecValue' => "{$username}"
+		);
+		$result = Socket::request($data);
+		if(count($result) > 0){
 			return true;
 		}
 		return false;

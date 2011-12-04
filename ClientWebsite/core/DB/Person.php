@@ -38,6 +38,7 @@ class DB_Person {
 	private static $personList = false;
 	public static function getPersonList($skip,$get){
 		if(self::$personList === false){
+			/*
 			$db = DB::get();
 			$sql = "
 				select * from 
@@ -47,6 +48,16 @@ class DB_Person {
 			";
 			Debug::add('sql',$sql);
 			self::$personList = $db->fetch_all($sql);
+			*/
+			$data = array(
+				'Command'  => 'getTableOrderLimitSpecify',
+				'TableName' => 'person',
+				'OrderColumn' => 'name',
+				'SkipCount' => "{$skip}",
+				'GetCount'  => "{$get}"
+			);
+			self::$personList = Socket::request($data);
+			Debug::add('return',self::$personList);
 		}
 		return self::$personList;
 	}

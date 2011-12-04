@@ -9,6 +9,7 @@ class Page_Index implements Page_Interface{
 		$count   = DB_Tournament::getTournamentCount();
 		$this->p = new Display_Pager($perpage,$count);
 		$this->tournaments = DB_Tournament::getTournamentList($this->p->skip,$perpage);
+		Debug::add('t',$this->tournaments);
 	}
 	public function permissions(){
 		return array('public');
@@ -31,7 +32,7 @@ class Page_Index implements Page_Interface{
 					'align'=>'center',
 					'valign'=>'center'
 				));
-				?><a href="tournament.php?id=<?php echo $tour['tid']; ?>" title="View Tournament"><?php
+				?><a href="tournament.php?id=<?php echo $tour['id']; ?>" title="View Tournament"><?php
 				?><img src="style/images/tournament_icon.jpg" alt="tournament icon" /><?php
 				?></a><?php
 				$t->newCol();

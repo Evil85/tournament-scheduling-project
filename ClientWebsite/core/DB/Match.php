@@ -5,5 +5,17 @@ class DB_Match {
 		$db = DB::get();
 		return $db->insert('match',$data);
 	}
+	
+	public static function getMatches($id){
+		$data = array(
+			'Command'  => 'getTableOrderLimitSpecify',
+			'TableName' => 'match',
+			'SpecColumn' => 'id_division',
+			'SpecValue' => "{$id}"
+		);
+		$temp = Socket::request($data);
+		Debug::add('socket',$temp);
+		return $temp;
+	}
 }
 ?>

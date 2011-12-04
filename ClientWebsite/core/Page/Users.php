@@ -44,9 +44,9 @@ class Page_Users implements Page_Interface{
 			$t->newRow();
 			$t->newCol();
 			?><a href="profile.php?pid=<?php
-			echo $person['pid'];
+			echo $person['id'];
 			?>" title="View Profile"><?php
-			echo $person['pid'];
+			echo $person['id'];
 			?></a><?php
 			$t->newCol();
 			echo $person['name'];

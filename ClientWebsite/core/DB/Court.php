@@ -34,6 +34,7 @@ class DB_Court {
 	private static $courtList = false;
 	public static function getCourtList($id){
 		if(self::$courtList === false){
+			/*
 			$db = DB::get();
 			$sql = "
 				select * from
@@ -43,6 +44,15 @@ class DB_Court {
 				order by courtName
 			";
 			self::$courtList = $db->fetch_all($sql);
+			*/
+			$data = array(
+				'Command'  => 'getTableOrderLimitSpecify',
+				'TableName' => 'court',
+				'SpecColumn' => 'id_location',
+				'SpecValue' => "{$id}",
+				'OrderColumn' => 'courtName'
+			);
+			self::$courtList = Socket::request($data);
 		}
 		return self::$courtList;
 	}

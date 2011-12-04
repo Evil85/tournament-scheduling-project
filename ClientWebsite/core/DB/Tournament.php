@@ -40,6 +40,7 @@ class DB_Tournament {
 	private static $tournamentList = false;
 	public static function getTournamentList($skip,$get){
 		if(self::$tournamentList === false){
+			/*
 			$db = DB::get();
 			$sql = "
 				select * from
@@ -50,6 +51,17 @@ class DB_Tournament {
 				limit {$skip},{$get}
 			";
 			self::$tournamentList = $db->fetch_all($sql);
+			*/
+			$data = array(
+				'Command'  => 'getTableOrderLimitSpecify',
+				'TableName' => 'tournament',
+				'SpecColumn' => 'isGuestViewable',
+				'SpecValue' => '1',
+				'OrderColumn' => 'id',
+				'SkipCount' => "{$skip}",
+				'GetCount'  => "{$get}"
+			);
+			self::$tournamentList = Socket::request($data);
 		}
 		return self::$tournamentList;
 	}

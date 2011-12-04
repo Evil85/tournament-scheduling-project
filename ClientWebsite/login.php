@@ -6,3 +6,4 @@ $data = array(
 );
 $page = new PageBuilder($data);
 $page->generate();
+?>

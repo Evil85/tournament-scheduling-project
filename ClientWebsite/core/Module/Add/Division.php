@@ -37,7 +37,7 @@ class Module_Add_Division implements Module_Interface{
 			'label'   => 'Tournament Style',
 			'require' => true,
 			'name'    => 'tournType',
-			'options' => Tournament::getTypes()
+			'options' => DB_Tournament::getTypes()
 		));
 		$this->form->addControl(array(
 			'label' => 'Add Division',
@@ -48,9 +48,10 @@ class Module_Add_Division implements Module_Interface{
 		if(isset($_POST['add_division'])){
 			$allow = array('name','isDouble','genderConstraint','tournType');
 			$ddata = $this->form->getData($allow);
-			$ddata['tid_tournament'] = $data['tid'];
-			$result = Tournament::addDivision($ddata);
+			$ddata['id_tournament'] = $data['tid'];
+			$result = DB_Division::add($ddata);
 			if($result === false){
+				$this->form->setError('Error Adding your Division');
 				$this->form->failed();
 			} else {
 				$this->form->reset();

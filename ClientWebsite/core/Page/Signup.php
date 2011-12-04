@@ -12,6 +12,7 @@ class Page_Signup implements Page_Interface{
 		$this->form->addInput(array(
 			'label' => 'Password',
 			'require' => true,
+			'type' => 'password',
 			'name' => 'user[password]'
 		));
 		$this->form->addInput(array(
@@ -81,12 +82,22 @@ class Page_Signup implements Page_Interface{
 			$allow = array('name','email','phone','gender','birthdate');
 			$person = $this->form->getData($allow,$person);
 			$pid = DB_Person::add($person);
+			if($pid === false){
+				$this->form->failed();
+				$this->form->setError('Email already exists in database');
+				return false;
+			}
 			$user = $_POST['user'];
 			$allow = array('username','password');
 			$user = $this->form->getData($allow,$user);
-			$user['pid_person'] = $pid;
+			$user['id_person'] = $pid;
 			$user['permissions'] = 'user';
 			$uid = DB_User::add($user);
+			if($uid === false){
+				$this->form->failed();
+				$this->form->setError('Username already exists in database');
+				return false;
+			}
 			$_SESSION['uid'] = $uid;
 			header('location: login.php');
 		}
