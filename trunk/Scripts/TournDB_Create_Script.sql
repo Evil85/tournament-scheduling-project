@@ -120,11 +120,11 @@ CREATE  TABLE IF NOT EXISTS `tourn_201140`.`tournament` (
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `tourn_201140`.`venues`
+-- Table `tourn_201140`.`venue`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `tourn_201140`.`venues` ;
+DROP TABLE IF EXISTS `tourn_201140`.`venue` ;
 
-CREATE  TABLE IF NOT EXISTS `tourn_201140`.`venues` (
+CREATE  TABLE IF NOT EXISTS `tourn_201140`.`venue` (
   `id` INT NOT NULL AUTO_INCREMENT ,
   `id_location` INT NOT NULL REFERENCES `location`(`id`),
   `id_tournament` INT NOT NULL REFERENCES `tournament`(`id`),
@@ -317,7 +317,7 @@ VALUES
 SET @tourn = (SELECT MAX(`id`) FROM `tournament` WHERE `name`='WORLD CHAMPIONSHIP 2011');
 SET @pasttourn = (SELECT MAX(`id`) FROM `tournament` WHERE `name`='Clone Wars Racquetball');
 
-INSERT INTO `venues` (`id_location`, `id_tournament`)
+INSERT INTO `venue` (`id_location`, `id_tournament`)
 VALUES
 (@bac, @tourn), (@adc, @tourn), (@bac, @pasttourn);
 
@@ -454,8 +454,8 @@ INSERT INTO `match` (`startTime`, `matchNumber`, `phase`, `id_division`, `id_pla
 VALUES
 (CAST('2011-10-13T16:00:00' AS DATETIME), 1, 4, @cwd, @doubleAnakin, @doubleR2D2, @courta),
 (CAST('2011-10-13T16:30:00' AS DATETIME), 2, 4, @cwd, @doubleAnakin, @doubleMaul, @courtb),
-(CAST('2011-10-13T17:00:00' AS DATETIME), 3, 4, @cwd, @doubleAnakin, @doubleVentress, @courtc),
-(CAST('2011-10-13T17:30:00' AS DATETIME), 4, 4, @cwd, @doubleR2D2, @doubleMaul, @courta),
+(CAST('2011-10-13T17:30:00' AS DATETIME), 3, 4, @cwd, @doubleR2D2, @doubleMaul, @courta),
+(CAST('2011-10-13T17:00:00' AS DATETIME), 4, 4, @cwd, @doubleAnakin, @doubleVentress, @courtc),
 (CAST('2011-10-13T18:00:00' AS DATETIME), 5, 4, @cwd, @doubleR2D2, @doubleVentress, @courtb),
 (CAST('2011-10-13T18:00:00' AS DATETIME), 6, 4, @cwd, @doubleMaul, @doubleVentress, @courtc),
 (CAST('2011-10-14T16:00:00' AS DATETIME), 1, 4, @cww, @playerAhsoka, @playerShaak, @courta),
