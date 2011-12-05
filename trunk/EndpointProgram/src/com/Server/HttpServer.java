@@ -68,8 +68,8 @@ public class HttpServer
 					{
 						numberOfConnections++;
 						HttpExchange exchange = new HttpExchange(newConnection);
-						logger.info("Connection Established - ID : " + exchange.getExchangeId());
-						logger.debug("Connection Info:\n" + exchange.toString());
+						logger.debug("Connection Established - ID : " + exchange.getExchangeId());
+						logger.trace("Connection Info:\n" + exchange.toString());
 						requestHandler.onConnect(exchange);
 
 						if (exchange.getMessageFromClient())
@@ -87,8 +87,8 @@ public class HttpServer
 							logger.error(e);
 						}
 
-						logger.info("Connection Closed - ID : " + exchange.getExchangeId());
-						logger.debug("Connection Info:\n" + exchange.toString());
+						logger.debug("Connection Closed - ID : " + exchange.getExchangeId());
+						logger.trace("Connection Info:\n" + exchange.toString());
 						requestHandler.onDisconnect(exchange);
 						numberOfConnections--;
 					}
