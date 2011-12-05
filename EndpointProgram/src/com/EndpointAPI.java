@@ -159,7 +159,7 @@ public class EndpointAPI
 				e.addProperty("Player " + rowSize++, p.toString());
 			}
 
-            logger.info("Scheduled tournament: " + (String)arguments.getArgument("TournamentID"));
+            logger.trace("Scheduled tournament: " + (String)arguments.getArgument("TournamentID"));
             return e.toString();
         }
         catch (SQLException ex)
@@ -248,7 +248,7 @@ public class EndpointAPI
                     e.addProperty(rs.getMetaData().getColumnName(i), rs.getString(i));
             }
 
-            logger.info("Selected row from table: " + name);
+            logger.trace("Selected row from table: " + name);
             return e.toString();
         }
         catch (SQLException ex)
@@ -312,7 +312,7 @@ public class EndpointAPI
             if (arguments.doesKeyExist("SpecValue"))
                 st.setString(1, (String)arguments.getArgument("SpecValue"));
 
-            logger.info("sql statement: " + st);
+            logger.trace("sql statement: " + st);
 
 	        rs = st.executeQuery();
             int rowSize = 0;
@@ -329,7 +329,7 @@ public class EndpointAPI
                 e.addProperty(java.lang.String.valueOf(rowSize++), m.toString());
 			}
 
-            logger.info("Selected limited sorted table: " + name);
+            logger.debug("Selected limited sorted table: " + name);
             return e.toString();
         }
         catch (SQLException ex)
@@ -369,7 +369,7 @@ public class EndpointAPI
 
 			JsonObject e = new JsonObject();
             e.addProperty("result", count);
-            logger.info("Selected count on table: " + name);
+            logger.debug("Selected count on table: " + name);
             return e.toString();
         }
         catch (SQLException ex)
@@ -413,7 +413,7 @@ public class EndpointAPI
 
 			JsonObject e = new JsonObject();
             e.addProperty("result", count);
-            logger.info("Selected count on table: " + name);
+            logger.debug("Selected count on table: " + name);
             return e.toString();
         }
         catch (SQLException ex)
@@ -459,7 +459,7 @@ public class EndpointAPI
 
 	        conn.close();
 
-    		logger.info("User Created: " + arguments.getArgument("Username"));
+    		logger.debug("User Created: " + arguments.getArgument("Username"));
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", key);
@@ -493,7 +493,7 @@ public class EndpointAPI
 	        rs.next();
 	        int id = Integer.parseInt(rs.getString(1));
 
-            logger.info("Selected uid from user: " + arguments.getArgument("UserName"));
+            logger.debug("Selected uid from user: " + arguments.getArgument("UserName"));
 
             JsonObject e = new JsonObject();
             e.addProperty("result", id);
@@ -557,7 +557,7 @@ public class EndpointAPI
 
 	        conn.close();
 
-    		logger.info("Person Created: " + arguments.getArgument("PersonName"));
+    		logger.debug("Person Created: " + arguments.getArgument("PersonName"));
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", key);
@@ -618,7 +618,7 @@ public class EndpointAPI
 
 	        conn.close();
 
-    		logger.info("Person: " + arguments.getArgument("PersonID") + " unavailTimes updated");
+    		logger.debug("Person: " + arguments.getArgument("PersonID") + " unavailTimes updated");
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", key);
@@ -653,7 +653,7 @@ public class EndpointAPI
 	        rs.next();
 	        int id = Integer.parseInt(rs.getString(1));
 
-            logger.info("Selected pid from Person: " + arguments.getArgument("PersonEmail"));
+            logger.debug("Selected pid from Person: " + arguments.getArgument("PersonEmail"));
 
             JsonObject e = new JsonObject();
             e.addProperty("result", id);
@@ -696,7 +696,7 @@ public class EndpointAPI
 
 	        conn.close();
 
-    		logger.info("Court Created: " + arguments.getArgument("CourtName"));
+    		logger.debug("Court Created: " + arguments.getArgument("CourtName"));
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", key);
@@ -731,7 +731,7 @@ public class EndpointAPI
 	        rs.next();
 	        int id = Integer.parseInt(rs.getString(1));
 
-            logger.info("Selected cid from Court: " + arguments.getArgument("CourtName"));
+            logger.debug("Selected cid from Court: " + arguments.getArgument("CourtName"));
 
             JsonObject e = new JsonObject();
             e.addProperty("result", id);
@@ -777,7 +777,7 @@ public class EndpointAPI
                 e.addProperty(java.lang.String.valueOf(rowSize++), m.toString());
 			}
 
-            logger.info("Selected courts by locationID: " + arguments.getArgument("LocationID"));
+            logger.debug("Selected courts by locationID: " + arguments.getArgument("LocationID"));
             return e.toString();
         }
         catch (SQLException ex)
@@ -825,7 +825,7 @@ public class EndpointAPI
 
 	        conn.close();
 
-    		logger.info("Location Created: " + arguments.getArgument("LocationName"));
+    		logger.debug("Location Created: " + arguments.getArgument("LocationName"));
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", key);
@@ -859,7 +859,7 @@ public class EndpointAPI
 	        rs.next();
 	        int id = Integer.parseInt(rs.getString(1));
 
-            logger.info("Selected lid from Location: " + arguments.getArgument("LocationName"));
+            logger.debug("Selected lid from Location: " + arguments.getArgument("LocationName"));
 
             JsonObject e = new JsonObject();
             e.addProperty("result", id);
@@ -905,7 +905,7 @@ public class EndpointAPI
                 e.addProperty(java.lang.String.valueOf(rowSize++), m.toString());
 			}
 
-            logger.info("Selected location (venues) by TournamentID: " + arguments.getArgument("TournamentID"));
+            logger.debug("Selected location (venues) by TournamentID: " + arguments.getArgument("TournamentID"));
             return e.toString();
         }
         catch (SQLException ex)
@@ -955,7 +955,7 @@ public class EndpointAPI
 
 	        conn.close();
 
-    		logger.info("Tournament Created: " + arguments.getArgument("TournamentName"));
+    		logger.debug("Tournament Created: " + arguments.getArgument("TournamentName"));
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", key);
@@ -989,7 +989,7 @@ public class EndpointAPI
 	        rs.next();
 	        int id = Integer.parseInt(rs.getString(1));
 
-            logger.info("Selected tid from tournament: " + arguments.getArgument("TournamentName"));
+            logger.debug("Selected tid from tournament: " + arguments.getArgument("TournamentName"));
 
             JsonObject e = new JsonObject();
             e.addProperty("result", id);
@@ -1033,7 +1033,7 @@ public class EndpointAPI
 
 	        conn.close();
 
-    		logger.info("Venue Added to location lid: " + arguments.getArgument("LocationID"));
+    		logger.debug("Venue Added to location lid: " + arguments.getArgument("LocationID"));
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", key);
@@ -1096,7 +1096,7 @@ public class EndpointAPI
 
 	        conn.close();
 
-    		logger.info("Division Created: " + arguments.getArgument("Name"));
+    		logger.debug("Division Created: " + arguments.getArgument("Name"));
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", key);
@@ -1131,7 +1131,7 @@ public class EndpointAPI
 	        rs.next();
 	        int id = Integer.parseInt(rs.getString(1));
 
-            logger.info("Selected did from division: " + arguments.getArgument("DivisionName"));
+            logger.debug("Selected did from division: " + arguments.getArgument("DivisionName"));
 
             JsonObject e = new JsonObject();
             e.addProperty("result", id);
@@ -1183,7 +1183,7 @@ public class EndpointAPI
                 e.addProperty(java.lang.String.valueOf(rowSize++), m.toString());
 			}
 
-            logger.info("Selected divisions for tourn: " + (String)arguments.getArgument("TournamentID"));
+            logger.debug("Selected divisions for tourn: " + (String)arguments.getArgument("TournamentID"));
             return e.toString();
         }
         catch (SQLException ex)
@@ -1229,7 +1229,7 @@ public class EndpointAPI
                     e.addProperty(rs.getMetaData().getColumnName(i), rs.getString(i));
             }
 
-            logger.info("Selected divisions data for player: " + (String)arguments.getArgument("PersonID"));
+            logger.debug("Selected divisions data for player: " + (String)arguments.getArgument("PersonID"));
             return e.toString();
         }
         catch (SQLException ex)
@@ -1267,7 +1267,7 @@ public class EndpointAPI
 
 			JsonObject e = new JsonObject();
             e.addProperty("result", count);
-            logger.info("Selected count on divisions for player: " + (String)arguments.getArgument("PersonID"));
+            logger.debug("Selected count on divisions for player: " + (String)arguments.getArgument("PersonID"));
             return e.toString();
         }
         catch (SQLException ex)
@@ -1300,7 +1300,7 @@ public class EndpointAPI
 	        rs = st.executeQuery();
 	        rs.next();
 	        int isDouble = Integer.parseInt(rs.getString(1));
-	        logger.info("isDouble? " + isDouble);
+	        logger.trace("isDouble? " + isDouble);
 
             st = conn.prepareStatement ("INSERT INTO `player` (`id_player1`, `id_player2`, `id_division`) VALUES (?, ?, ?);");
 
@@ -1322,7 +1322,7 @@ public class EndpointAPI
 
             conn.close();
 
-	        logger.info("Player added (p1)pid: " + arguments.getArgument("Player1ID"));
+	        logger.debug("Player added (p1)pid: " + arguments.getArgument("Player1ID"));
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", key);
@@ -1357,7 +1357,7 @@ public class EndpointAPI
 	        rs.next();
 	        int id = Integer.parseInt(rs.getString(1));
 
-            logger.info("Selected pid from player with player1 pid: " + arguments.getArgument("Player1ID"));
+            logger.debug("Selected pid from player with player1 pid: " + arguments.getArgument("Player1ID"));
 
             JsonObject e = new JsonObject();
             e.addProperty("result", id);
@@ -1405,7 +1405,7 @@ public class EndpointAPI
 
 	        conn.close();
 
-    		logger.info("Match created matchno: " + arguments.getArgument("MatchNumber"));
+    		logger.debug("Match created matchno: " + arguments.getArgument("MatchNumber"));
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", key);
@@ -1441,7 +1441,7 @@ public class EndpointAPI
 	        rs.next();
 	        int id = Integer.parseInt(rs.getString(1));
 
-            logger.info("Selected mid from match num: " + arguments.getArgument("MatchNumber"));
+            logger.debug("Selected mid from match num: " + arguments.getArgument("MatchNumber"));
 
             JsonObject e = new JsonObject();
             e.addProperty("result", id);
@@ -1486,7 +1486,7 @@ public class EndpointAPI
 
 	        conn.close();
 
-    		logger.info("Game created for matchID: " + arguments.getArgument("MatchID"));
+    		logger.debug("Game created for matchID: " + arguments.getArgument("MatchID"));
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", key);
@@ -1521,7 +1521,7 @@ public class EndpointAPI
 	        rs.next();
 	        int id = Integer.parseInt(rs.getString(1));
 
-            logger.info("Selected gid from game: " + arguments.getArgument("GameNumber"));
+            logger.debug("Selected gid from game: " + arguments.getArgument("GameNumber"));
 
             JsonObject e = new JsonObject();
             e.addProperty("result", id);
@@ -1588,7 +1588,7 @@ public class EndpointAPI
 
 	        conn.close();
 
-    		logger.info("Person: " + arguments.getArgument("PersonID") + " unavailTimes updated");
+    		logger.debug("Person: " + arguments.getArgument("PersonID") + " unavailTimes updated");
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", key);
@@ -1642,7 +1642,7 @@ public class EndpointAPI
 
 	        conn.close();
 
-    		logger.info("Foul Created: " + arguments.getArgument("FoulName"));
+    		logger.debug("Foul Created: " + arguments.getArgument("FoulName"));
 
 	        JsonObject e = new JsonObject();
             e.addProperty("result", key);

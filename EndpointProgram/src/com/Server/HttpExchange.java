@@ -78,8 +78,8 @@ public class HttpExchange extends EventObject
 			OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, "US-ASCII");
 			outputStreamWriter.write(message);
 			outputStreamWriter.flush();
-			logger.info("Response Sent - ID : " + this.getExchangeId());
-			logger.debug("Response Message - ID : " + this.getExchangeId() + " :\n" + message);
+			logger.trace("Response Sent - ID : " + this.getExchangeId());
+			logger.trace("Response Message - ID : " + this.getExchangeId() + " :\n" + message);
 		}
 		catch (IOException ex)
 		{
@@ -130,8 +130,8 @@ public class HttpExchange extends EventObject
 		}
 
 		this.clientRequest = stringFromClient.toString();
-		logger.info("Request Received - ID : " + this.getExchangeId());
-		logger.debug("Request Message - ID : " + this.getExchangeId() + " :\n" + this.getRequest());
+		logger.trace("Request Received - ID : " + this.getExchangeId());
+		logger.trace("Request Message - ID : " + this.getExchangeId() + " :\n" + this.getRequest());
 
 		return true;
 	}
