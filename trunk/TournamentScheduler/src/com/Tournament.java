@@ -35,7 +35,12 @@ public class Tournament {
 	public Vector<Match> Schedule()
 	{
 		Vector<Match> schedule = new Vector<Match>();
-		m_divisions[0].TrySchedule(schedule);
+                if (m_divisions.length != 0)
+                {
+			for (Division d : m_divisions)
+				d.ResetScheduledCount();
+			m_divisions[0].TrySchedule(schedule);
+		}
 
 		return schedule != null ? schedule : new Vector<Match>();
 	}
