@@ -3,7 +3,7 @@ package com;
 import java.util.SortedSet;
 import java.util.Vector;
 
-
+// Represents a team with any number of players in a tournament.
 public class Team implements TimeConstraint {
 
 	public Team(String name, Player... players) {

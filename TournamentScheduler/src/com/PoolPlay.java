@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-
+// A division in which two Round-Robins are played and the top two teams from each enter a single elimination round.
 public class PoolPlay extends Division {
 
 	public PoolPlay(int id, String name, int minutesPerMatch, CourtManager courts, Player... players)

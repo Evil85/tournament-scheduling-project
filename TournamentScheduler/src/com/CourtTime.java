@@ -1,5 +1,6 @@
 package com;
 
+// Represents a specific TimeSpan and a Court.
 public class CourtTime {
 
 	public CourtTime(Court c, TimeSpan t)

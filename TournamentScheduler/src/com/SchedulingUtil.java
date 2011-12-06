@@ -7,7 +7,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-
+// Provides operations for sets of times.
 public class SchedulingUtil {
 
 	private static SchedulingUtil instance = null;
@@ -22,6 +22,7 @@ public class SchedulingUtil {
 		return instance;
 	}
 
+	// Returns the intersect of the available times (sets of times) of the specified TimeConstrains.
 	public static SortedSet<TimeSpan> IntersectAvailability(TimeConstraint... constraints)
 	{
 		SortedSet<TimeSpan> availableTimes = new ConcurrentSkipListSet<TimeSpan>();
@@ -36,6 +37,7 @@ public class SchedulingUtil {
 		return availableTimes;
 	}
 
+	// Returns the intersect of two sets of times.
 	public static SortedSet<TimeSpan> IntersectAvailability(SortedSet<TimeSpan> first, SortedSet<TimeSpan> second)
 	{
 		SortedSet<TimeSpan> intersection = new TreeSet<TimeSpan>();
@@ -82,6 +84,7 @@ public class SchedulingUtil {
 		return intersection;
 	}
 
+	// Adds the specified TimeSpan to the specified set of times.
 	public static void AddAvailability(SortedSet<TimeSpan> set, TimeSpan add)
 	{
 		Timestamp start = add.getStart();
@@ -110,6 +113,7 @@ public class SchedulingUtil {
 		set.add(new TimeSpan(start, end));
 	}
 
+	// Removes the specified TimeSpan from the specified set of times.
 	public static void RemoveAvailability(SortedSet<TimeSpan> set, TimeSpan remove)
 	{
 		Timestamp start = remove.getStart();
@@ -138,6 +142,7 @@ public class SchedulingUtil {
 		set.addAll(additionList);
 	}
 
+	// Truncates the specified set of times at the specified side of the specified boundary.
 	public static void Truncate(SortedSet<TimeSpan> set, TruncateSide side, Timestamp boundary)
 	{
 		if (!set.isEmpty())

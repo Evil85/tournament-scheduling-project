@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 import com.SchedulingUtil.TruncateSide;
 
+// Represents a match between two teams. Can be scheduled at a court and time.
 public class Match {
 
 	public Match(String name, Division division, Team team1, Team team2)
@@ -23,6 +24,7 @@ public class Match {
 		m_parents = new Vector<Match>();
 	}
 	
+	// Builds the set of times at which this match could be scheduled at the specified court, given the specified previously scheduled matches.
 	public SortedSet<TimeSpan> Availability(Court c, Vector<Match> previouslyScheduled, AvailabilityType type)
 	{
 		Vector<TimeConstraint> constraints = new Vector<TimeConstraint>(Players());
