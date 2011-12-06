@@ -1,6 +1,7 @@
 package com;
 
 import java.util.Vector;
+import java.util.List;
 
 // Represents a tournament with any number of divisions.
 public class Tournament {
@@ -21,7 +22,7 @@ public class Tournament {
 	public Tournament(int id, List<Division> divisions)
 	{
 		m_nId = id;
-		m_divisions = divisions.toArray(Division[0]);
+		m_divisions = divisions.toArray(new Division[0]);
 
 		Division previous = m_divisions[m_divisions.length - 1];
 		for (int i = 0; i < m_divisions.length; i++)

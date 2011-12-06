@@ -70,7 +70,7 @@ public class EndpointAPI
         }
         return true;
 	}
-/*
+
 	//Schedule tournament
 	public String scheduleTournament(CommandArguments arguments)
 	{
@@ -168,7 +168,7 @@ public class EndpointAPI
                 if (!divisionTeams.containsKey(DivisionID))
                     divisionTeams.put(DivisionID, new ArrayList<Team>());
                 
-                divisionTeams.get(DivisionID).add(new Team(rs.getString("TeamID"), t));
+                divisionTeams.get(DivisionID).add(new Team(rs.getInt("TeamID"), rs.getString("TeamID"), t));
             }
 
             
@@ -217,7 +217,7 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-*/
+
 	private static SortedSet<TimeSpan> buildAvailability(String tStart, String tEnd, String std, String etd, String ste, String ete) throws java.text.ParseException
 	{
 	    SortedSet<TimeSpan> times = new TreeSet<TimeSpan>();
@@ -1471,7 +1471,7 @@ public class EndpointAPI
 	{
 	    try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
-            st = conn.prepareStatement ("SELECT m.*, p1p1.name as p1p1, p1p2.name as p1p2, p2p1.name as p2p1, p2p2.name as p2p2, p1p1.id as p1p1_id, p1p2.id as p1p2_id, p2p1.id as p2p1_id, p2p2.id as p2p2_id FROM `match` m left join player pl1 on m.id_player1 = pl1.id left join person p1p1 on pl1.id_player1 = p1p1.id left join person p1p2 on pl1.id_player2 = p1p2.id left join player pl2 on m.id_player2 = pl2.id left join person p2p1 on pl2.id_player1 = p2p1.id left join person p2p2 on pl2.id_player2 = p2p2.id where m.id_division = ? ORDER BY m.matchNumber;");
+            st = conn.prepareStatement ("SELECT m.*, p1p1.name as p1p1, p1p2.name as p1p2, p2p1.name as p2p1, p2p2.name as p2p2, p1p1.id as p1p1_id, p1p2.id as p1p2_id, p2p1.id as p2p1_id, p2p2.id as p2p2_id, l.name, c.courtName FROM `match` m left join player pl1 on m.id_player1 = pl1.id left join person p1p1 on pl1.id_player1 = p1p1.id left join person p1p2 on pl1.id_player2 = p1p2.id left join player pl2 on m.id_player2 = pl2.id left join person p2p1 on pl2.id_player1 = p2p1.id left join person p2p2 on pl2.id_player2 = p2p2.id left join court c on m.id_court = c.id left join location l on c.id_location = l.id where m.id_division = ? order by m.matchNumber");
 
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("DivisionID")));
 	        rs = st.executeQuery();
