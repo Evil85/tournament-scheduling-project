@@ -75,10 +75,13 @@ public class EndpointAPI
 	public String scheduleTournament(CommandArguments arguments)
 	{
 	    try {
+	    
+	        int tournamentID = java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID"));
+	    
             Connection conn = DriverManager.getConnection(URL, user, pass);
 
             st = conn.prepareStatement("SELECT * FROM `tournament` WHERE `id` = ?;");
-            st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
+            st.setInt(1, tournamentID);
             rs = st.executeQuery();
             rs.next();
 
@@ -93,9 +96,8 @@ public class EndpointAPI
             SortedSet<TimeSpan> tournTimes = buildAvailability(tStart, tEnd, std, etd, ste, ete);
 
             st = conn.prepareStatement("SELECT DISTINCT `person`.`id`, `person`.`name`, `person`.`unavailTimeStart1`, `person`.`unavailTimeEnd1`, `person`.`unavailTimeStart2`, `person`.`unavailTimeEnd2` FROM `person`, `player`, `division` WHERE (`person`.`id` = `player`.`id_player1` OR `person`.`id` = `player`.`id_player2`) AND `player`.`id_division` = `division`.`id` AND `division`.`id_tournament` = ?;");
-		    st.setInt(1, java.lang.Integer.valueOf((String) arguments.getArgument("TournamentID")));
+		    st.setInt(1, tournamentID);
 		    rs = st.executeQuery();
-
 
 		    Map<Integer, Player> players = new HashMap<Integer, Player>();
 
@@ -126,13 +128,12 @@ public class EndpointAPI
 					SchedulingUtil.RemoveAvailability(playerTimes, new TimeSpan(start2, end2));
 			    }
 
-
-			    players.put(id, new Player(id, rs.getString("name"), playerTimes));
+//              players.put(id, new Player(id, rs.getString("name"), playerTimes));
 		    }
 
 		    st = conn.prepareStatement("SELECT DISTINCT `court`.`id` courtID, `location`.`weekdayOpenTime`, `location`.`weekdayCloseTime`, `location`.`weekendOpenTime`, `location`.`weekendCloseTime`, `location`.`id` locationID FROM `court`, `location`, `venues` WHERE `venues`.`id_tournament` = ? AND `venues`.`id_location` = `court`.`id_location` AND `venues`.`id_location` = `location`.`id`;");
 
-		    st.setInt(1, java.lang.Integer.valueOf((String) arguments.getArgument("TournamentID")));
+		    st.setInt(1, tournamentID);
 		    rs = st.executeQuery();
 
 		    List<Court> courts = new ArrayList<Court>();
@@ -146,9 +147,25 @@ public class EndpointAPI
 			    String weekendCloseTime = rs.getString("weekendCloseTime");
 
 			    SortedSet<TimeSpan> courtTimes = buildAvailability(tStart, tEnd, weekdayOpenTime, weekdayCloseTime, weekendOpenTime, weekendCloseTime);
-			    Court court = new Court(rs.getInt("courtID"), "TestCourt", rs.getString("locationID"), SchedulingUtil.IntersectAvailability(tournTimes, courtTimes));
-			    courts.add(court);
+//			    Court court = new Court(rs.getInt("courtID"), "TestCourt", rs.getString("locationID"), SchedulingUtil.IntersectAvailability(tournTimes, courtTimes));
+//			    courts.add(court);
 		    }
+
+            /* gets Division data for a Tournament ID */
+            st = conn.prepareStatement("SELECT DISTINCT d.id, d.name, d.isDouble, d.estTime, d.tournType FROM `division` d team WHERE d.id_tournament = ?;");
+		    st.setInt(1, tournamentID);
+		    rs = st.executeQuery();
+
+            
+
+            int divisionID = 1;
+            /* gets teamIDs, PlayerIDs, for a Division ID - use resultant divison IDs from last query*/
+            st = conn.prepareStatement("SELECT DISTINCT team.`id_player1` as Player1ID, team.`id_player2` as Player2ID, d.`id`, team.`id` FROM `player` team WHERE team.id_division = d.id;");
+		    st.setInt(1, divisionID);
+		    rs = st.executeQuery();
+
+
+
 
             int rowSize = 0;
             JsonObject e = new JsonObject();
@@ -1429,6 +1446,49 @@ public class EndpointAPI
         }
 	}
 
+	public String getMatchInfo(CommandArguments arguments)
+	{
+	    try {
+            Connection conn = DriverManager.getConnection(URL, user, pass);
+            st = conn.prepareStatement ("SELECT m.*, p1p1.name as p1p1, p1p2.name as p1p2, p2p1.name as p2p1, p2p2.name as p2p2, p1p1.id as p1p1_id, p1p2.id as p1p2_id, p2p1.id as p2p1_id, p2p2.id as p2p2_id FROM `match` m left join player pl1 on m.id_player1 = pl1.id left join person p1p1 on pl1.id_player1 = p1p1.id left join person p1p2 on pl1.id_player2 = p1p2.id left join player pl2 on m.id_player2 = pl2.id left join person p2p1 on pl2.id_player1 = p2p1.id left join person p2p2 on pl2.id_player2 = p2p2.id where m.id_division = ?;");
+
+            st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("DivisionID")));
+	        rs = st.executeQuery();
+	        rs.next();
+	        int colSize = rs.getMetaData().getColumnCount();
+            int rowSize = 0;
+			JsonObject e = new JsonObject();
+			while(rs.next())
+			{
+			    JsonObject m = new JsonObject();
+			    for (int i = 1; i < colSize+1; i++)
+                        m.addProperty(rs.getMetaData().getColumnName(i), rs.getString(i));
+                e.addProperty(java.lang.String.valueOf(rowSize++), m.toString());
+			}
+
+            logger.trace("Selected match data for match id: " + arguments.getArgument("DivisionID"));
+            return e.toString();
+        }
+        catch (SQLException ex)
+        {
+	        logger.error("SQL Exception while selecting data from match with id: " + arguments.getArgument("DivisionID"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+        catch (Exception ex)
+        {
+	        logger.error("Java Exception while selecting data from match with id: " + arguments.getArgument("DivisionID"));
+	        logger.error("error: " + ex);
+			JsonObject e = new JsonObject();
+            e.addProperty("result", "false");
+            return e.toString();
+        }
+	}
+	
+	
+	
 	public String getMatchID(CommandArguments arguments)
 	{
 	    try {
