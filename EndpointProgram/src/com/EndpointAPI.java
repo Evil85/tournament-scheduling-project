@@ -10,8 +10,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +88,7 @@ public class EndpointAPI
 	            public void run()
 	            {
 	                try {
+                        Date currentTime = new Date();
 	                    int tournamentID = java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID"));
 	                
                         Connection conn = DriverManager.getConnection(URL, user, pass);
@@ -209,11 +212,8 @@ public class EndpointAPI
                         }
 
                         Tournament tourn = new Tournament(tournamentID, divisions);
-            System.err.println("scheduling matches");
                         Vector<Match> matches = tourn.Schedule();
-            System.err.println("size of matches: " + matches.size());
 
-                        int matchNumber = 0;
                         for (Match m : matches)
                         {
                             int team1ID = m.m_team1.Id();
@@ -221,7 +221,7 @@ public class EndpointAPI
                             int courtID = m.Court().Id();
                             int divID = m.Division().Id();
                             Timestamp start = m.Time().getStart();
-                            matchNumber++;
+                            int matchNumber = m.Id();
                             
                             st = conn.prepareStatement ("INSERT INTO `match` (`startTime`, `matchNumber`, `id_division`, `id_player1`, `id_player2`, `id_court`) VALUES (?, ?, ?, ?, ?, ?);");
 
@@ -245,7 +245,13 @@ public class EndpointAPI
                         for (Match m : matches)
                             e.addProperty(Integer.toString(count++), m.toString());
 
-                        logger.trace("Scheduled tournament: " + (String)arguments.getArgument("TournamentID"));
+                        logger.trace("Scheduled tournament: " + tournamentID);
+                        
+                        Date endTime = new Date();
+                        
+		                double schedulingTime = (endTime.getTime() - currentTime.getTime()) * .001;
+		                DecimalFormat format = new DecimalFormat("###.###");
+                        logger.info("Scheduling of tournament " + tournamentID + " finished in " + format.format(schedulingTime) + " seconds");
                         //return e.toString();
                     }
                     catch (SQLException ex)

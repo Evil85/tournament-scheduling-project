@@ -330,8 +330,11 @@ VALUES
 ('Women Open', false, 20, 'f', 65, null, 'round robin', @pasttourn, 3),
 ('Doubles', true, 20, 'a', 65, null, 'round robin', @pasttourn, 3);
 
+/* ('Singles Women Open', FALSE, 30, 'f', 18, null, 'round robin', @tourn, 0), */
+
 SET @smo = (SELECT MAX(`id`) FROM `division` WHERE `name`='Singles Men Open' AND `id_tournament`=@tourn);
 
+/* SET @swo = (SELECT MAX(`id`) FROM `division` WHERE `name`='Singles Women Open' AND `id_tournament`=@tourn); */
 
 INSERT INTO `player` (`id_player1`, `id_player2`, `id_division`)
 VALUES
@@ -343,6 +346,14 @@ VALUES
 ((SELECT `id` FROM `person` WHERE `name`='Boba Fett'), null, @smo),
 ((SELECT `id` FROM `person` WHERE `name`='Dengar'), null, @smo),
 ((SELECT `id` FROM `person` WHERE `name`='R2D2'), null, @smo);
+
+/*
+((SELECT `id` FROM `person` WHERE `name`='Ahsoka Tano'), null, @swo),
+((SELECT `id` FROM `person` WHERE `name`='Aunt Beru'), null, @swo),
+((SELECT `id` FROM `person` WHERE `name`='Leia Organa'), null, @swo),
+((SELECT `id` FROM `person` WHERE `name`='Mission Vao'), null, @swo),
+((SELECT `id` FROM `person` WHERE `name`='Padme Amidala'), null, @swo);
+*/
 
 SET @cwm = (SELECT MAX(`id`) FROM `division` WHERE `name`='Men Open' AND `id_tournament`=@pasttourn);
 SET @cww = (SELECT MAX(`id`) FROM `division` WHERE `name`='Women Open' AND `id_tournament`=@pasttourn);
