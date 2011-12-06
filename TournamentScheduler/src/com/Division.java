@@ -16,7 +16,7 @@ public abstract class Division {
 		m_courts = courts;
 		m_teams = new LinkedList<Team>();
 		for (Player p : players)
-			m_teams.add(new Team(p.Name(), p));
+			m_teams.add(new Team(Integer.MIN_VALUE + p.Id(), p.Name(), p));
 		SortTeams();
 	}
 

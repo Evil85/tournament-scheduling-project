@@ -41,15 +41,15 @@ public class PoolPlay extends Division {
 		Player[] firstRoundPlayers = firstRound.toArray(new Player[0]);
 		Player[] secondRoundPlayers = secondRound.toArray(new Player[0]);
 
-		Team finalistA =  new Team("Finalist A", firstRoundPlayers);
-		Team finalistB =  new Team("Finalist B", secondRoundPlayers);
+		Team finalistA =  new Team(-1, "Finalist A", firstRoundPlayers);
+		Team finalistB =  new Team(-2, "Finalist B", secondRoundPlayers);
 		Match finalMatch = new Match(String.format("%s final match", m_strName), this, finalistA, finalistB);
 		m_unscheduled.add(finalMatch);
 
-		Team winnerRoundA = new Team("Winner A", firstRoundPlayers);
-		Team runnerRoundA = new Team("Runner-up A", firstRoundPlayers);
-		Team winnerRoundB = new Team("Winner B", secondRoundPlayers);
-		Team runnerRoundB = new Team("Runner-up B", secondRoundPlayers);
+		Team winnerRoundA = new Team(-3, "Winner A", firstRoundPlayers);
+		Team runnerRoundA = new Team(-4, "Runner-up A", firstRoundPlayers);
+		Team winnerRoundB = new Team(-5, "Winner B", secondRoundPlayers);
+		Team runnerRoundB = new Team(-6, "Runner-up B", secondRoundPlayers);
 		Match semi1 = new Match(String.format("%s semifinal match 1", m_strName), this, winnerRoundA, runnerRoundA);
 		m_unscheduled.add(semi1);
 		finalMatch.AddParent(semi1);
