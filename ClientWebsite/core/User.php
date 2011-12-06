@@ -7,9 +7,9 @@ class User{
 		return true;
 	}
 	
-	public static function is_site_admin(){
-		$info = self::get_user_info();
-		if(isset($info['permissions']) && $info['permissions'] == 'site_admin'){
+	public static function is_admin(){
+		$info = DB_User::getUserData();
+		if(isset($info['permissions']) && $info['permissions'] == 'admin'){
 			return true;
 		}
 		return false;

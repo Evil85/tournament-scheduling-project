@@ -7,7 +7,7 @@ class Socket{
 	public static function get(){
 		//if(self::$socket === false){
 			$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-			socket_connect($socket, 'localhost', 2345);
+			socket_connect($socket, 'localhost', 4567);
 			//self::$socket = $socket;
 		//}
 		//return self::$socket;

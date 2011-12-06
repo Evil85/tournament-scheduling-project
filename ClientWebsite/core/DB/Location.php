@@ -30,5 +30,37 @@ class DB_Location {
 		return self::$locationData[$lid];
 	}
 	
+	// this function returns a list of locations
+	public static function getLocationList($skip,$get){
+		$data = array(
+			'Command'  => 'getTableOrderLimitSpecify',
+			'TableName' => 'location',
+			'OrderColumn' => 'name',
+			'SkipCount' => "{$skip}",
+			'GetCount'  => "{$get}"
+		);
+		return Socket::request($data);
+	}
+	
+	// get list of all locations
+	public static function getAllLocations(){
+		$data = array(
+			'Command'  => 'getTableOrderLimitSpecify',
+			'TableName' => 'location',
+			'OrderColumn' => 'name'
+		);
+		return Socket::request($data);
+	}
+	
+	// gets the location count
+	public static function getLocationCount(){
+		$data = array(
+			'Command'  => 'getTableCountByName',
+			'TableName' => 'location'
+		);
+		$result = Socket::request($data);
+		return $result['result'];
+	}
+	
 }
 ?>

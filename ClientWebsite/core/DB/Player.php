@@ -63,6 +63,20 @@ class DB_Player {
 		}
 		return self::$player_count;
 	}
+
+	// this function gets a player data
+	private static $playerData = array();
+	public static function getPlayerData($id){
+		if(!isset(self::$playerData[$id])){
+			$data = array(
+				'Command'  => 'getTupleByID',
+				'TableName' => 'player',
+				'ID' => "{$id}"
+			);
+			self::$playerData[$lid] = Socket::request($data);
+		}
+		return self::$playerData[$lid];
+	}
 	
 }
 ?>
