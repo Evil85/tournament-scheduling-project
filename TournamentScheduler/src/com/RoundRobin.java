@@ -17,6 +17,12 @@ public class RoundRobin extends Division {
 		SetupMatches();
 	}
 
+	public RoundRobin(int id, String name, int minutesPerMatch, CourtManager courts, List<Team> teams)
+	{
+		super(id, name, minutesPerMatch, courts, teams);
+		SetupMatches();
+	}
+
 	protected void SetupMatches()
 	{
 		m_unscheduled = new LinkedList<Match>();
