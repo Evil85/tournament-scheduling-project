@@ -2,6 +2,7 @@ package com;
 
 import java.util.SortedSet;
 import java.util.Vector;
+import java.util.List;
 
 // Represents a team with any number of players in a tournament.
 public class Team implements TimeConstraint {
@@ -24,7 +25,7 @@ public class Team implements TimeConstraint {
 	public Team(int id, String name, List<Player> players) {
 		m_nId = id;
 		m_strName = name;
-		m_availability = SchedulingUtil.IntersectAvailability(players);
+		m_availability = SchedulingUtil.IntersectAvailability(players.toArray(new Player[0]));
 		m_players = new Vector<Player>();
 		for (Player p : players)
 		{

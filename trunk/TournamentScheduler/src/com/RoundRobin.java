@@ -1,6 +1,7 @@
 package com;
 
 import java.util.LinkedList;
+import java.util.List;
 
 // A division in which each team plays each other team.
 public class RoundRobin extends Division {
