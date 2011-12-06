@@ -68,29 +68,13 @@ public abstract class Division {
 		m_nextDivision = next;
 	}
 
+	public Division NextDivision()
+	{
+		return m_nextDivision;
+	}
+
 	// Given the existing schedule, try to schedule the remaining matches in this tournament, adding them to the schedule.
 	public boolean TrySchedule(Vector<Match> schedule)
-	{
-		ResetScheduledCount(this);
-		return TrySchedule(schedule, null);
-	}
-
-	protected abstract void SetupMatches();
-
-	private void SortTeams()
-	{
-		Collections.sort(m_teams, MostRestrictiveTeam.getInstance());
-	}
-
-	private void ResetScheduledCount(Division firstReset)
-	{
-		m_nScheduled = 0;
-
-		if (m_nextDivision != firstReset)
-			ResetScheduledCount(firstReset);
-	}
-
-	private boolean TrySchedule(Vector<Match> schedule, Division firstFinished)
 	{
 		if (m_unscheduled.size() != 0)
 		{
@@ -109,7 +93,15 @@ public abstract class Division {
 					m.Schedule(ct);
 					schedule.add(m);
 
-					bSuccess = m_nextDivision.TrySchedule(schedule, null);
+					Division next = m_nextDivision;
+					while (next.FullyScheduled())
+					{
+						next = next.NextDivision();
+						if (next == this)
+							break;
+					}
+
+					bSuccess = next.TrySchedule(schedule);
 					if (!bSuccess)
 						schedule.remove(m);
 					else
@@ -135,14 +127,27 @@ public abstract class Division {
 			}
 			return true;
 		}
-		else if (m_nextDivision != firstFinished)
-		{
-			return m_nextDivision.TrySchedule(schedule, firstFinished == null ? this : firstFinished);
-		}
 		else
 		{
 			return true;
 		}
+	}
+
+	protected abstract void SetupMatches();
+
+	private void SortTeams()
+	{
+		Collections.sort(m_teams, MostRestrictiveTeam.getInstance());
+	}
+
+	public void ResetScheduledCount()
+	{
+		m_nScheduled = 0;
+	}
+
+	public boolean FullyScheduled()
+	{
+		return m_unscheduled.size() == 0;
 	}
 
 	private int m_nMinutesPerMatch;
