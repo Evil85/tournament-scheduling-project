@@ -3,7 +3,7 @@ package com;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-
+// Represents a single court at a venue.
 public class Court implements TimeConstraint {
 
 	public Court(int id, String name, String venue, TimeSpan... availability) {

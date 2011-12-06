@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.util.Collection;
 import java.sql.Timestamp;
 
+// Represents a span of times.
 public class TimeSpan implements Comparable<TimeSpan> {
 
     /**

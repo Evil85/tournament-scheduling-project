@@ -4,7 +4,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
-
+// Represents a player in a tournament.
 public class Player implements TimeConstraint {
 
 	public Player(int id, String name, TimeSpan... availability) {

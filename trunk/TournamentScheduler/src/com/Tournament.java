@@ -2,7 +2,7 @@ package com;
 
 import java.util.Vector;
 
-
+// Represents a tournament with any number of divisions.
 public class Tournament {
 
 	public Tournament(int id, Division... divisions)

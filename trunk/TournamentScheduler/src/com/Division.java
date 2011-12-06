@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
-
+// Represents a division in a tournament. Creates and schedules the matches for that division.
 public abstract class Division {
 
 	public Division(int id, String name, int minutesPerMatch, CourtManager courts, Player... players)
@@ -47,11 +47,13 @@ public abstract class Division {
 		return m_strName;
 	}
 
+	// Links this division to another (or itself) in a loop. This must be done before scheduling.
 	public void LinkTo(Division next)
 	{
 		m_nextDivision = next;
 	}
 
+	// Given the existing schedule, try to schedule the remaining matches in this tournament, adding them to the schedule.
 	public boolean TrySchedule(Vector<Match> schedule)
 	{
 		ResetScheduledCount(this);

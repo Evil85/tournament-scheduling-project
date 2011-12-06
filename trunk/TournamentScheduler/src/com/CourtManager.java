@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Vector;
 
 
-
+// Manages a set of Courts.
 public class CourtManager {
 
 	public CourtManager(Court... courts)
@@ -22,6 +22,7 @@ public class CourtManager {
 			m_courts[i] = courts.get(i);
 	}
 
+	// Prepares a list of available CourtTimes based on a given pre-existing schedule
 	public List<CourtTime> CourtTimesByLatest(Match m, int matchMinutes, Vector<Match> schedule)
 	{
 		int matchMs = matchMinutes * c_nMsPerMinute;
