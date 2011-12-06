@@ -47,7 +47,11 @@ public class Tournament {
 
 	public String toString()
 	{
-		return String.format("%s : %s", m_nId, m_divisions.toString())
+	    String out = "";
+	    for (Division d : m_divisions)
+	        out += d.toString() + "\n";
+	        
+		return String.format("%s : %s", m_nId, out);
 	}
 
 	private Division[] m_divisions;

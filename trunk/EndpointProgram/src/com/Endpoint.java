@@ -35,6 +35,7 @@ public class Endpoint
 			if (args[i].equals("-v"))
 			{
 				Logger.getRootLogger().setLevel(Level.ALL);
+                Logger.getLogger(EndpointAPI.class).setLevel(Level.ALL);
 				logger.info("Verbose mode enabled");
 			}
 

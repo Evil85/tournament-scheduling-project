@@ -159,8 +159,8 @@ public class Match {
 	private String m_strName;
 	private Court m_court;
 	private Division m_division;
-	private Team m_team1;
-	private Team m_team2;
+	public Team m_team1;
+	public Team m_team2;
 	private Set<Player> m_players;
 	private TimeSpan m_time;
 	private Vector<Match> m_parents;

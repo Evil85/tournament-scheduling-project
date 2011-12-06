@@ -16,7 +16,7 @@ USE `tourn_201140`;
 -- match: 0=raw/created, 1=scheduled, 2=players assigned(if not first round),
 --        3=started, 4=finished
 -- 
--- game: 0=created/scheduled(auto created with match), 1=active, 2=final
+-- game: 0=created/scheduled, 1=active, 2=final
 -- -----------------------------------------------------
 
 -- -----------------------------------------------------
@@ -238,6 +238,7 @@ VALUES
 INSERT INTO `person` (`name`, `email`, `city`, `state`, `phone`, `gender`, `birthdate`, `unavailTimeStart1`, `unavailTimeEnd1`, `unavailTimeStart2`, `unavailTimeEnd2`, `id_homeClub`)
 VALUES 
 ('Guest', 'guest@guest.com', null, null, '1111111111', 'g', CAST('1900-1-1' AS DATE), null, null, null, null, null), 
+('Bye', 'bye@guest.com', null, null, '1111111123', 'b', CAST('1900-1-1' AS DATE), null, null, null, null, null), 
 ('Luke Skywalker', 'luke@jedi.org', null, null, '3601112222', 'm', CAST('1980-03-20' AS DATE), CAST('2011-12-03 12:00:00' AS DATETIME), 
 	CAST('2011-12-03 13:00:00' AS DATETIME), null, null, @bac),
 ('Han Solo', 'hansolo@smuggler.com', null, null, '3601234567', 'm', CAST('1980-03-20' AS DATE), CAST('2011-12-03 14:00:00' AS DATETIME),
@@ -325,21 +326,12 @@ VALUES
 INSERT INTO `division` (`name`, `isDouble`, `estTime`, `genderConstraint`, `minAge`, `maxAge`, `tournType`, `id_tournament`, `phase`)
 VALUES
 ('Singles Men Open', FALSE, 30, 'm', 18, null, 'round robin', @tourn, 0),
-('Singles Women Open', FALSE, 30, 'f', 18, null, 'pool play', @tourn, 0),
-('Doubles Co-ed', True, 30, 'a', null, null, 'round robin', @tourn, 0),
-('Elite Men', FALSE, 45, 'm', null, null, 'single elimination', @tourn, 0),
-('Elite Women', FALSE, 45, 'f', null, null, 'standard', @tourn, 0),
-('Senior Men', false, 20, 'm', 65, null, 'round robin', @tourn, 0),
 ('Men Open', FALSE, 30, 'm', null, null, 'standard', @pasttourn, 3),
 ('Women Open', false, 20, 'f', 65, null, 'round robin', @pasttourn, 3),
 ('Doubles', true, 20, 'a', 65, null, 'round robin', @pasttourn, 3);
 
 SET @smo = (SELECT MAX(`id`) FROM `division` WHERE `name`='Singles Men Open' AND `id_tournament`=@tourn);
-SET @dco = (SELECT MAX(`id`) FROM `division` WHERE `name`='Doubles Co-ed' AND `id_tournament`=@tourn);
-SET @swo = (SELECT MAX(`id`) FROM `division` WHERE `name`='Singles Women Open' AND `id_tournament`=@tourn);
-SET @elm = (SELECT MAX(`id`) FROM `division` WHERE `name`='Elite Men' AND `id_tournament`=@tourn);
-SET @elw = (SELECT MAX(`id`) FROM `division` WHERE `name`='Elite Women' AND `id_tournament`=@tourn);
-SET @snm = (SELECT MAX(`id`) FROM `division` WHERE `name`='Senior Men' AND `id_tournament`=@tourn);
+
 
 INSERT INTO `player` (`id_player1`, `id_player2`, `id_division`)
 VALUES
@@ -349,57 +341,8 @@ VALUES
 ((SELECT `id` FROM `person` WHERE `name`='Anakin'), null, @smo),
 ((SELECT `id` FROM `person` WHERE `name`='Darth Maul'), null, @smo),
 ((SELECT `id` FROM `person` WHERE `name`='Boba Fett'), null, @smo),
-((SELECT `id` FROM `person` WHERE `name`='Jango Fett'), null, @smo),
 ((SELECT `id` FROM `person` WHERE `name`='Dengar'), null, @smo),
-((SELECT `id` FROM `person` WHERE `name`='R2D2'), null, @smo),
-((SELECT `id` FROM `person` WHERE `name`='C3-PO'), null, @smo),
-((SELECT `id` FROM `person` WHERE `name`='Ahsoka Tano'), null, @swo),
-((SELECT `id` FROM `person` WHERE `name`='Atris'), null, @swo),
-((SELECT `id` FROM `person` WHERE `name`='Aunt Beru'), null, @swo),
-((SELECT `id` FROM `person` WHERE `name`='Leia Organa'), null, @swo),
-((SELECT `id` FROM `person` WHERE `name`='Mission Vao'), null, @swo),
-((SELECT `id` FROM `person` WHERE `name`='Mon Mothma'), null, @swo),
-((SELECT `id` FROM `person` WHERE `name`='Padme Amidala'), null, @swo),
-((SELECT `id` FROM `person` WHERE `name`='Shaak Ti'), null, @swo),
-((SELECT `id` FROM `person` WHERE `name`='Anakin'), (SELECT `id` FROM `person` WHERE `name`='Ahsoka Tano'), @dco),
-((SELECT `id` FROM `person` WHERE `name`='Asajj Ventress'), (SELECT `id` FROM `person` WHERE `name`='Count Dooku'), @dco),
-((SELECT `id` FROM `person` WHERE `name`='Jango Fett'), (SELECT `id` FROM `person` WHERE `name`='Boba Fett'), @dco),
-((SELECT `id` FROM `person` WHERE `name`='Uncle Owen'), (SELECT `id` FROM `person` WHERE `name`='Aunt Beru'), @dco),
-((SELECT `id` FROM `person` WHERE `name`='Obi Wan Kenobe'), (SELECT `id` FROM `person` WHERE `name`='Qui-Gon Jinn'), @dco),
-((SELECT `id` FROM `person` WHERE `name`='Han Solo'), (SELECT `id` FROM `person` WHERE `name`='Chewbacca'), @dco),
-((SELECT `id` FROM `person` WHERE `name`='Revan'), (SELECT `id` FROM `person` WHERE `name`='Bastila Shan'), @dco),
-((SELECT `id` FROM `person` WHERE `name`='Luke Skywalker'), (SELECT `id` FROM `person` WHERE `name`='Leia Organa'), @dco),
-((SELECT `id` FROM `person` WHERE `name`='HK-47'), (SELECT `id` FROM `person` WHERE `name`='IG-88'), @dco),
-((SELECT `id` FROM `person` WHERE `name`='Carth Onasi'), (SELECT `id` FROM `person` WHERE `name`='Bao-Dur'), @dco),
-((SELECT `id` FROM `person` WHERE `name`='Jolee Bindo'), null, @elm),
-((SELECT `id` FROM `person` WHERE `name`='Jabba the Hutt'), null, @elm),
-((SELECT `id` FROM `person` WHERE `name`='Yoda'), null, @elm),
-((SELECT `id` FROM `person` WHERE `name`='Mace Windu'), null, @elm),
-((SELECT `id` FROM `person` WHERE `name`='Qui-Gon Jinn'), null, @elm),
-((SELECT `id` FROM `person` WHERE `name`='Ki Adi Mundi'), null, @elm),
-((SELECT `id` FROM `person` WHERE `name`='Grand Moff Tarkin'), null, @elm),
-((SELECT `id` FROM `person` WHERE `name`='Admiral Ackbar'), null, @elm),
-((SELECT `id` FROM `person` WHERE `name`='HK-47'), null, @elm),
-((SELECT `id` FROM `person` WHERE `name`='Darth Malak'), null, @elm),
-((SELECT `id` FROM `person` WHERE `name`='Canderous Ordo'), null, @elm),
-((SELECT `id` FROM `person` WHERE `name`='Aayla Secura'), null, @elw),
-((SELECT `id` FROM `person` WHERE `name`='Kreia'), null, @elw),
-((SELECT `id` FROM `person` WHERE `name`='Luminara Unduli'), null, @elw),
-((SELECT `id` FROM `person` WHERE `name`='Shae Vizla'), null, @elw),
-((SELECT `id` FROM `person` WHERE `name`='Visas Marr'), null, @elw),
-((SELECT `id` FROM `person` WHERE `name`='Ahsoka Tano'), null, @elw),
-((SELECT `id` FROM `person` WHERE `name`='Leia Organa'), null, @elw),
-((SELECT `id` FROM `person` WHERE `name`='Asajj Ventress'), null, @elw),
-((SELECT `id` FROM `person` WHERE `name`='Bastila Shan'), null, @elw),
-((SELECT `id` FROM `person` WHERE `name`='Atris'), null, @elw),
-((SELECT `id` FROM `person` WHERE `name`='Yoda'), null, @snm),
-((SELECT `id` FROM `person` WHERE `name`='Obi Wan Kenobe'), null, @snm),
-((SELECT `id` FROM `person` WHERE `name`='Grand Moff Tarkin'), null, @snm),
-((SELECT `id` FROM `person` WHERE `name`='Qui-Gon Jinn'), null, @snm),
-((SELECT `id` FROM `person` WHERE `name`='Jolee Bindo'), null, @snm),
-((SELECT `id` FROM `person` WHERE `name`='Count Dooku'), null, @snm),
-((SELECT `id` FROM `person` WHERE `name`='Chewbacca'), null, @snm);
-
+((SELECT `id` FROM `person` WHERE `name`='R2D2'), null, @smo);
 
 SET @cwm = (SELECT MAX(`id`) FROM `division` WHERE `name`='Men Open' AND `id_tournament`=@pasttourn);
 SET @cww = (SELECT MAX(`id`) FROM `division` WHERE `name`='Women Open' AND `id_tournament`=@pasttourn);
