@@ -57,6 +57,11 @@ public abstract class Division {
 		return m_strName;
 	}
 
+        public String toString()
+        {
+		return m_strName;
+        }
+
 	// Links this division to another (or itself) in a loop. This must be done before scheduling.
 	public void LinkTo(Division next)
 	{
