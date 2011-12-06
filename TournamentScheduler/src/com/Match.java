@@ -11,8 +11,9 @@ import com.SchedulingUtil.TruncateSide;
 // Represents a match between two teams. Can be scheduled at a court and time.
 public class Match {
 
-	public Match(String name, Division division, Team team1, Team team2)
+	public Match(int id, String name, Division division, Team team1, Team team2)
 	{
+		m_nId = id;
 		m_strName = name;
 		m_division = division;
 		m_team1 = team1;
@@ -146,6 +147,11 @@ public class Match {
 		return m_strName;
 	}
 
+	public int Id()
+	{
+		return m_nId;
+	}
+
 	public Division Division()
 	{
 		return m_division;
@@ -164,6 +170,7 @@ public class Match {
 	private Set<Player> m_players;
 	private TimeSpan m_time;
 	private Vector<Match> m_parents;
+	private int m_nId;
 	
 	// 3,600,000 ms = 1 hour;
 	private static final int c_nMsTravelTime = 3600000;
