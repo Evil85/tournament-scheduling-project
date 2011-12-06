@@ -37,7 +37,7 @@ public class Tournament {
 		Vector<Match> schedule = new Vector<Match>();
 		m_divisions[0].TrySchedule(schedule);
 
-		return schedule;
+		return schedule != null ? schedule : new Vector<Match>();
 	}
 
 	public int Id()
