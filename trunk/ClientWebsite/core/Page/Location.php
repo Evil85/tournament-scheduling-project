@@ -4,11 +4,15 @@ class Page_Location implements Page_Interface {
 	private $location = false;
 	private $courts;
 	private $table;
+	private $form;
 	public function __construct(){
 		if(isset($_GET['lid']) && is_numeric($_GET['lid'])){
 			$lid =	(int) $_GET['lid'];
+			if(User::is_admin()){
+				$this->form = new Module_Add_Court($lid);
+			}
 			$this->location = DB_Location::getLocationData($lid);
-			if($this->location !== false){
+			if(!isset($this->location['result'])){
 				$this->visible = 'public';
 			}
 			$this->table = new Display_Table();
@@ -86,7 +90,7 @@ class Page_Location implements Page_Interface {
 		$t->newCol();
 		echo 'Open:';
 		$t->newCol();
-		echo date("g:i a", strtotime($this->location['weekdayCloseTime']));
+		echo date("g:i a", strtotime($this->location['weekdayOpenTime']));
 		
 		$t->newRow();
 		$t->newCol();
@@ -128,8 +132,18 @@ class Page_Location implements Page_Interface {
 				echo $court['courtName'];
 			}
 			$t->end();
+		} else {
+			?><h2>Add Courts</h2><?php
 		}
 		$t->end();
+		
+		// printing out admin controls
+		if(User::is_admin()){
+			?><h2>Admin Controls</h2><?php
+			?><div style="margin:5px;"><?php
+			$this->form->generate();
+			?></div><?php
+		}
 	}
 }
 ?>

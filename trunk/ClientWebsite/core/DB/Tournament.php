@@ -101,5 +101,14 @@ class DB_Tournament {
 		Debug::add('test',$tournament);
 		return ($user['id'] == $tournament['id_owner']);
 	}
+	
+	// tournament scheduling
+	public static function schedule($id){
+		$data = array(
+			'Command' => 'scheduleTournament',
+			'TournamentID' => "{$id}"
+		);
+		return Socket::request($data);
+	}
 }
 ?>

@@ -12,6 +12,12 @@ h2 {
 	border-bottom-color:#aaa;
 	
 }
+.main_container{
+	min-width:800px;
+}
+.main_header{
+	position:relative;
+}
 .main_content{
 	width:800px;
 	margin:auto auto;

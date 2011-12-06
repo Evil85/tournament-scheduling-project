@@ -1,5 +1,7 @@
 .menu_container{
-	float:right;
+	position:absolute;
+	top:0px;
+	right:0px;
 }
 .menu_item_container{
 	height:50px;
