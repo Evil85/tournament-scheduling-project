@@ -19,6 +19,12 @@ public class PoolPlay extends Division {
 		SetupMatches();
 	}
 
+	public PoolPlay(int id, String name, int minutesPerMatch, CourtManager courts, List<Team> teams)
+	{
+		super(id, name, minutesPerMatch, courts, teams);
+		SetupMatches();
+	}
+
 	protected void SetupMatches()
 	{
 		m_unscheduled = new LinkedList<Match>();

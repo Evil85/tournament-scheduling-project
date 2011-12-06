@@ -18,6 +18,19 @@ public class Tournament {
 		}
 	}
 
+	public Tournament(int id, List<Division> divisions)
+	{
+		m_nId = id;
+		m_divisions = divisions.toArray(Division[0]);
+
+		Division previous = m_divisions[m_divisions.length - 1];
+		for (int i = 0; i < m_divisions.length; i++)
+		{
+			previous.LinkTo(m_divisions[i]);
+			previous = m_divisions[i];
+		}
+	}
+
 	public Vector<Match> Schedule()
 	{
 		Vector<Match> schedule = new Vector<Match>();

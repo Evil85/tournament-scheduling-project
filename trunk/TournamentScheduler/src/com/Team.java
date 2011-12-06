@@ -6,7 +6,23 @@ import java.util.Vector;
 // Represents a team with any number of players in a tournament.
 public class Team implements TimeConstraint {
 
-	public Team(String name, Player... players) {
+	public Team(int id, String name, Player... players) {
+		m_nId = id;
+		m_strName = name;
+		m_availability = SchedulingUtil.IntersectAvailability(players);
+		m_players = new Vector<Player>();
+		for (Player p : players)
+		{
+			m_players.add(p);
+			p.Enroll(this);
+		}
+		m_nAvailableMinutes = 0;
+		for (TimeSpan span : m_availability)
+			m_nAvailableMinutes += span.getMinutes();
+	}
+
+	public Team(int id, String name, List<Player> players) {
+		m_nId = id;
 		m_strName = name;
 		m_availability = SchedulingUtil.IntersectAvailability(players);
 		m_players = new Vector<Player>();
@@ -35,6 +51,11 @@ public class Team implements TimeConstraint {
 		return m_strName;
 	}
 
+	public int Id()
+	{
+		return m_nId;
+	}
+
 	public Vector<Player> Players()
 	{
 		return m_players;
@@ -49,5 +70,6 @@ public class Team implements TimeConstraint {
 	private SortedSet<TimeSpan> m_availability;
 	private int m_nAvailableMinutes;
 	private Vector<Player> m_players;
+	private int m_nId;
 
 }

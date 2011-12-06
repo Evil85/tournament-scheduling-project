@@ -32,6 +32,16 @@ public abstract class Division {
 		SortTeams();
 	}
 
+	public Division(int id, String name, int minutesPerMatch, CourtManager courts, List<Team> teams)
+	{
+		m_nId = id;
+		m_strName = name;
+		m_nMinutesPerMatch = minutesPerMatch;
+		m_courts = courts;
+		m_teams = teams;
+		SortTeams();
+	}
+
 	public int Id()
 	{
 		return m_nId;
