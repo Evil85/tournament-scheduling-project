@@ -143,7 +143,7 @@ CREATE  TABLE IF NOT EXISTS `tourn_201140`.`division` (
   `isDouble` TINYINT(1)  NOT NULL DEFAULT 0 ,
   `estTime` SMALLINT NOT NULL ,
   `genderConstraint` CHAR(1) DEFAULT NULL,
-  `minAge` INT DEFAULT NULL,
+  `minAge` INT DEFAULT NULL, 
   `maxAge` INT DEFAULT NULL,
   `tournType` VARCHAR(45) NOT NULL ,
   `phase` SMALLINT NOT NULL DEFAULT 0 ,
@@ -325,7 +325,7 @@ VALUES
 INSERT INTO `division` (`name`, `isDouble`, `estTime`, `genderConstraint`, `minAge`, `maxAge`, `tournType`, `id_tournament`, `phase`)
 VALUES
 ('Singles Men Open', FALSE, 30, 'm', 18, null, 'round robin', @tourn, 0),
-('Singles Women Open', FALSE, 30, 'f', 18, null, 'double round robin', @tourn, 0),
+('Singles Women Open', FALSE, 30, 'f', 18, null, 'pool play', @tourn, 0),
 ('Doubles Co-ed', True, 30, 'a', null, null, 'round robin', @tourn, 0),
 ('Elite Men', FALSE, 45, 'm', null, null, 'single elimination', @tourn, 0),
 ('Elite Women', FALSE, 45, 'f', null, null, 'standard', @tourn, 0),

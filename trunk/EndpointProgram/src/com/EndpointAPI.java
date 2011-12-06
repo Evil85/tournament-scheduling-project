@@ -70,7 +70,7 @@ public class EndpointAPI
         }
         return true;
 	}
-
+/*
 	//Schedule tournament
 	public String scheduleTournament(CommandArguments arguments)
 	{
@@ -128,10 +128,10 @@ public class EndpointAPI
 					SchedulingUtil.RemoveAvailability(playerTimes, new TimeSpan(start2, end2));
 			    }
 
-//              players.put(id, new Player(id, rs.getString("name"), playerTimes));
+              players.put(id, new Player(id, rs.getString("name"), playerTimes));
 		    }
 
-		    st = conn.prepareStatement("SELECT DISTINCT `court`.`id` courtID, `location`.`weekdayOpenTime`, `location`.`weekdayCloseTime`, `location`.`weekendOpenTime`, `location`.`weekendCloseTime`, `location`.`id` locationID FROM `court`, `location`, `venues` WHERE `venues`.`id_tournament` = ? AND `venues`.`id_location` = `court`.`id_location` AND `venues`.`id_location` = `location`.`id`;");
+		    st = conn.prepareStatement("SELECT DISTINCT `court`.`id` courtID, `location`.`weekdayOpenTime`, `location`.`weekdayCloseTime`, `location`.`weekendOpenTime`, `location`.`weekendCloseTime`, `location`.`id` locationID FROM `court`, `location`, `venue` WHERE `venue`.`id_tournament` = ? AND `venue`.`id_location` = `court`.`id_location` AND `venue`.`id_location` = `location`.`id`;");
 
 		    st.setInt(1, tournamentID);
 		    rs = st.executeQuery();
@@ -147,34 +147,55 @@ public class EndpointAPI
 			    String weekendCloseTime = rs.getString("weekendCloseTime");
 
 			    SortedSet<TimeSpan> courtTimes = buildAvailability(tStart, tEnd, weekdayOpenTime, weekdayCloseTime, weekendOpenTime, weekendCloseTime);
-//			    Court court = new Court(rs.getInt("courtID"), "TestCourt", rs.getString("locationID"), SchedulingUtil.IntersectAvailability(tournTimes, courtTimes));
-//			    courts.add(court);
+			    Court court = new Court(rs.getInt("courtID"), "TestCourt", rs.getString("locationID"), SchedulingUtil.IntersectAvailability(tournTimes, courtTimes));
+			    courts.add(court);
 		    }
+		    CourtManager courtManager = new CourtManager(courts);
+		    
 
-            /* gets Division data for a Tournament ID */
-            st = conn.prepareStatement("SELECT DISTINCT d.id, d.name, d.isDouble, d.estTime, d.tournType FROM `division` d team WHERE d.id_tournament = ?;");
+            // gets teamIDs, PlayerIDs, for a Division ID - use resultant divison IDs from last query
+            st = conn.prepareStatement("SELECT DISTINCT team.`id_player1` as Player1ID, team.`id_player2` as Player2ID, d.`id` as DivisionID, team.`id` as TeamID FROM `player` team WHERE team.id_division = d.id AND d.id_tournament = ?;");
 		    st.setInt(1, tournamentID);
 		    rs = st.executeQuery();
+            Map<Integer, List<Team>> divisionTeams = new HashMap<Integer, List<Team>>();
+            
+            while (rs.next())
+            {
+                int DivisionID = rs.getInt("DivisionID");
+                List<Player> t = new ArrayList<Player>();
+                t.add(players.get(rs.getInt("Player1ID")));
+                t.add(players.get(rs.getInt("Player2ID")));
+                if (!divisionTeams.containsKey(DivisionID))
+                    divisionTeams.put(DivisionID, new ArrayList<Team>());
+                
+                divisionTeams.get(DivisionID).add(new Team(rs.getString("TeamID"), t));
+            }
 
             
-
-            int divisionID = 1;
-            /* gets teamIDs, PlayerIDs, for a Division ID - use resultant divison IDs from last query*/
-            st = conn.prepareStatement("SELECT DISTINCT team.`id_player1` as Player1ID, team.`id_player2` as Player2ID, d.`id`, team.`id` FROM `player` team WHERE team.id_division = d.id;");
-		    st.setInt(1, divisionID);
+            // gets Division data for a Tournament ID
+            st = conn.prepareStatement("SELECT DISTINCT d.id, d.name, d.estTime, d.tournType FROM `division` d team WHERE d.id_tournament = ?;");
+		    st.setInt(1, tournamentID);
 		    rs = st.executeQuery();
+		    
+		    List<Division> divisions = new ArrayList<Division>();
+            while (rs.next())
+            {
+                String tournType = rs.getString("tournType");
+                Division div;
+                if (tournType.equals("round robin"))
+                    div = new RoundRobin(rs.getInt("id"), rs.getString("name"), rs.getInt("estTime"), courtManager, divisionTeams.get(rs.getInt("id")));
+                else
+                    div = new PoolPlay(rs.getInt("id"), rs.getString("name"), rs.getInt("estTime"), courtManager, divisionTeams.get(rs.getInt("id")));
+                
+                divisions.add(div);
+            }
 
-
-
+            Tournament tourn = new Tournament(tournamentID, divisions);
 
             int rowSize = 0;
             JsonObject e = new JsonObject();
 
-	        for (Player p : players.values())
-			{
-			    JsonObject m = new JsonObject();
-				e.addProperty("Player " + rowSize++, p.toString());
-			}
+	        e.addProperty("result", tourn.toString());
 
             logger.trace("Scheduled tournament: " + (String)arguments.getArgument("TournamentID"));
             return e.toString();
@@ -196,7 +217,7 @@ public class EndpointAPI
             return e.toString();
         }
 	}
-
+*/
 	private static SortedSet<TimeSpan> buildAvailability(String tStart, String tEnd, String std, String etd, String ste, String ete) throws java.text.ParseException
 	{
 	    SortedSet<TimeSpan> times = new TreeSet<TimeSpan>();
@@ -905,7 +926,7 @@ public class EndpointAPI
 	    try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
 
-            st = conn.prepareStatement("SELECT * FROM `location`, `venues` WHERE `location`.`id`=`venues`.`id_location` AND `venues`.`id_tournament` = ?;");
+            st = conn.prepareStatement("SELECT * FROM `location`, `venue` WHERE `location`.`id`=`venue`.`id_location` AND `venue`.`id_tournament` = ?;");
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
 	        rs = st.executeQuery();
 
@@ -922,12 +943,12 @@ public class EndpointAPI
                 e.addProperty(java.lang.String.valueOf(rowSize++), m.toString());
 			}
 
-            logger.debug("Selected location (venues) by TournamentID: " + arguments.getArgument("TournamentID"));
+            logger.debug("Selected location (venue) by TournamentID: " + arguments.getArgument("TournamentID"));
             return e.toString();
         }
         catch (SQLException ex)
         {
-	        logger.error("SQL Exception while selecting location (venues) by TournamentID: " + arguments.getArgument("TournamentID"));
+	        logger.error("SQL Exception while selecting location (venue) by TournamentID: " + arguments.getArgument("TournamentID"));
 	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
@@ -935,7 +956,7 @@ public class EndpointAPI
         }
         catch (Exception ex)
         {
-	        logger.error("Java Exception while selecting location (venues) by TournamentID: " + arguments.getArgument("TournamentID"));
+	        logger.error("Java Exception while selecting location (venue) by TournamentID: " + arguments.getArgument("TournamentID"));
 	        logger.error("error: " + ex);
 			JsonObject e = new JsonObject();
             e.addProperty("result", "false");
@@ -1037,7 +1058,7 @@ public class EndpointAPI
         try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
 
-	        st = conn.prepareStatement ("INSERT INTO `venues` (`id_location`, `id_tournament`) VALUES (?, ?);");
+	        st = conn.prepareStatement ("INSERT INTO `venue` (`id_location`, `id_tournament`) VALUES (?, ?);");
 
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("LocationID")));
             st.setInt(2, java.lang.Integer.valueOf((String)arguments.getArgument("TournamentID")));
@@ -1450,13 +1471,12 @@ public class EndpointAPI
 	{
 	    try {
             Connection conn = DriverManager.getConnection(URL, user, pass);
-            st = conn.prepareStatement ("SELECT m.*, p1p1.name as p1p1, p1p2.name as p1p2, p2p1.name as p2p1, p2p2.name as p2p2, p1p1.id as p1p1_id, p1p2.id as p1p2_id, p2p1.id as p2p1_id, p2p2.id as p2p2_id FROM `match` m left join player pl1 on m.id_player1 = pl1.id left join person p1p1 on pl1.id_player1 = p1p1.id left join person p1p2 on pl1.id_player2 = p1p2.id left join player pl2 on m.id_player2 = pl2.id left join person p2p1 on pl2.id_player1 = p2p1.id left join person p2p2 on pl2.id_player2 = p2p2.id where m.id_division = ?;");
+            st = conn.prepareStatement ("SELECT m.*, p1p1.name as p1p1, p1p2.name as p1p2, p2p1.name as p2p1, p2p2.name as p2p2, p1p1.id as p1p1_id, p1p2.id as p1p2_id, p2p1.id as p2p1_id, p2p2.id as p2p2_id FROM `match` m left join player pl1 on m.id_player1 = pl1.id left join person p1p1 on pl1.id_player1 = p1p1.id left join person p1p2 on pl1.id_player2 = p1p2.id left join player pl2 on m.id_player2 = pl2.id left join person p2p1 on pl2.id_player1 = p2p1.id left join person p2p2 on pl2.id_player2 = p2p2.id where m.id_division = ? ORDER BY m.matchNumber;");
 
             st.setInt(1, java.lang.Integer.valueOf((String)arguments.getArgument("DivisionID")));
 	        rs = st.executeQuery();
-	        rs.next();
 	        int colSize = rs.getMetaData().getColumnCount();
-            int rowSize = 0;
+            int rowSize = 1;
 			JsonObject e = new JsonObject();
 			while(rs.next())
 			{
