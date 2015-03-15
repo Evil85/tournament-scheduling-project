@@ -1,0 +1,1 @@
+This is an application that will help schedule tournaments and keep track of tournament scores and ranks.
